@@ -1,0 +1,345 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════
+   Nordic Clean Design System
+   — Bright, modern, content-first
+   ══════════════════════════════════════════ */
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss02';
+  letter-spacing: -0.01em;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Base surfaces - Clean White & Slate Theme */
+    --background: 210 40% 98%;        /* #F8FAFC */
+    --foreground: 222 47% 11%;         /* #0F172A */
+    --card: 0 0% 100%;                 /* #FFFFFF pure white */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Brand accent: Signature Toss Blue (#3182F6 -> HSL 215 91% 58%) */
+    --primary: 215 91% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Muted / secondary */
+    --secondary: 210 40% 96.1%;        /* #F1F5F9 */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;              
+    --muted-foreground: 215 16% 47%;   /* #64748B */
+    
+    /* Blue Tint Accent */
+    --accent: 215 91% 95%;             /* #EFF6FF */
+    --accent-foreground: 215 91% 58%;
+
+    /* Status */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+
+    /* Borders / inputs */
+    --border: 214 32% 91%;             /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 215 91% 58%;
+
+    /* Charts */
+    --chart-1: 215 91% 58%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 346 77% 49%;
+
+    /* Radius */
+    --radius: 0.75rem;                 /* 12px default */
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 16% 47%;
+    --sidebar-primary: 215 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 91% 95%;
+    --sidebar-accent-foreground: 215 91% 58%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 215 91% 58%;
+  }
+
+  .dark {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 215 91% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 215 91% 95%;
+    --accent-foreground: 215 91% 58%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 215 91% 58%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 16% 47%;
+    --sidebar-primary: 215 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 91% 95%;
+    --sidebar-accent-foreground: 215 91% 58%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 215 91% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+    touch-action: pan-y;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+
+  /* ── Typography refinements ── */
+  h1, h2, h3, h4, h5 {
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Clean background ── */
+  .app-bg {
+    background: #F8FAFC;
+    min-height: 100vh;
+  }
+
+  /* ── Card utilities ── */
+  .card-surface {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-surface-hover {
+    transition: all 0.2s ease;
+  }
+
+  .card-surface-hover:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  /* ── Clean glass classes ── */
+  .glass,
+  .glass-dark,
+  .glass-white {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Legacy aura-bg — remapped to clean background ── */
+  .aura-bg {
+    background: #F8FAFC;
+    position: relative;
+  }
+
+  .aura-bg::before {
+    display: none;
+  }
+
+  /* ── Dam-a title (legacy) ── */
+  .dama-title {
+    @apply font-black italic tracking-tighter;
+  }
+
+  /* ── Squircle utilities (kept for compatibility) ── */
+  .rounded-squircle-sm { border-radius: 20px; }
+  .rounded-squircle-md { border-radius: 24px; }
+  .rounded-squircle-lg { border-radius: 28px; }
+  .rounded-squircle-xl { border-radius: 32px; }
+}
+
+/* ══════════════════════════════════════════
+   Blog prose styling
+   ══════════════════════════════════════════ */
+.prose-custom {
+  line-height: 1.8;
+  color: #CCCCCC;
+  font-size: 1.05rem;
+}
+
+.prose-custom h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #FFFFFF;
+  border-bottom: 2px solid #0057FF;
+  padding-bottom: 0.4rem;
+}
+
+.prose-custom h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+  color: #FFFFFF;
+}
+
+.prose-custom p {
+  margin-bottom: 1rem;
+}
+
+.prose-custom strong {
+  background: linear-gradient(transparent 60%, rgba(0, 87, 255, 0.3) 60%);
+  font-weight: 700;
+  padding: 0 2px;
+  color: #FFFFFF;
+}
+
+.prose-custom a {
+  color: #00F0FF;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-custom a:hover {
+  color: #0057FF;
+}
+
+.prose-custom svg {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  display: block;
+}
+
+/* ══════════════════════════════════════════
+   Scrollbar — slim + subtle
+   ══════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(0 0 0 / 0.08);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(0 0 0 / 0.16);
+}
+
+/* ══════════════════════════════════════════
+   Studio MX Custom Utilities
+   ══════════════════════════════════════════ */
+@layer utilities {
+  .glow-text {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2), 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+  .glow-text-primary {
+    text-shadow: 0 0 20px rgba(0, 87, 255, 0.4), 0 0 15px rgba(0, 87, 255, 0.3), 0 0 10px rgba(0, 87, 255, 0.3);
+  }
+  .glow-text-cyan {
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 15px rgba(0, 240, 255, 0.3), 0 0 10px rgba(0, 240, 255, 0.3);
+  }
+  .box-shadow-cyan {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  }
+  .box-shadow-blue {
+    box-shadow: 0 0 20px rgba(0, 87, 255, 0.4);
+  }
+  .gradient-divider {
+    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.5) 33%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0.3) 75%, transparent 100%);
+    height: 1px;
+    width: 100%;
+  }
+}
+
+/* Force word-break keep-all inside PowerPoint preview elements to keep Korean words whole */
+.pptx-preview-container * {
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Hide PowerPointViewer ribbon toolbar header, title bar, status bar, and thumbnail navigation panel */
+.pptx-preview-container [data-pptx-title-bar] {
+  display: none !important;
+}
+
+.pptx-preview-container [role="toolbar"] {
+  display: none !important;
+}
+
+/* Hide status bar / footer elements */
+.pptx-preview-container .border-t.bg-secondary\/50 {
+  display: none !important;
+}
+
+/* Hide thumbnails slide sorter sidebar (left panel) */
+.pptx-preview-container .w-48.border-r,
+.pptx-preview-container .w-\[180px\].border-r,
+.pptx-preview-container [data-tour="slides-pane"] {
+  display: none !important;
+}
+
+/* Let the main canvas wrapper take up full viewport and center itself properly */
+.pptx-preview-container .flex-1.flex.overflow-hidden {
+  height: 100% !important;
+  width: 100% !important;
+  background-color: transparent !important;
+}
+
+/* Hide any notes / comments pane if expanded at the bottom */
+.pptx-preview-container [style*="height"][style*="border-t"] {
+  display: none !important;
+}
+
+/* Fix Tailwind border styles conflicting with pptx-react-viewer internal classes */
+.pptx-preview-container .border,
+.pptx-preview-container .border-t,
+.pptx-preview-container .border-b,
+.pptx-preview-container .border-l,
+.pptx-preview-container .border-r,
+.pptx-preview-container table,
+.pptx-preview-container td,
+.pptx-preview-container th {
+  border: none !important;
+  border-width: 0px !important;
+}
