@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { PhotoUploadPanel, type UploadedPhoto } from '@/components/blog-automation/writer/PhotoUploadPanel';
 import { NaverSmartEditorStudio } from '@/components/blog-automation/writer/NaverSmartEditorStudio';
