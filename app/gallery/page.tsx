@@ -124,7 +124,7 @@ export default function EarlyBirdGalleryPage() {
         {/* Filters and Search Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
           {/* Format tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar touch-pan-x">
             {[
               { key: 'all', label: '전체 보기', icon: Sparkles },
               { key: 'shorts', label: '숏폼 영상 (Shorts)', icon: PlaySquare },
@@ -133,7 +133,7 @@ export default function EarlyBirdGalleryPage() {
               <button
                 key={key}
                 onClick={() => setSelectedType(key as any)}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2.5 text-xs font-bold transition active:scale-95 ${
                   selectedType === key
                     ? 'bg-fuchsia-600 text-white shadow-md'
                     : 'bg-white/10 text-violet-200 hover:bg-white/15'
@@ -146,26 +146,26 @@ export default function EarlyBirdGalleryPage() {
           </div>
 
           {/* Search box */}
-          <div className="relative min-w-[240px]">
+          <div className="relative min-w-full sm:min-w-[240px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-violet-300" />
             <input
               type="text"
               placeholder="업종, 키워드, 신청자 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/15 bg-white/10 py-2 pl-9 pr-4 text-xs text-white placeholder-violet-300/60 outline-none focus:border-fuchsia-400 focus:bg-white/15 transition"
+              className="w-full rounded-xl border border-white/15 bg-white/10 py-2.5 pl-9 pr-4 text-xs text-white placeholder-violet-300/60 outline-none focus:border-fuchsia-400 focus:bg-white/15 transition"
             />
           </div>
         </div>
 
         {/* Industry filter tags */}
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto py-2 text-xs">
+        <div className="mt-3 flex items-center gap-2 overflow-x-auto py-2 text-xs no-scrollbar touch-pan-x">
           <span className="shrink-0 text-violet-300/70 font-semibold text-[11px]">업종 분류:</span>
           {industries.map((ind) => (
             <button
               key={ind}
               onClick={() => setSelectedIndustry(ind)}
-              className={`shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
+              className={`shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-medium transition active:scale-95 ${
                 selectedIndustry === ind
                   ? 'bg-violet-500 text-white font-bold'
                   : 'bg-white/5 text-violet-200/80 hover:bg-white/10'
@@ -288,7 +288,7 @@ export default function EarlyBirdGalleryPage() {
 
       {/* ── Detail Modal (Shorts & Blog Viewer) ── */}
       <Dialog open={!!activeItem} onOpenChange={(open) => !open && setActiveItem(null)}>
-        <DialogContent className="max-w-2xl border-violet-800 bg-[#17024e] p-6 text-white max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[94vw] sm:max-w-2xl border-violet-800 bg-[#17024e] p-4 sm:p-6 text-white max-h-[92vh] overflow-y-auto rounded-3xl">
           {activeItem && (
             <div>
               <DialogHeader>

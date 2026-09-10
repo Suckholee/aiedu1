@@ -159,7 +159,7 @@ export default function MaterialsPage() {
 
                         <button
                           onClick={() => copyPrompt(prompt.id, prompt.promptTemplate, prompt.title)}
-                          className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-sm ${
+                          className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition shadow-sm active:scale-95 ${
                             copiedPromptId === prompt.id
                               ? 'bg-emerald-600 text-white'
                               : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:opacity-95'
@@ -173,7 +173,7 @@ export default function MaterialsPage() {
                           ) : (
                             <>
                               <Copy className="size-3.5" />
-                              <span>프롬프트 복사</span>
+                              <span>프롬프트 복사하기</span>
                             </>
                           )}
                         </button>

@@ -66,6 +66,9 @@ export default function BlogStudioPage() {
 
   useEffect(() => {
     loadProfiles();
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setLeftCollapsed(true);
+    }
   }, [user]);
 
   const handleSelectProfile = (profile: BlogProfile) => {
