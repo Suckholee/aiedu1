@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { KakaoInAppHandler } from '@/components/common/KakaoInAppHandler';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
+        <KakaoInAppHandler />
         <AuthProvider>
           <DashboardShell>
             {children}
