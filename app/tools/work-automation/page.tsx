@@ -74,12 +74,40 @@ export default function WorkAutomationPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedOutput, setGeneratedOutput] = useState<string>('');
 
-  // ── 2. 사진 기반 문서 양식 복원기 상태 ──
+  // ── 2. 문서/사진 기반 양식 복원기 상태 ──
   const [docImage, setDocImage] = useState<string | null>(null);
   const [docImageName, setDocImageName] = useState<string>('');
+  const [docFileMeta, setDocFileMeta] = useState<{
+    name: string;
+    size: number;
+    type: 'image' | 'pdf' | 'docx' | 'doc' | 'hwp' | 'hwpx' | 'pptx' | 'text' | 'excel' | 'other';
+    ext: string;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [webcamOpen, setWebcamOpen] = useState(false);
   const [driveModalOpen, setDriveModalOpen] = useState(false);
   const [isAnalyzingDoc, setIsAnalyzingDoc] = useState(false);
+
+  // 파일 확장자 및 타입 분류 헬퍼
+  const getDocFileType = (fileName: string): 'image' | 'pdf' | 'docx' | 'doc' | 'hwp' | 'hwpx' | 'pptx' | 'text' | 'excel' | 'other' => {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    if (['jpg', 'jpeg', 'png', 'webp', 'heic', 'gif'].includes(ext)) return 'image';
+    if (ext === 'pdf') return 'pdf';
+    if (ext === 'docx') return 'docx';
+    if (ext === 'doc') return 'doc';
+    if (ext === 'hwp') return 'hwp';
+    if (ext === 'hwpx') return 'hwpx';
+    if (['pptx', 'ppt'].includes(ext)) return 'pptx';
+    if (['xlsx', 'xls', 'csv'].includes(ext)) return 'excel';
+    if (['txt', 'md', 'json'].includes(ext)) return 'text';
+    return 'other';
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   // 복원된 양식 결과 상태
   const [extractedDocType, setExtractedDocType] = useState<string>('');
@@ -98,20 +126,30 @@ export default function WorkAutomationPage() {
         if (photo.url) {
           setMainMode('photo-extract');
           setDocImage(photo.url);
-          setDocImageName(photo.name || '업무문서사진.jpg');
+          setDocImageName(photo.name || '업무문서.jpg');
+          setDocFileMeta({
+            name: photo.name || '업무문서.jpg',
+            size: 0,
+            type: 'image',
+            ext: 'jpg',
+          });
           localStorage.removeItem('pending_doc_analysis_photo');
           toast.success(`📸 '${photo.name}' 사진을 불러왔습니다. 양식 분석을 시작합니다!`);
           // 자동 분석 실행
           setTimeout(() => {
-            analyzeDocumentPhoto(photo.url, photo.name);
+            analyzeDocumentFile(photo.url, photo.name, 'image');
           }, 300);
         }
       }
     } catch (e) {}
   }, []);
 
-  // ── 문서 이미지 분석 API 호출 ──
-  const analyzeDocumentPhoto = async (imageUrl: string, imageName?: string) => {
+  // ── 문서 파일(HWP, PDF, DOCX, PPTX, 이미지) 분석 API 호출 ──
+  const analyzeDocumentFile = async (
+    fileData: string,
+    fileName: string,
+    fileType?: string
+  ) => {
     setIsAnalyzingDoc(true);
     setExtractedDocType('');
     setEditableTemplate('');
@@ -122,8 +160,11 @@ export default function WorkAutomationPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageUrl,
-          docName: imageName || docImageName,
+          fileData,
+          imageUrl: fileData, // 호환성 유지
+          fileName: fileName || docImageName,
+          docName: fileName || docImageName,
+          fileType,
         }),
       });
 
@@ -136,7 +177,7 @@ export default function WorkAutomationPage() {
       setExtractedDocTitle(data.detectedTitle);
       setEditableTemplate(data.templateMarkdown);
       setExtractedClaudePrompt(data.claudePrompt);
-      toast.success('🎉 AI가 문서의 틀과 서식을 성공적으로 복원했습니다!');
+      toast.success('🎉 AI가 문서의 목차, 표, 서식 틀을 성공적으로 복원했습니다!');
     } catch (err: any) {
       console.error(err);
       toast.error(`문서 분석 오류: ${err.message}`);
@@ -145,19 +186,31 @@ export default function WorkAutomationPage() {
     }
   };
 
-  // 파일 직접 업로드 처리
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // 공통 파일 처리 함수
+  const processFile = (file: File) => {
+    const fileType = getDocFileType(file.name);
+    setDocFileMeta({
+      name: file.name,
+      size: file.size,
+      type: fileType,
+      ext: file.name.split('.').pop()?.toLowerCase() || '',
+    });
+    setDocImageName(file.name);
 
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       setDocImage(result);
-      setDocImageName(file.name);
-      analyzeDocumentPhoto(result, file.name);
+      analyzeDocumentFile(result, file.name, fileType);
     };
     reader.readAsDataURL(file);
+  };
+
+  // 파일 직접 업로드 처리
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -308,16 +361,16 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
           ══════════════════════════════════════════════════════════════ */}
       {mainMode === 'photo-extract' && (
         <div className="space-y-6">
-          {/* 1. 사진 입력 카드 (웹캠 촬영 / 드라이브 불러오기 / 직접 업로드) */}
+          {/* 1. 문서/사진 입력 카드 (HWP, DOCX, PDF, PPTX, 웹캠 촬영, 직접 업로드) */}
           <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <ScanLine className="size-4.5 text-indigo-600" />
-                  <span>1단계: 업무 문서 사진 준비</span>
+                  <span>1단계: 업무 문서(파일 또는 사진) 등록</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  회사에서 쓰는 종이 보고서, 기획서, 회의록, 양식 문서를 웹캠으로 찍거나 올려주세요.
+                  한글(HWP/HWPX), 워드(DOCX), PDF, PPTX 문서 파일이나 종이 보고서 사진을 올려주세요.
                 </p>
               </div>
 
@@ -327,7 +380,7 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept="image/*"
+                  accept="image/*,.pdf,.doc,.docx,.hwp,.hwpx,.ppt,.pptx,.txt,.csv,.xlsx,.xls"
                   className="hidden"
                 />
 
@@ -362,45 +415,125 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
               </div>
             </div>
 
-            {/* Selected Image Preview & Scan Trigger */}
+            {/* Selected File/Image Preview & Scan Trigger */}
             {docImage ? (
               <div className="mt-5 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 items-center">
-                {/* Image Thumbnail with Scanning Effect */}
-                <div className="relative aspect-4/3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-inner group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={docImage}
-                    alt="Document Preview"
-                    className="size-full object-contain"
-                  />
+                {/* Preview Thumbnail or Document Card */}
+                {docFileMeta?.type === 'image' || (!docFileMeta && docImage.startsWith('data:image/')) ? (
+                  <div className="relative aspect-4/3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-inner group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={docImage}
+                      alt="Document Preview"
+                      className="size-full object-contain"
+                    />
 
-                  {/* Laser Scan Line Animation when analyzing */}
-                  {isAnalyzingDoc && (
-                    <div className="absolute inset-0 bg-indigo-500/15 pointer-events-none">
-                      <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent w-full animate-bounce" />
+                    {/* Laser Scan Line Animation when analyzing */}
+                    {isAnalyzingDoc && (
+                      <div className="absolute inset-0 bg-indigo-500/15 pointer-events-none">
+                        <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent w-full animate-bounce" />
+                      </div>
+                    )}
+
+                    <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-xs text-white p-2 rounded-xl text-[11px] truncate flex items-center justify-between">
+                      <span className="truncate">{docImageName || '선택된 문서 사진'}</span>
+                      <button
+                        type="button"
+                        onClick={() => { setDocImage(null); setDocFileMeta(null); }}
+                        className="text-slate-300 hover:text-white font-bold ml-2 cursor-pointer"
+                      >
+                        변경
+                      </button>
                     </div>
-                  )}
-
-                  <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-xs text-white p-2 rounded-xl text-[11px] truncate flex items-center justify-between">
-                    <span className="truncate">{docImageName || '선택된 문서 사진'}</span>
-                    <button
-                      type="button"
-                      onClick={() => setDocImage(null)}
-                      className="text-slate-300 hover:text-white font-bold ml-2"
-                    >
-                      변경
-                    </button>
                   </div>
-                </div>
+                ) : (
+                  /* Rich Document Card for HWP, DOCX, PDF, PPTX, etc. */
+                  <div className="relative aspect-4/3 rounded-2xl overflow-hidden border border-slate-200/90 bg-gradient-to-b from-slate-50 to-slate-100 p-4 flex flex-col justify-between shadow-inner">
+                    {/* Top Badges */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      {docFileMeta?.type === 'hwp' || docFileMeta?.type === 'hwpx' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black bg-blue-600 text-white shadow-xs">
+                          <FileText className="size-3.5" />
+                          한글 {docFileMeta?.type.toUpperCase()}
+                        </span>
+                      ) : docFileMeta?.type === 'pdf' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black bg-rose-600 text-white shadow-xs">
+                          <FileText className="size-3.5" />
+                          PDF 문서
+                        </span>
+                      ) : docFileMeta?.type === 'docx' || docFileMeta?.type === 'doc' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black bg-sky-600 text-white shadow-xs">
+                          <FileText className="size-3.5" />
+                          Word {docFileMeta?.type.toUpperCase()}
+                        </span>
+                      ) : docFileMeta?.type === 'pptx' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black bg-amber-600 text-white shadow-xs">
+                          <FileText className="size-3.5" />
+                          PPTX 문서
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black bg-slate-700 text-white shadow-xs">
+                          <FileCode className="size-3.5" />
+                          {docFileMeta?.ext.toUpperCase() || '문서'}
+                        </span>
+                      )}
+
+                      {docFileMeta?.size ? (
+                        <span className="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                          {formatFileSize(docFileMeta.size)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {/* Center Document Info */}
+                    <div className="my-auto py-1 text-center">
+                      <div className="size-11 rounded-xl mx-auto mb-2 flex items-center justify-center bg-white shadow-xs border border-slate-200 text-indigo-600">
+                        <FileText className="size-5" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-800 line-clamp-2 px-1">
+                        {docImageName || '문서 파일'}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        {docFileMeta?.type === 'hwp' || docFileMeta?.type === 'hwpx'
+                          ? '한컴오피스 표준 양식'
+                          : docFileMeta?.type === 'pdf'
+                          ? 'PDF 다단/표 구조 문서'
+                          : docFileMeta?.type === 'docx' || docFileMeta?.type === 'doc'
+                          ? 'MS 워드 보고서/기획서'
+                          : '비즈니스 업무 서식'}
+                      </p>
+                    </div>
+
+                    {/* Animated Laser Bar */}
+                    {isAnalyzingDoc && (
+                      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-pulse" />
+                    )}
+
+                    {/* Bottom Change Button */}
+                    <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                      <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="size-3" /> 문서 등록 완료
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => { setDocImage(null); setDocFileMeta(null); }}
+                        className="text-slate-500 hover:text-slate-800 font-bold cursor-pointer"
+                      >
+                        변경
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Scan Action Box */}
                 <div className="space-y-3">
                   <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4">
-                    <h4 className="text-xs font-bold text-slate-900">
-                      📸 문서 사진이 준비되었습니다!
+                    <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <Sparkles className="size-3.5 text-indigo-600" />
+                      <span>업무 문서가 준비되었습니다!</span>
                     </h4>
                     <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                      AI가 문서의 머리말, 결재란, 표(Table) 구조, 글머리 기호(I, 1, 1))를 분석하여
+                      AI가 문서의 목차, 결재란, 표(Table) 구조, 글머리 기호(I, 1, 1))를 분석하여
                       <strong> 한글/워드/노션에 바로 쓸 수 있는 편집 가능한 양식</strong>으로 복원합니다.
                     </p>
                   </div>
@@ -408,7 +541,7 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                   <Button
                     type="button"
                     disabled={isAnalyzingDoc}
-                    onClick={() => analyzeDocumentPhoto(docImage)}
+                    onClick={() => analyzeDocumentFile(docImage, docImageName, docFileMeta?.type)}
                     className="w-full sm:w-auto h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 shadow-sm flex items-center justify-center gap-2"
                   >
                     {isAnalyzingDoc ? (
@@ -426,20 +559,54 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                 </div>
               </div>
             ) : (
-              /* Empty Dropzone State */
+              /* Empty Dropzone State with Drag and Drop */
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-5 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-10 text-center cursor-pointer hover:bg-slate-50 transition"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) processFile(file);
+                }}
+                className={`mt-5 rounded-2xl border-2 border-dashed p-9 text-center cursor-pointer transition ${
+                  isDragging
+                    ? 'border-indigo-500 bg-indigo-50/70 scale-[1.01]'
+                    : 'border-slate-200 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300'
+                }`}
               >
                 <div className="size-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
-                  <Camera className="size-6" />
+                  <FileCheck2 className="size-6" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">
-                  분석할 업무 문서 사진을 등록하세요
+                  분석할 업무 문서(파일 또는 사진)를 등록하세요
                 </h4>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  웹카메라로 책상 위 문서를 직접 찍거나, 사진 드라이브 보관함에서 가져오거나, PC/스마트폰 사진을 드래그하세요.
+                <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+                  한글(HWP/HWPX), 워드(DOCX), PDF, PPTX 문서 파일 및 인쇄물 사진을 드래그하거나 클릭하여 업로드하세요.
                 </p>
+
+                {/* Supported Formats Chips */}
+                <div className="mt-4 flex items-center justify-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    HWP · HWPX (한글)
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    PDF 문서
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                    DOCX · DOC (워드)
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    PPTX (파워포인트)
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    JPG · PNG (사진)
+                  </span>
+                </div>
               </div>
             )}
           </div>
@@ -692,7 +859,13 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
         onPhotoSaved={(savedPhoto) => {
           setDocImage(savedPhoto.url);
           setDocImageName(savedPhoto.name);
-          analyzeDocumentPhoto(savedPhoto.url, savedPhoto.name);
+          setDocFileMeta({
+            name: savedPhoto.name,
+            size: 0,
+            type: 'image',
+            ext: 'jpg',
+          });
+          analyzeDocumentFile(savedPhoto.url, savedPhoto.name, 'image');
         }}
       />
 
@@ -705,7 +878,13 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
             const first = selectedPhotos[0];
             setDocImage(first.url);
             setDocImageName(first.name);
-            analyzeDocumentPhoto(first.url, first.name);
+            setDocFileMeta({
+              name: first.name,
+              size: 0,
+              type: 'image',
+              ext: 'jpg',
+            });
+            analyzeDocumentFile(first.url, first.name, 'image');
           }
         }}
       />
