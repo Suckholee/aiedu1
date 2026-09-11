@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 import {
   CheckCircle2,
   Loader2,
@@ -24,6 +25,7 @@ import {
   Target,
   Zap,
   ExternalLink,
+  Camera,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateVideo, type VideoScene } from '@/lib/video-generator';
@@ -483,11 +485,19 @@ export default function YouTubePage() {
                   <ExternalLink className="size-4" />
                 </a>
 
+                <Link
+                  href="/drive"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-indigo-400/40 bg-indigo-600/30 px-5 py-3.5 text-xs font-bold text-white transition hover:bg-indigo-600/50 backdrop-blur-sm"
+                >
+                  <Camera className="size-4 text-pink-300" />
+                  <span>📷 사진 드라이브 (웹캠 촬영/공유)</span>
+                </Link>
+
                 <a
                   href="#script-studio"
                   className="inline-flex items-center gap-1.5 rounded-2xl border border-white/20 bg-white/10 px-5 py-3.5 text-xs font-bold text-white transition hover:bg-white/20 backdrop-blur-sm"
                 >
-                  <span>VisKits 대본 빌더 사용하기 &darr;</span>
+                  <span>VisKits 대본 빌더 &darr;</span>
                 </a>
               </div>
             </div>

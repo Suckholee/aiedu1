@@ -23,6 +23,7 @@ import {
   PenTool,
   Video,
   X,
+  Camera,
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -38,6 +39,7 @@ export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
   const isHome = pathname === '/';
   const isMaterials = pathname === '/materials';
   const isGallery = pathname === '/gallery';
+  const isDrive = pathname === '/drive';
   const isPrep = pathname === '/guides/prep';
   const isWorkAuto = pathname === '/tools/work-automation';
   const isBlog = pathname === '/tools/blog';
@@ -172,6 +174,25 @@ export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
               </div>
             )}
           </div>
+
+          {/* 사진 드라이브 (웹캠 촬영 & 2중 공유) */}
+          <Link
+            href="/drive"
+            onClick={onCloseMobile}
+            className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 transition-colors ${
+              isDrive
+                ? 'bg-[#f0edff] text-[#6355f6] font-bold'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Camera className="size-4.5 text-indigo-500" />
+              <span>사진 드라이브</span>
+            </div>
+            <span className="rounded-md bg-indigo-100 px-1.5 py-0.5 text-[10px] font-black text-indigo-700">
+              NEW
+            </span>
+          </Link>
 
           {/* 얼리버드 갤러리 */}
           <Link

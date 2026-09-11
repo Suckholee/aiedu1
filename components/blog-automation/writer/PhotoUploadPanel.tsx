@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Camera,
   UploadCloud,
@@ -38,6 +38,7 @@ import { getSkillById, type BlogSkillId } from '@/lib/blog-automation/blog-skill
 import { toast } from 'sonner';
 import JSZip from 'jszip';
 import { PhotoDriveModal } from './PhotoDriveModal';
+import { WebcamCaptureModal } from '@/components/drive/WebcamCaptureModal';
 import { FolderArchive } from 'lucide-react';
 
 export interface UploadedPhoto {
@@ -96,6 +97,22 @@ export function PhotoUploadPanel({
   const [analyzingAll, setAnalyzingAll] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState<{ photo: UploadedPhoto; index: number } | null>(null);
   const [driveModalOpen, setDriveModalOpen] = useState(false);
+  const [webcamModalOpen, setWebcamModalOpen] = useState(false);
+
+  // 사진 드라이브에서 '블로그로 보내기'를 통해 진입한 사진 자동 로드
+  useEffect(() => {
+    try {
+      const pendingRaw = localStorage.getItem('pending_blog_import_photos');
+      if (pendingRaw) {
+        const pendingList = JSON.parse(pendingRaw);
+        if (Array.isArray(pendingList) && pendingList.length > 0) {
+          updatePhotos((prev) => [...prev, ...pendingList]);
+          localStorage.removeItem('pending_blog_import_photos');
+          toast.success(`📸 사진 드라이브에서 ${pendingList.length}장의 사진을 불러왔습니다!`);
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // AI 이미지 생성 상태
   const [aiPrompt, setAiPrompt] = useState('');
@@ -636,26 +653,42 @@ export function PhotoUploadPanel({
 
       {/* Panel Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* ── 내 사진 드라이브 바로가기 배너 ── */}
-        <button
-          type="button"
-          onClick={() => setDriveModalOpen(true)}
-          className="w-full p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-200 hover:border-amber-300 hover:bg-amber-50/70 transition-all flex items-center justify-between group text-left shadow-2xs"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-              <FolderArchive className="size-4" />
+        {/* ── 사진 드라이브 & 웹카메라 실시간 촬영 퀵 액션 ── */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setDriveModalOpen(true)}
+            className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200/80 hover:border-indigo-300 hover:bg-indigo-100/50 transition-all flex flex-col justify-between text-left shadow-2xs group"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="size-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                <FolderArchive className="size-3.5" />
+              </div>
+              <ArrowRight className="size-3 text-indigo-600 group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <span>📁 계정별 내 사진 드라이브</span>
-                <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">보관함</span>
-              </p>
-              <p className="text-[10.5px] text-slate-500">미리 올려둔 사진에서 콕 집어 가져오기</p>
+            <div className="mt-2">
+              <p className="text-[11px] font-bold text-slate-800 leading-tight">사진 드라이브</p>
+              <p className="text-[9.5px] text-slate-500 mt-0.5">개인·공유 갤러리</p>
             </div>
-          </div>
-          <ArrowRight className="size-3.5 text-amber-600 group-hover:translate-x-0.5 transition-transform" />
-        </button>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setWebcamModalOpen(true)}
+            className="p-2.5 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200/80 hover:border-purple-300 hover:bg-purple-100/50 transition-all flex flex-col justify-between text-left shadow-2xs group"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="size-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                <Camera className="size-3.5" />
+              </div>
+              <ArrowRight className="size-3 text-purple-600 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+            <div className="mt-2">
+              <p className="text-[11px] font-bold text-slate-800 leading-tight">웹카메라 촬영</p>
+              <p className="text-[9.5px] text-slate-500 mt-0.5">실시간 찍어서 삽입</p>
+            </div>
+          </button>
+        </div>
 
         {/* ── 2가지 사진 추가 방식 탭 (내 사진 업로드 vs AI 직접 생성) ── */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
@@ -1125,6 +1158,26 @@ export function PhotoUploadPanel({
           updatePhotos((prev) => [...prev, ...selectedFromDrive]);
         }}
         currentlySelectedCount={photos.length}
+      />
+
+      {/* ── 5. 웹카메라 실시간 촬영 모달 ── */}
+      <WebcamCaptureModal
+        open={webcamModalOpen}
+        onOpenChange={setWebcamModalOpen}
+        onPhotoSaved={(savedItem) => {
+          updatePhotos((prev) => [
+            ...prev,
+            {
+              id: savedItem.id,
+              name: savedItem.name,
+              url: savedItem.url,
+              caption: savedItem.caption,
+              keywords: savedItem.keywords,
+              analyzing: false,
+            },
+          ]);
+          toast.success('웹카메라 촬영 사진이 블로그에 즉시 추가되었습니다!');
+        }}
       />
     </aside>
   );
