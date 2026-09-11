@@ -224,6 +224,7 @@ export async function POST(req: NextRequest) {
               detectedTitle: parsed.detectedTitle || fileName,
               templateMarkdown: parsed.templateMarkdown,
               claudePrompt: parsed.claudePrompt,
+              extractedOriginalText: extractedText || '',
             });
           }
         } else {
@@ -309,6 +310,7 @@ export async function POST(req: NextRequest) {
 - 기업명: [기업명 입력]
 - 핵심 아이템: [주요 제품/기술 입력]
 - 타깃 시장: [시장 및 고객 입력]`,
+        extractedOriginalText: extractedText || '',
       });
     }
 
@@ -366,6 +368,7 @@ export async function POST(req: NextRequest) {
   - 신규 일자리 창출: [0]명 추가 채용 예정`,
         claudePrompt: `당신은 중소벤처기업진흥공단(중진공) 및 신용보증기금 수석 심사역입니다.
 위 [중소기업 육성자금 사업계획서 서식]을 기반으로, 정책자금 심사 평가표의 '자금 회수 가능성', '거래처 신뢰도', '상환 계획의 구체성'을 극대화하여 문서를 작성해 주세요.`,
+        extractedOriginalText: extractedText || '',
       });
     }
 
@@ -406,6 +409,7 @@ export async function POST(req: NextRequest) {
 | Phase 3 | [익년도] | 글로벌/엔터프라이즈 B2B 시장 확장 | 시리즈 A 투자 유치 |`,
         claudePrompt: `당신은 실리콘밸리와 테헤란로의 벤처캐피털(VC) 투자 심사역입니다.
 위 [사업계획서 서식]의 구조를 100% 반영하여, 투자자가 첫 장부터 매료될 수 있는 명쾌하고 강력한 사업계획서를 완성해 주세요.`,
+        extractedOriginalText: extractedText || '',
       });
     }
 
@@ -448,6 +452,7 @@ export async function POST(req: NextRequest) {
         claudePrompt: `당신은 최고 수준의 업무 생산성 전문가입니다.
 다음은 우리 회사의 공식 [회의록 서식]입니다.
 아래 서식의 표 구조와 글머리 기호를 100% 유지한 채, 제가 제공하는 회의 메모를 바탕으로 완벽한 회의록을 작성해 주세요.`,
+        extractedOriginalText: extractedText || '',
       });
     }
 
@@ -483,6 +488,7 @@ export async function POST(req: NextRequest) {
 - **기대 효과**: [정량적/정성적 성과 목표]`,
       claudePrompt: `당신은 사내 최고 비즈니스 문서 작성 전문가입니다.
 첨부된 우리 회사의 [업무 보고서 표준 서식]을 100% 준수하여, 다음 실적 메모를 격식 있는 보고서로 변환해 주세요.`,
+      extractedOriginalText: extractedText || '',
     });
   } catch (error: any) {
     console.error('Document analysis error:', error);

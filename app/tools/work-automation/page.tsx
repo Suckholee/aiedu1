@@ -24,13 +24,25 @@ import {
   FileCheck2,
   Lock,
   Globe,
+  Eye,
+  Columns2,
+  Maximize2,
+  FileDown,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { WebcamCaptureModal } from '@/components/drive/WebcamCaptureModal';
 import { PhotoDriveModal } from '@/components/blog-automation/writer/PhotoDriveModal';
+import { DocumentViewer } from '@/components/work-automation/DocumentViewer';
 import { saveDrivePhotos } from '@/lib/blog-automation/photo-drive-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -76,6 +88,7 @@ export default function WorkAutomationPage() {
 
   // ── 2. 문서/사진 기반 양식 복원기 상태 ──
   const [docImage, setDocImage] = useState<string | null>(null);
+  const [docBlobUrl, setDocBlobUrl] = useState<string | null>(null);
   const [docImageName, setDocImageName] = useState<string>('');
   const [docFileMeta, setDocFileMeta] = useState<{
     name: string;
@@ -83,6 +96,9 @@ export default function WorkAutomationPage() {
     type: 'image' | 'pdf' | 'docx' | 'doc' | 'hwp' | 'hwpx' | 'pptx' | 'text' | 'excel' | 'other';
     ext: string;
   } | null>(null);
+  const [extractedOriginalText, setExtractedOriginalText] = useState<string>('');
+  const [workspaceViewMode, setWorkspaceViewMode] = useState<'split' | 'viewer' | 'editor'>('split');
+  const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [webcamOpen, setWebcamOpen] = useState(false);
   const [driveModalOpen, setDriveModalOpen] = useState(false);
@@ -177,6 +193,9 @@ export default function WorkAutomationPage() {
       setExtractedDocTitle(data.detectedTitle);
       setEditableTemplate(data.templateMarkdown);
       setExtractedClaudePrompt(data.claudePrompt);
+      if (data.extractedOriginalText) {
+        setExtractedOriginalText(data.extractedOriginalText);
+      }
       toast.success('🎉 AI가 문서의 목차, 표, 서식 틀을 성공적으로 복원했습니다!');
     } catch (err: any) {
       console.error(err);
@@ -197,6 +216,14 @@ export default function WorkAutomationPage() {
     });
     setDocImageName(file.name);
 
+    if (docBlobUrl) {
+      try {
+        URL.revokeObjectURL(docBlobUrl);
+      } catch (e) {}
+    }
+    const blobUrl = URL.createObjectURL(file);
+    setDocBlobUrl(blobUrl);
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -204,6 +231,21 @@ export default function WorkAutomationPage() {
       analyzeDocumentFile(result, file.name, fileType);
     };
     reader.readAsDataURL(file);
+  };
+
+  // 문서 등록 리셋 함수
+  const handleResetDoc = () => {
+    if (docBlobUrl) {
+      try {
+        URL.revokeObjectURL(docBlobUrl);
+      } catch (e) {}
+    }
+    setDocBlobUrl(null);
+    setDocImage(null);
+    setDocFileMeta(null);
+    setExtractedOriginalText('');
+    setEditableTemplate('');
+    setExtractedClaudePrompt('');
   };
 
   // 파일 직접 업로드 처리
@@ -437,13 +479,22 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
 
                     <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-xs text-white p-2 rounded-xl text-[11px] truncate flex items-center justify-between">
                       <span className="truncate">{docImageName || '선택된 문서 사진'}</span>
-                      <button
-                        type="button"
-                        onClick={() => { setDocImage(null); setDocFileMeta(null); }}
-                        className="text-slate-300 hover:text-white font-bold ml-2 cursor-pointer"
-                      >
-                        변경
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsViewerModalOpen(true)}
+                          className="text-cyan-300 hover:text-white font-bold cursor-pointer flex items-center gap-0.5"
+                        >
+                          <Eye className="size-3" /> 뷰어
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleResetDoc}
+                          className="text-slate-300 hover:text-white font-bold cursor-pointer"
+                        >
+                          변경
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -509,14 +560,18 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-pulse" />
                     )}
 
-                    {/* Bottom Change Button */}
+                    {/* Bottom Change Button & Viewer Trigger */}
                     <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                      <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="size-3" /> 문서 등록 완료
-                      </span>
                       <button
                         type="button"
-                        onClick={() => { setDocImage(null); setDocFileMeta(null); }}
+                        onClick={() => setIsViewerModalOpen(true)}
+                        className="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Eye className="size-3" /> 문서 뷰어로 보기
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResetDoc}
                         className="text-slate-500 hover:text-slate-800 font-bold cursor-pointer"
                       >
                         변경
@@ -538,24 +593,36 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                     </p>
                   </div>
 
-                  <Button
-                    type="button"
-                    disabled={isAnalyzingDoc}
-                    onClick={() => analyzeDocumentFile(docImage, docImageName, docFileMeta?.type)}
-                    className="w-full sm:w-auto h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 shadow-sm flex items-center justify-center gap-2"
-                  >
-                    {isAnalyzingDoc ? (
-                      <>
-                        <Loader2 className="size-4 animate-spin" />
-                        <span>AI가 문서 서식과 틀을 분석하는 중...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="size-4" />
-                        <span>AI 문서 틀 &amp; 서식 복원 시작하기</span>
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      disabled={isAnalyzingDoc}
+                      onClick={() => analyzeDocumentFile(docImage, docImageName, docFileMeta?.type)}
+                      className="h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 shadow-sm flex items-center justify-center gap-2"
+                    >
+                      {isAnalyzingDoc ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" />
+                          <span>AI가 문서 서식과 틀을 분석하는 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="size-4" />
+                          <span>AI 문서 틀 &amp; 서식 복원 시작하기</span>
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsViewerModalOpen(true)}
+                      className="h-11 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs px-4 flex items-center gap-1.5"
+                    >
+                      <Eye className="size-3.5 text-indigo-600" />
+                      <span>문서 뷰어로 원본 확인</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -611,10 +678,10 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
             )}
           </div>
 
-          {/* 2. 복원된 편집 가능 양식 결과 (Restored Editable Template) */}
+          {/* 2. 복원된 편집 가능 양식 & 원본 문서 뷰어 워크스페이스 */}
           {(editableTemplate || isAnalyzingDoc) && (
             <div className="rounded-3xl border border-indigo-200/80 bg-white p-6 shadow-sm space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black px-2.5 py-0.5">
@@ -625,12 +692,50 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                     </h3>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    사내 문서의 틀과 서식이 복원되었습니다. 아래 텍스트 영역에서 <strong>직접 내용을 타이핑하여 수정</strong>하거나 양식을 복사하세요.
+                    사내 문서의 틀과 서식이 복원되었습니다. 원본 문서를 대조하며 <strong>실시간으로 수정</strong>하거나 Claude 맞춤 프롬프트로 활용하세요.
                   </p>
                 </div>
 
-                {/* Copy Actions */}
-                <div className="flex flex-wrap items-center gap-2">
+                {/* Workspace View Mode Selector & Copy Actions */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {/* View Mode Tabs */}
+                  <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setWorkspaceViewMode('split')}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
+                        workspaceViewMode === 'split' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Columns2 className="size-3.5" />
+                      <span className="hidden sm:inline">좌우 분할 뷰</span>
+                      <span className="sm:hidden">분할</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWorkspaceViewMode('viewer')}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
+                        workspaceViewMode === 'viewer' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Eye className="size-3.5" />
+                      <span className="hidden sm:inline">원본 문서 뷰어</span>
+                      <span className="sm:hidden">문서</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWorkspaceViewMode('editor')}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
+                        workspaceViewMode === 'editor' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <FileText className="size-3.5" />
+                      <span className="hidden sm:inline">양식 편집기</span>
+                      <span className="sm:hidden">편집</span>
+                    </button>
+                  </div>
+
+                  {/* Copy Buttons */}
                   <Button
                     type="button"
                     onClick={handleCopyTemplate}
@@ -641,12 +746,12 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                     {copiedTemplate ? (
                       <>
                         <Check className="size-3.5 mr-1 text-emerald-600" />
-                        <span>양식 복사 완료</span>
+                        <span>복사 완료</span>
                       </>
                     ) : (
                       <>
                         <Copy className="size-3.5 mr-1 text-indigo-600" />
-                        <span>복원된 서식 복사</span>
+                        <span>복원 서식 복사</span>
                       </>
                     )}
                   </Button>
@@ -660,12 +765,12 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                     {copiedCustomPrompt ? (
                       <>
                         <Check className="size-3.5 mr-1" />
-                        <span>프롬프트 복사 완료</span>
+                        <span>프롬프트 복사됨</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="size-3.5 mr-1" />
-                        <span>Claude 맞춤 프롬프트 복사</span>
+                        <span>Claude 맞춤 프롬프트</span>
                       </>
                     )}
                   </Button>
@@ -682,21 +787,65 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                 </div>
               </div>
 
-              {/* Editable Textarea */}
-              <div className="relative">
-                <label className="text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span>✍️ 실시간 편집 창 (수정 및 추가 타이핑 가능)</span>
-                  <span className="text-[11px] text-slate-400 font-normal">
-                    마크다운 및 한글/워드 테이블 형식 지원
-                  </span>
-                </label>
-                <textarea
-                  value={editableTemplate}
-                  onChange={(e) => setEditableTemplate(e.target.value)}
-                  rows={16}
-                  placeholder="AI가 분석한 문서 서식이 여기에 표시됩니다..."
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 font-mono text-xs sm:text-sm text-slate-800 leading-relaxed focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                />
+              {/* Dynamic Workspace: Split vs Viewer vs Editor */}
+              <div
+                className={`grid gap-6 items-start ${
+                  workspaceViewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+                }`}
+              >
+                {/* ── [A] 원본 문서 뷰어 패널 ── */}
+                {(workspaceViewMode === 'split' || workspaceViewMode === 'viewer') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span className="flex items-center gap-1.5">
+                        <Eye className="size-3.5 text-indigo-600" />
+                        <span>📖 원본 문서 실시간 뷰어</span>
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsViewerModalOpen(true)}
+                        className="h-6 px-2 text-[11px] text-indigo-600 hover:text-indigo-800"
+                      >
+                        <Maximize2 className="size-3 mr-1" />
+                        전체화면
+                      </Button>
+                    </div>
+                    <DocumentViewer
+                      fileName={docImageName}
+                      fileType={docFileMeta?.type || 'other'}
+                      fileSize={docFileMeta?.size}
+                      fileUrl={docBlobUrl || docImage}
+                      extractedText={extractedOriginalText}
+                      onOpenFullscreen={() => setIsViewerModalOpen(true)}
+                      height={workspaceViewMode === 'viewer' ? 'h-[750px]' : 'h-[680px]'}
+                    />
+                  </div>
+                )}
+
+                {/* ── [B] AI 복원 양식 실시간 편집기 패널 ── */}
+                {(workspaceViewMode === 'split' || workspaceViewMode === 'editor') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span className="flex items-center gap-1.5">
+                        <FileText className="size-3.5 text-purple-600" />
+                        <span>✍️ 복원된 서식 실시간 편집창</span>
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-normal">
+                        마크다운 및 한글/워드 테이블 형식 지원
+                      </span>
+                    </div>
+                    <textarea
+                      value={editableTemplate}
+                      onChange={(e) => setEditableTemplate(e.target.value)}
+                      placeholder="AI가 분석한 문서 서식이 여기에 표시됩니다..."
+                      className={`w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 font-mono text-xs sm:text-sm text-slate-800 leading-relaxed focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-inner resize-y ${
+                        workspaceViewMode === 'editor' ? 'h-[750px]' : 'h-[680px]'
+                      }`}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Claude Usage Tip Banner */}
@@ -706,11 +855,12 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
                 </span>
                 <div className="space-y-1">
                   <p className="font-bold text-purple-950">
-                    Claude Pro에서 활용하는 방법
+                    좌우 분할 뷰어를 활용한 10배 빠른 비즈니스 문서 작성법
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    위 <strong>[Claude 맞춤 프롬프트 복사]</strong> 버튼을 누르고 Claude.ai에 붙여넣은 뒤,
-                    새로운 프로젝트의 핵심 메모 몇 줄만 입력하면 우리 회사 표준 서식 규격에 맞춰 완성된 문서가 바로 생성됩니다.
+                    좌측 <strong>[원본 문서 뷰어]</strong>에서 회사 기존 서식의 세부 수치나 목차를 대조하고,
+                    우측 <strong>[편집창]</strong>에서 실시간으로 수정한 뒤 <strong>[Claude 맞춤 프롬프트 복사]</strong>를 눌러 Claude.ai에 넣으시면
+                    3분 만에 완벽한 사내 보고서 및 사업계획서가 완성됩니다.
                   </p>
                 </div>
               </div>
@@ -888,6 +1038,28 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
           }
         }}
       />
+
+      {/* ── 5. 전체화면 문서 뷰어 모달 (Fullscreen Document Viewer Dialog) ── */}
+      <Dialog open={isViewerModalOpen} onOpenChange={setIsViewerModalOpen}>
+        <DialogContent className="max-w-6xl w-[95vw] h-[92vh] p-4 sm:p-6 bg-slate-950 border-slate-800 text-white flex flex-col">
+          <DialogHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800">
+            <DialogTitle className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <Eye className="size-4 text-indigo-400" />
+              <span>원본 문서 뷰어: {docImageName}</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 w-full h-full overflow-hidden mt-2">
+            <DocumentViewer
+              fileName={docImageName}
+              fileType={docFileMeta?.type || 'other'}
+              fileSize={docFileMeta?.size}
+              fileUrl={docBlobUrl || docImage}
+              extractedText={extractedOriginalText}
+              height="h-full"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
