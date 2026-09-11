@@ -23,6 +23,7 @@ import {
   PenTool,
   Check,
   Eye,
+  ScanLine,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -235,6 +236,20 @@ export default function PhotoDrivePage() {
     }
   };
 
+  // 업무자동화 실습실로 전송 (AI 문서 양식 복원)
+  const handleSendToWorkAutomation = (photo: DrivePhotoItem) => {
+    try {
+      localStorage.setItem(
+        'pending_doc_analysis_photo',
+        JSON.stringify({ name: photo.name, url: photo.url })
+      );
+      toast.success(`🤖 '${photo.name}' 사진으로 업무 양식 복원을 시작합니다!`);
+      router.push('/tools/work-automation');
+    } catch (e) {
+      toast.error('업무자동화 이동 실패');
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* ── 1. Page Header ── */}
@@ -344,6 +359,18 @@ export default function PhotoDrivePage() {
               <PenTool className="size-3.5 mr-1" />
               블로그로 보내기
             </Button>
+            {selectedPhotoObjects.length === 1 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => handleSendToWorkAutomation(selectedPhotoObjects[0])}
+                className="rounded-xl border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100"
+              >
+                <ScanLine className="size-3.5 mr-1" />
+                업무 양식 복원
+              </Button>
+            )}
             <Button
               type="button"
               size="sm"
@@ -535,8 +562,17 @@ export default function PhotoDrivePage() {
                       <span className="text-[10px] text-slate-400">공유된 사진</span>
                     )}
 
-                    {/* Blog & Shorts Quick Action */}
+                    {/* Blog, Work-Auto, & Shorts Quick Action */}
                     <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleSendToWorkAutomation(photo)}
+                        className="rounded-md p-1.5 text-slate-500 hover:bg-indigo-50 hover:text-indigo-700 transition"
+                        title="이 문서 사진으로 업무 양식 복원하기"
+                      >
+                        <ScanLine className="size-3.5" />
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => handleSendToBlog([photo])}

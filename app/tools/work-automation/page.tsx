@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   FileText,
@@ -15,7 +15,24 @@ import {
   Briefcase,
   CheckCircle2,
   ListTodo,
+  Camera,
+  UploadCloud,
+  FolderArchive,
+  ScanLine,
+  RefreshCw,
+  FileCode,
+  FileCheck2,
+  Lock,
+  Globe,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { WebcamCaptureModal } from '@/components/drive/WebcamCaptureModal';
+import { PhotoDriveModal } from '@/components/blog-automation/writer/PhotoDriveModal';
+import { saveDrivePhotos } from '@/lib/blog-automation/photo-drive-storage';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 type DocType = 'proposal' | 'meeting' | 'bizplan' | 'summary';
@@ -42,15 +59,128 @@ const DOC_PRESETS = [
 ];
 
 export default function WorkAutomationPage() {
+  const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 상위 모드 탭: 'template-gen' (표준 프롬프트 생성기) vs 'photo-extract' (사진 기반 양식 복원기)
+  const [mainMode, setMainMode] = useState<'template-gen' | 'photo-extract'>('photo-extract');
+
+  // ── 1. 표준 프롬프트 생성기 상태 ──
   const [selectedType, setSelectedType] = useState<DocType>('proposal');
   const [topic, setTopic] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
   const [keyPoints, setKeyPoints] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedOutput, setGeneratedOutput] = useState<string>('');
 
-  // 프롬프트 빌더
+  // ── 2. 사진 기반 문서 양식 복원기 상태 ──
+  const [docImage, setDocImage] = useState<string | null>(null);
+  const [docImageName, setDocImageName] = useState<string>('');
+  const [webcamOpen, setWebcamOpen] = useState(false);
+  const [driveModalOpen, setDriveModalOpen] = useState(false);
+  const [isAnalyzingDoc, setIsAnalyzingDoc] = useState(false);
+
+  // 복원된 양식 결과 상태
+  const [extractedDocType, setExtractedDocType] = useState<string>('');
+  const [extractedDocTitle, setExtractedDocTitle] = useState<string>('');
+  const [editableTemplate, setEditableTemplate] = useState<string>('');
+  const [extractedClaudePrompt, setExtractedClaudePrompt] = useState<string>('');
+  const [copiedTemplate, setCopiedTemplate] = useState(false);
+  const [copiedCustomPrompt, setCopiedCustomPrompt] = useState(false);
+
+  // 사진 드라이브에서 '업무 양식 복원'을 통해 진입했을 때 자동 로드
+  useEffect(() => {
+    try {
+      const pendingRaw = localStorage.getItem('pending_doc_analysis_photo');
+      if (pendingRaw) {
+        const photo = JSON.parse(pendingRaw);
+        if (photo.url) {
+          setMainMode('photo-extract');
+          setDocImage(photo.url);
+          setDocImageName(photo.name || '업무문서사진.jpg');
+          localStorage.removeItem('pending_doc_analysis_photo');
+          toast.success(`📸 '${photo.name}' 사진을 불러왔습니다. 양식 분석을 시작합니다!`);
+          // 자동 분석 실행
+          setTimeout(() => {
+            analyzeDocumentPhoto(photo.url, photo.name);
+          }, 300);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  // ── 문서 이미지 분석 API 호출 ──
+  const analyzeDocumentPhoto = async (imageUrl: string, imageName?: string) => {
+    setIsAnalyzingDoc(true);
+    setExtractedDocType('');
+    setEditableTemplate('');
+    setExtractedClaudePrompt('');
+
+    try {
+      const res = await fetch('/api/work-automation/analyze-doc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          docName: imageName || docImageName,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || '문서 분석에 실패했습니다.');
+      }
+
+      setExtractedDocType(data.docType);
+      setExtractedDocTitle(data.detectedTitle);
+      setEditableTemplate(data.templateMarkdown);
+      setExtractedClaudePrompt(data.claudePrompt);
+      toast.success('🎉 AI가 문서의 틀과 서식을 성공적으로 복원했습니다!');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`문서 분석 오류: ${err.message}`);
+    } finally {
+      setIsAnalyzingDoc(false);
+    }
+  };
+
+  // 파일 직접 업로드 처리
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setDocImage(result);
+      setDocImageName(file.name);
+      analyzeDocumentPhoto(result, file.name);
+    };
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // 양식 클립보드 복사
+  const handleCopyTemplate = async () => {
+    if (!editableTemplate) return;
+    await navigator.clipboard.writeText(editableTemplate);
+    setCopiedTemplate(true);
+    toast.success('📋 편집 가능한 양식 마크다운이 복사되었습니다! 워드, 한글, 노션에 붙여넣으세요.');
+    setTimeout(() => setCopiedTemplate(false), 2000);
+  };
+
+  // Claude Pro 프롬프트 복사
+  const handleCopyCustomPrompt = async () => {
+    if (!extractedClaudePrompt && !editableTemplate) return;
+    const finalPrompt = `${extractedClaudePrompt}\n\n[적용할 표준 서식 틀]\n${editableTemplate}`;
+    await navigator.clipboard.writeText(finalPrompt);
+    setCopiedCustomPrompt(true);
+    toast.success('🚀 Claude 맞춤 프롬프트가 복사되었습니다! Claude.ai에 붙여넣으세요.');
+    setTimeout(() => setCopiedCustomPrompt(false), 2000);
+  };
+
+  // ── 표준 프롬프트 빌더 ──
   const buildClaudePrompt = () => {
     if (selectedType === 'proposal') {
       return `당신은 15년 차 수석 비즈니스 기획 전문가입니다.
@@ -99,235 +229,486 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
     }
   };
 
-  const handleCopyPrompt = () => {
+  const handleCopyStandardPrompt = async () => {
     const prompt = buildClaudePrompt();
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(prompt);
-      setCopied(true);
-      toast.success('클로드 전용 프롬프트가 복사되었습니다! Claude에 붙여넣어 보세요.');
-      setTimeout(() => setCopied(false), 2500);
-    }
-  };
-
-  const handleQuickGenerate = () => {
-    if (!topic.trim()) {
-      toast.error('주제 또는 안건을 입력해 주세요.');
-      return;
-    }
-
-    setIsGenerating(true);
-    setGeneratedOutput('');
-
-    // 브라우저 내 데모 생성 시뮬레이션
-    setTimeout(() => {
-      const prompt = buildClaudePrompt();
-      const mockResult = `# [초안 리포트] ${topic}
-
-## 1. Executive Summary
-- 본 기획은 "${topic}"을(를) 중심으로 업무 효율성을 300% 이상 증대시키는 것을 목표로 합니다.
-- 타깃 대상(${targetAudience || '사내 전사'})의 핵심 니즈를 충족하는 3단계 실천 로드맵을 구축합니다.
-- 조기 성과 도출을 위한 AI 기반 자동화 파이프라인을 도입합니다.
-
-## 2. 3대 핵심 추진 전략
-1. **신속한 표준화 프로세스 구축**: 기존 수작업 템플릿을 AI 프롬프트 체계로 전환
-2. **현장 밀착형 코칭 및 가이드라인 배포**: 실무 담당자 맞춤형 워크플로우 지원
-3. **지속적인 피드백 루프**: 주간 단위 KPI 측정 및 개선안 도출
-
-## 3. 세부 실행 계획 및 일정
-- **Phase 1 (1~2주차)**: 현황 진단 및 프롬프트 팩 커스터마이징
-- **Phase 2 (3~4주차)**: 1차 파일럿 적용 및 오류 교정
-- **Phase 3 (5주차~)**: 전사 확대 적용 및 자동화 모니터링
-
-## 4. 기대 효과
-- 문서 작성 소요 시간: 4시간 -> 30분 단축 (87.5% 절감)
-- 의사결정 속도 향상 및 구성원 만족도 제고`;
-
-      setGeneratedOutput(mockResult);
-      setIsGenerating(false);
-      toast.success('기획서 초안이 생성되었습니다! 클로드에 복사하여 더 고도화할 수 있습니다.');
-    }, 1200);
+    await navigator.clipboard.writeText(prompt);
+    setCopiedPrompt(true);
+    toast.success('프롬프트가 클립보드에 복사되었습니다!');
+    setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
   return (
-    <div className="relative min-h-screen bg-[#10024a] pb-24 text-white">
-      {/* Background gradients */}
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,.35),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(79,70,229,.25),transparent_35%)]" />
-
-      {/* Header */}
-      <section className="border-b border-white/10 bg-[#160455]/80 py-10 backdrop-blur-md">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/20 px-3 py-1 text-xs font-bold text-violet-300">
-                <Sparkles className="size-3.5" />
-                PART 01 · 조영빈 대표
-              </div>
-              <h1 className="mt-2 text-2xl sm:text-4xl font-black text-white tracking-tight">
-                클로드 업무자동화 스튜디오
-              </h1>
-              <p className="mt-1 text-xs sm:text-sm text-violet-200/80">
-                기획서, 보고서, 회의록을 Claude가 가장 이해하기 쉬운 비즈니스 구조로 생성합니다.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Link
-                href="/materials"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white hover:bg-white/20 transition"
-              >
-                <BookOpen className="size-3.5" />
-                <span>관련 교안 보기</span>
-              </Link>
-            </div>
+    <div className="space-y-8">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-black text-purple-700">
+              Part 1 · 박재범 대표
+            </span>
+            <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+              AI 비즈니스 문서 자동화
+            </span>
           </div>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            Claude 업무자동화 스튜디오
+          </h1>
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
+            업무 문서 사진을 찍어 <strong>편집 가능한 사내 서식으로 즉시 복원</strong>하거나,
+            3분 만에 경영진 보고용 표준 기획서·회의록 프롬프트를 생성하세요.
+          </p>
         </div>
-      </section>
 
-      {/* Workspace */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
-          {/* Left Panel: Input Controls */}
-          <div className="space-y-6">
-            {/* 1. Preset Selector */}
-            <div className="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur-md">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-violet-300">
-                문서 유형 선택
+        {/* External Link to Claude */}
+        <a
+          href="https://claude.ai/new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
+        >
+          <span>Claude.ai 새 창 열기</span>
+          <ExternalLink className="size-3.5" />
+        </a>
+      </div>
+
+      {/* ── Top Mode Switcher (Tab 1: 사진 기반 양식 복원기 vs Tab 2: 표준 프롬프트 생성기) ── */}
+      <div className="flex border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setMainMode('photo-extract')}
+          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition ${
+            mainMode === 'photo-extract'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Camera className="size-4" />
+          <span>📷 내 업무 문서 사진 ➔ AI 양식 복원기</span>
+          <span className="rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 px-1.5 py-0.2 text-[10px] font-black">
+            NEW
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMainMode('template-gen')}
+          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition ${
+            mainMode === 'template-gen'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Sparkles className="size-4" />
+          <span>✨ 표준 비즈니스 프롬프트 생성기</span>
+        </button>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODE 1: 내 업무 문서 사진 ➔ AI 양식 복원기 (User Requested!)
+          ══════════════════════════════════════════════════════════════ */}
+      {mainMode === 'photo-extract' && (
+        <div className="space-y-6">
+          {/* 1. 사진 입력 카드 (웹캠 촬영 / 드라이브 불러오기 / 직접 업로드) */}
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <ScanLine className="size-4.5 text-indigo-600" />
+                  <span>1단계: 업무 문서 사진 준비</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  회사에서 쓰는 종이 보고서, 기획서, 회의록, 양식 문서를 웹캠으로 찍거나 올려주세요.
+                </p>
+              </div>
+
+              {/* 3대 입력 버튼 */}
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="rounded-xl border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50"
+                >
+                  <UploadCloud className="size-3.5 mr-1 text-slate-500" />
+                  파일 업로드
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDriveModalOpen(true)}
+                  className="rounded-xl border-slate-200 text-indigo-700 bg-indigo-50/60 text-xs font-bold hover:bg-indigo-100"
+                >
+                  <FolderArchive className="size-3.5 mr-1" />
+                  사진 드라이브에서 선택
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={() => setWebcamOpen(true)}
+                  className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs"
+                >
+                  <Camera className="size-3.5 mr-1" />
+                  웹카메라로 즉시 촬영
+                </Button>
+              </div>
+            </div>
+
+            {/* Selected Image Preview & Scan Trigger */}
+            {docImage ? (
+              <div className="mt-5 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 items-center">
+                {/* Image Thumbnail with Scanning Effect */}
+                <div className="relative aspect-4/3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-inner group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={docImage}
+                    alt="Document Preview"
+                    className="size-full object-contain"
+                  />
+
+                  {/* Laser Scan Line Animation when analyzing */}
+                  {isAnalyzingDoc && (
+                    <div className="absolute inset-0 bg-indigo-500/15 pointer-events-none">
+                      <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent w-full animate-bounce" />
+                    </div>
+                  )}
+
+                  <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-xs text-white p-2 rounded-xl text-[11px] truncate flex items-center justify-between">
+                    <span className="truncate">{docImageName || '선택된 문서 사진'}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDocImage(null)}
+                      className="text-slate-300 hover:text-white font-bold ml-2"
+                    >
+                      변경
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scan Action Box */}
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4">
+                    <h4 className="text-xs font-bold text-slate-900">
+                      📸 문서 사진이 준비되었습니다!
+                    </h4>
+                    <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                      AI가 문서의 머리말, 결재란, 표(Table) 구조, 글머리 기호(I, 1, 1))를 분석하여
+                      <strong> 한글/워드/노션에 바로 쓸 수 있는 편집 가능한 양식</strong>으로 복원합니다.
+                    </p>
+                  </div>
+
+                  <Button
+                    type="button"
+                    disabled={isAnalyzingDoc}
+                    onClick={() => analyzeDocumentPhoto(docImage)}
+                    className="w-full sm:w-auto h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 shadow-sm flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzingDoc ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        <span>AI가 문서 서식과 틀을 분석하는 중...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="size-4" />
+                        <span>AI 문서 틀 &amp; 서식 복원 시작하기</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* Empty Dropzone State */
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-5 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-10 text-center cursor-pointer hover:bg-slate-50 transition"
+              >
+                <div className="size-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
+                  <Camera className="size-6" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-900">
+                  분석할 업무 문서 사진을 등록하세요
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                  웹카메라로 책상 위 문서를 직접 찍거나, 사진 드라이브 보관함에서 가져오거나, PC/스마트폰 사진을 드래그하세요.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* 2. 복원된 편집 가능 양식 결과 (Restored Editable Template) */}
+          {(editableTemplate || isAnalyzingDoc) && (
+            <div className="rounded-3xl border border-indigo-200/80 bg-white p-6 shadow-sm space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black px-2.5 py-0.5">
+                      {extractedDocType || '문서 분석 중...'}
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900">
+                      {extractedDocTitle || '2단계: 복원된 편집 가능 문서 양식'}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    사내 문서의 틀과 서식이 복원되었습니다. 아래 텍스트 영역에서 <strong>직접 내용을 타이핑하여 수정</strong>하거나 양식을 복사하세요.
+                  </p>
+                </div>
+
+                {/* Copy Actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={handleCopyTemplate}
+                    disabled={!editableTemplate}
+                    variant="outline"
+                    className="rounded-xl border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50"
+                  >
+                    {copiedTemplate ? (
+                      <>
+                        <Check className="size-3.5 mr-1 text-emerald-600" />
+                        <span>양식 복사 완료</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="size-3.5 mr-1 text-indigo-600" />
+                        <span>복원된 서식 복사</span>
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={handleCopyCustomPrompt}
+                    disabled={!editableTemplate}
+                    className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs"
+                  >
+                    {copiedCustomPrompt ? (
+                      <>
+                        <Check className="size-3.5 mr-1" />
+                        <span>프롬프트 복사 완료</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="size-3.5 mr-1" />
+                        <span>Claude 맞춤 프롬프트 복사</span>
+                      </>
+                    )}
+                  </Button>
+
+                  <a
+                    href="https://claude.ai/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-xl bg-slate-900 hover:bg-black px-3.5 py-2 text-xs font-bold text-white shadow-xs"
+                  >
+                    <span>Claude 열기</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Editable Textarea */}
+              <div className="relative">
+                <label className="text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>✍️ 실시간 편집 창 (수정 및 추가 타이핑 가능)</span>
+                  <span className="text-[11px] text-slate-400 font-normal">
+                    마크다운 및 한글/워드 테이블 형식 지원
+                  </span>
+                </label>
+                <textarea
+                  value={editableTemplate}
+                  onChange={(e) => setEditableTemplate(e.target.value)}
+                  rows={16}
+                  placeholder="AI가 분석한 문서 서식이 여기에 표시됩니다..."
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 font-mono text-xs sm:text-sm text-slate-800 leading-relaxed focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+              </div>
+
+              {/* Claude Usage Tip Banner */}
+              <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-4 flex items-start gap-3 text-xs">
+                <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-purple-600 text-white font-black text-xs">
+                  💡
+                </span>
+                <div className="space-y-1">
+                  <p className="font-bold text-purple-950">
+                    Claude Pro에서 활용하는 방법
+                  </p>
+                  <p className="text-slate-600 leading-relaxed">
+                    위 <strong>[Claude 맞춤 프롬프트 복사]</strong> 버튼을 누르고 Claude.ai에 붙여넣은 뒤,
+                    새로운 프로젝트의 핵심 메모 몇 줄만 입력하면 우리 회사 표준 서식 규격에 맞춰 완성된 문서가 바로 생성됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODE 2: 표준 비즈니스 프롬프트 생성기 (Existing Feature)
+          ══════════════════════════════════════════════════════════════ */}
+      {mainMode === 'template-gen' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Left: Input Form */}
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-2 block">
+                1. 작성할 비즈니스 문서 유형 선택
               </label>
-              <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-2.5">
                 {DOC_PRESETS.map((preset) => {
                   const Icon = preset.icon;
                   const isSelected = selectedType === preset.id;
                   return (
                     <button
                       key={preset.id}
-                      onClick={() => setSelectedType(preset.id as any)}
-                      className={`flex flex-col items-start rounded-2xl border p-3.5 text-left transition ${
+                      type="button"
+                      onClick={() => setSelectedType(preset.id as DocType)}
+                      className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
                         isSelected
-                          ? 'border-violet-400 bg-violet-600/30 text-white shadow-md'
-                          : 'border-white/10 bg-white/5 text-violet-200 hover:bg-white/10'
+                          ? 'border-purple-600 bg-purple-50/50 text-purple-950 ring-2 ring-purple-500/20'
+                          : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
                       }`}
                     >
-                      <Icon className={`size-5 ${isSelected ? 'text-fuchsia-300' : 'text-violet-400'}`} />
-                      <p className="mt-2 text-xs font-bold leading-tight">{preset.title}</p>
+                      <div
+                        className={`grid size-9 shrink-0 place-items-center rounded-xl ${
+                          isSelected ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        <Icon className="size-4.5" />
+                      </div>
+                      <div>
+                        <p className="text-xs sm:text-sm font-bold leading-tight">{preset.title}</p>
+                        <p className="mt-1 text-[11px] text-slate-500 leading-normal">{preset.desc}</p>
+                      </div>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* 2. Input Fields */}
-            <div className="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur-md space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-violet-200 mb-1.5">
-                  주제 또는 프로젝트명 <span className="text-fuchsia-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="예: 2026 하반기 신규 AI 고객 상담 자동화 솔루션 도입안"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-white placeholder-violet-300/40 outline-none focus:border-violet-400"
-                />
-              </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1.5 block">
+                2. 기획 / 회의 / 사업 주제
+              </label>
+              <Input
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="예: AI 기반 신규 사내 업무 자동화 솔루션 도입 검토"
+                className="rounded-xl text-xs sm:text-sm h-10 border-slate-200"
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-violet-200 mb-1.5">
-                  보고 대상 / 타깃 독자
-                </label>
-                <input
-                  type="text"
-                  placeholder="예: 대표이사 및 경영지원본부, 2030 예비 창업자 등"
-                  value={targetAudience}
-                  onChange={(e) => setTargetAudience(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-white placeholder-violet-300/40 outline-none focus:border-violet-400"
-                />
-              </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1.5 block">
+                3. 보고 대상 (타깃 독자)
+              </label>
+              <Input
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                placeholder="예: 사내 경영진, 팀장급 실무진, 외부 투자사"
+                className="rounded-xl text-xs sm:text-sm h-10 border-slate-200"
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-violet-200 mb-1.5">
-                  핵심 반영 사항 또는 메모 내용
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="반드시 포함되어야 할 예산 범위, 일정, 주요 논의 메모 등을 편하게 적어주세요."
-                  value={keyPoints}
-                  onChange={(e) => setKeyPoints(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-white placeholder-violet-300/40 outline-none focus:border-violet-400 resize-none"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handleQuickGenerate}
-                  disabled={isGenerating}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-3.5 text-xs font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      <span>AI 기획서 초안 생성 중...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="size-4" />
-                      <span>AI 기획서 초안 생성</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={handleCopyPrompt}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-xs font-bold text-violet-200 transition hover:bg-white/20"
-                >
-                  {copied ? <Check className="size-4 text-emerald-400" /> : <Copy className="size-4" />}
-                  <span>Claude 프롬프트 복사</span>
-                </button>
-              </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1.5 block">
+                4. 필수 반영 핵심 키워드 &amp; 논의 메모
+              </label>
+              <textarea
+                value={keyPoints}
+                onChange={(e) => setKeyPoints(e.target.value)}
+                rows={4}
+                placeholder="문서에 반드시 포함되어야 할 핵심 수치, 일정, 예산, 문제점 등을 메모 형태로 편하게 입력하세요."
+                className="w-full rounded-xl border border-slate-200 p-3 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+              />
             </div>
           </div>
 
-          {/* Right Panel: Output & Preview */}
-          <div className="flex flex-col rounded-3xl border border-white/15 bg-black/40 backdrop-blur-md overflow-hidden min-h-[500px]">
-            <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-5 py-3.5">
+          {/* Right: Assembled Prompt Output */}
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4 sticky top-20">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <FileText className="size-4 text-fuchsia-400" />
-                <span className="text-xs font-bold text-white">결과물 미리보기</span>
+                <Sparkles className="size-4 text-purple-600" />
+                <h3 className="text-sm font-bold text-slate-900">
+                  완성된 Claude 최적화 프롬프트
+                </h3>
               </div>
-
-              {generatedOutput && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(generatedOutput);
-                    toast.success('본문이 클립보드에 복사되었습니다.');
-                  }}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-violet-300 hover:text-white"
-                >
-                  <Copy className="size-3.5" />
-                  <span>결과물 복사</span>
-                </button>
-              )}
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCopyStandardPrompt}
+                className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold h-8"
+              >
+                {copiedPrompt ? (
+                  <>
+                    <Check className="size-3.5 mr-1" />
+                    <span>복사 완료</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="size-3.5 mr-1" />
+                    <span>프롬프트 복사</span>
+                  </>
+                )}
+              </Button>
             </div>
 
-            <div className="flex-1 p-6">
-              {generatedOutput ? (
-                <pre className="whitespace-pre-wrap font-sans text-xs sm:text-sm leading-relaxed text-slate-200">
-                  {generatedOutput}
-                </pre>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center text-center text-violet-300/70 p-8">
-                  <FileText className="size-12 text-violet-400/50 mb-3" />
-                  <p className="font-bold text-white text-sm">기획서 초안이 생성 대기 중입니다</p>
-                  <p className="text-xs mt-1 max-w-sm">
-                    좌측에서 주제와 메모를 입력한 후 'AI 기획서 초안 생성'을 누르거나,
-                    'Claude 프롬프트 복사'를 통해 Claude Pro에서 직접 실행해 보세요.
-                  </p>
-                </div>
-              )}
+            <pre className="max-h-[440px] overflow-y-auto rounded-2xl bg-slate-900 p-4 font-mono text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">
+              {buildClaudePrompt()}
+            </pre>
+
+            <div className="pt-2 flex items-center justify-between">
+              <p className="text-[11px] text-slate-500">
+                복사 후 Claude.ai에 붙여넣으면 임원 보고용 정밀 문서가 즉시 작성됩니다.
+              </p>
+              <a
+                href="https://claude.ai/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 hover:underline"
+              >
+                <span>Claude로 이동</span>
+                <ExternalLink className="size-3" />
+              </a>
             </div>
           </div>
         </div>
-      </section>
+      )}
+
+      {/* ── 3. Webcam Capture Modal ── */}
+      <WebcamCaptureModal
+        open={webcamOpen}
+        onOpenChange={setWebcamOpen}
+        defaultCategory="일상/기타"
+        onPhotoSaved={(savedPhoto) => {
+          setDocImage(savedPhoto.url);
+          setDocImageName(savedPhoto.name);
+          analyzeDocumentPhoto(savedPhoto.url, savedPhoto.name);
+        }}
+      />
+
+      {/* ── 4. Photo Drive Selection Modal ── */}
+      <PhotoDriveModal
+        open={driveModalOpen}
+        onOpenChange={setDriveModalOpen}
+        onSelectPhotos={(selectedPhotos) => {
+          if (selectedPhotos.length > 0) {
+            const first = selectedPhotos[0];
+            setDocImage(first.url);
+            setDocImageName(first.name);
+            analyzeDocumentPhoto(first.url, first.name);
+          }
+        }}
+      />
     </div>
   );
 }

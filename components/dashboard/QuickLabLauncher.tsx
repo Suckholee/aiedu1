@@ -34,7 +34,7 @@ const LAB_CARDS: LabCardProps[] = [
     title: '업무 자동화 실습실',
     href: '/tools/work-automation',
     description: '반복 업무를 자동화하고 생산성을 극대화하세요!',
-    tags: ['자동화', 'API 연동', 'RPA', 'Claude Pro'],
+    tags: ['문서사진 양식복원', '기획·보고서', '회의록', 'Claude Pro'],
     buttonColor: 'bg-[#6355f6] hover:bg-[#5041e8] text-white',
     buttonText: '실습실 입장',
     badgeText: 'Part 1 · 박재범',
