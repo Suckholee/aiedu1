@@ -17,6 +17,7 @@ import {
   User,
   Mail,
   Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,13 +34,20 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [quickName, setQuickName] = useState('');
   const [quickEmail, setQuickEmail] = useState('');
   const [showManualForm, setShowManualForm] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
+    setLoginError(null);
     try {
       await signInWithGoogle();
       onOpenChange(false);
-    } catch (e) {
-      // Error is handled in context
+    } catch (e: any) {
+      setLoginError(
+        e.code === 'auth/unauthorized-domain'
+          ? '현재 도메인(aiedu1.vercel.app)이 Firebase 승인 도메인에 등록 진행 중입니다. 아래 지메일 간편 입력을 통해 즉시 시작하세요!'
+          : e.message || '구글 로그인 중 오류가 발생했습니다.'
+      );
+      setShowManualForm(true);
     }
   };
 
@@ -70,6 +78,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         </DialogHeader>
 
         <div className="p-6 space-y-5">
+          {/* Error notice if popup failed */}
+          {loginError && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 flex items-start gap-2">
+              <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="leading-relaxed">{loginError}</p>
+            </div>
+          )}
+
           {/* Main Google 1-Touch Button */}
           <button
             type="button"
@@ -131,7 +147,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 onClick={() => setShowManualForm(true)}
                 className="text-xs text-slate-400 hover:text-slate-700 underline"
               >
-                구글 팝업이 차단되었거나 지메일 직접 입력으로 로그인하기 &darr;
+                지메일(Gmail) 주소 직접 입력으로 로그인하기 &darr;
               </button>
             ) : (
               <form onSubmit={handleQuickSubmit} className="space-y-3 pt-2 text-left">
@@ -150,7 +166,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-700 mb-1 block">
-                      이메일 주소 (선택)
+                      지메일(Gmail) 주소
                     </label>
                     <Input
                       type="email"
@@ -158,14 +174,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       onChange={(e) => setQuickEmail(e.target.value)}
                       placeholder="예: student@gmail.com"
                       className="h-9 text-xs rounded-xl"
+                      required
                     />
                   </div>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-9 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold"
+                  className="w-full h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
                 >
-                  간편 시작하기
+                  지메일로 즉시 시작하기
                 </Button>
               </form>
             )}
