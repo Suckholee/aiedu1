@@ -688,6 +688,29 @@ export function buildSkillPrompt(
     const mySpecialty = customFields.myAuthorSpecialty || '';
     const myReferral = customFields.myAuthorReferral || '';
 
+    // 다자간(1:N) 미팅 여부 판별
+    let isMultiPartner = false;
+    let multiAttendees: Array<{
+      name: string;
+      company: string;
+      chapter?: string;
+      specialty?: string;
+      targetReferral?: string;
+      partnerStrength?: string;
+    }> = [];
+
+    if (customFields.attendeesJson) {
+      try {
+        const parsed = JSON.parse(customFields.attendeesJson);
+        if (Array.isArray(parsed) && parsed.length > 1) {
+          isMultiPartner = true;
+          multiAttendees = parsed;
+        }
+      } catch {}
+    } else if (customFields.partnerName && (customFields.partnerName.includes(',') || customFields.partnerName.includes('&'))) {
+      isMultiPartner = true;
+    }
+
     const hostProfileSection = (myName || myCompany)
       ? `\n\n★ [글 작성자(나 / 호스트 대표님) 프로필]:
 - 작성자 성함: ${myName || '작성자 대표'}
@@ -700,21 +723,40 @@ ${myReferral ? `- 내 이상적인 추천 고객 (리퍼럴): ${myReferral}` : '
 - 오늘 만난 파트너 대표님(${customFields.partnerName || '상대방 대표'}님)과 대화하면서, 내 사업(${myCompany || '내 비즈니스'}) 관점에서 무엇을 배우고 느꼈는지, 그리고 내 전문분야(${mySpecialty || ''})와 파트너 대표님의 사업이 어떻게 상생 협력할 수 있는지를 진정성 있게 서술하세요.`
       : '';
 
+    const multiPartnerGuide = isMultiPartner
+      ? `\n\n★ [1:N / 다자간(조인트) 121 미팅 특별 서사 지침]:
+- 이번 원투원 미팅은 작성자(나: ${myName || '호스트 대표'})와 함께 총 ${multiAttendees.length > 0 ? multiAttendees.length : '복수'}명의 파트너 대표님들이 함께한 다자간(1:2, 1:3 등 조인트) 비즈니스 미팅입니다.
+${multiAttendees.length > 0
+  ? `- 참석하신 파트너 대표님 목록 및 정보:\n` +
+    multiAttendees
+      .map(
+        (a, i) =>
+          `  ${i + 1}) ${a.company} ${a.name} 대표님 (전문분야: ${a.specialty || '비즈니스'} / 이상적 리퍼럴: ${a.targetReferral || '소개 희망'} / 핵심 강점: ${a.partnerStrength || '전문성'})`
+      )
+      .join('\n')
+  : `- 참여 파트너: ${customFields.partnerName}`}
+- [다자간 서사 필수 요구사항]:
+  1. 본문에서 참여하신 모든 파트너 대표님을 개별 단락으로 공평하고 균형 있게 상세히 조명해 주세요.
+  2. 세 분(또는 여러 대표님) 간에 오고 간 대화의 교류, 서로 다른 비즈니스가 융합될 때 생기는 삼각 협업 시너지(크로스 리퍼럴 및 상생 프로젝트)를 생생하게 풀어내세요.
+  3. 글 마지막의 추천 및 문의 안내에서도 참여하신 대표님들의 비즈니스를 모두 정중히 소개해 주세요.`
+      : '';
+
     prompt += `\n\n★ [BNI 121 원투원 양식 기반 스토리텔링 전용 지침]:
-1. [글의 제목]: 반드시 "[BNI 원투원] {상대방 회사} {대표님 성함} 대표님과의 만남 — {핵심 인사이트/협업 가치}" 형식의 품격 있는 비즈니스 제목으로 작성.
+1. [글의 제목]: 반드시 "[BNI 원투원] {상대방 회사} {대표님 성함} 대표님과의 만남 — {핵심 인사이트/협업 가치}" 형식의 품격 있는 비즈니스 제목으로 작성. (다자간 미팅일 경우 모든 대표님 또는 회사명을 제목에 자연스럽게 병기)
 ${hostProfileSection}
+${multiPartnerGuide}
 2. [BNI 원투원 6단계 서사 구조 (P-S-I)]:
-   - ① 만남의 배경: 대표님을 뵙게 된 계기와 미팅 일시/장소 분위기
-   - ② 파트너의 전문성 & 추천 고객: 대표님의 독보적인 강점과 어떤 고객을 연결해드리면 좋은지(타겟 리퍼럴) 상세 조명
+   - ① 만남의 배경: 대표님들을 뵙게 된 계기와 미팅 일시/장소 분위기
+   - ② 파트너의 전문성 & 추천 고객: 각 대표님의 독보적인 강점과 어떤 고객을 연결해드리면 좋은지(타겟 리퍼럴) 상세 조명
    - ③ 오늘 나눈 대화의 핵심: 오늘 121 미팅에서 나눈 진솔한 대화와 실제 메모에 담긴 생생한 비즈니스 스토리
    - ④ 나의 인사이트 (배운 점): 작성자(나)의 시점에서 느낀 비즈니스 인사이트와 내 사업(${myCompany || '내 사업'})에 적용할 점
-   - ⑤ 상생과 협업 계획: 두 기업이 함께 그리는 시너지, 서로 줄 수 있는 소개 기회, 다음 약속한 일정
-   - ⑥ 맺음말 및 문의 안내: 파트너 대표님을 적극 추천하는 이유와 회사/문의처 안내
+   - ⑤ 상생과 협업 계획: 참여 기업들이 함께 그리는 시너지, 서로 줄 수 있는 소개 기회, 다음 약속한 일정
+   - ⑥ 맺음말 및 문의 안내: 파트너 대표님들을 적극 추천하는 이유와 회사/문의처 안내
 3. [네이버 블로그 친화적 서식]:
    - 각 섹션 시작 시 '> [말풍선] 핵심 한마디' 배치
    - 미팅 사진 [IMAGE_N] 자연스러운 배치
    - 사실과 메모에 기반한 진정성 있는 1인칭 대표님 시점 유지
-4. [녹음본 대화 스크립트 반영]: 녹음본 텍스트 전문(클로바노트 전사본 등)이 제공된 경우, 두 대표님이 나눈 실제 대화 일화, 인상 깊었던 명언이나 고민, 구체적인 비즈니스 솔루션을 본문에 생생하게 녹여내어 글의 신뢰감과 현장감을 극대화하세요.`;
+4. [녹음본 대화 스크립트 반영]: 녹음본 텍스트 전문(클로바노트 전사본 등)이 제공된 경우, 대표님들이 나눈 실제 대화 일화, 인상 깊었던 명언이나 고민, 구체적인 비즈니스 솔루션을 본문에 생생하게 녹여내어 글의 신뢰감과 현장감을 극대화하세요.`;
   }
 
   prompt += `\n\n주제: "${topic}"`;

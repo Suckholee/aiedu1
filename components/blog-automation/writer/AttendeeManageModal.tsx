@@ -38,6 +38,65 @@ import {
   deleteBniAttendee,
 } from '@/lib/blog-automation/bni-attendee-storage';
 
+// 🌟 브라우저 동적 PDF.js 로더 (10MB+ 대용량 PDF도 텍스트로 즉시 경량 추출)
+export const loadPdfJs = async (): Promise<any> => {
+  if (typeof window === 'undefined') return null;
+  if ((window as any).pdfjsLib) return (window as any).pdfjsLib;
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      const lib = (window as any).pdfjsLib;
+      if (lib) {
+        lib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve(lib);
+      } else {
+        reject(new Error('PDF.js 로드 실패'));
+      }
+    };
+    script.onerror = () => reject(new Error('PDF.js 스크립트 로드 실패'));
+    document.head.appendChild(script);
+  });
+};
+
+// 🌟 이미지 압축 (10MB 사진도 300KB로 압축하여 413 페이로드 에러 방지)
+export const compressImage = (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        const maxDim = 1600;
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        } else {
+          resolve(reader.result as string);
+        }
+      };
+      img.onerror = () => resolve(reader.result as string);
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 interface AttendeeManageModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -187,65 +246,6 @@ export function AttendeeManageModal({
     } finally {
       setIsParsing(false);
     }
-  };
-
-  // 🌟 브라우저 동적 PDF.js 로더 (10MB+ 대용량 PDF도 텍스트로 즉시 경량 추출)
-  const loadPdfJs = async (): Promise<any> => {
-    if (typeof window === 'undefined') return null;
-    if ((window as any).pdfjsLib) return (window as any).pdfjsLib;
-
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-      script.onload = () => {
-        const lib = (window as any).pdfjsLib;
-        if (lib) {
-          lib.GlobalWorkerOptions.workerSrc =
-            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-          resolve(lib);
-        } else {
-          reject(new Error('PDF.js 로드 실패'));
-        }
-      };
-      script.onerror = () => reject(new Error('PDF.js 스크립트 로드 실패'));
-      document.head.appendChild(script);
-    });
-  };
-
-  // 🌟 이미지 압축 (10MB 사진도 300KB로 압축하여 413 페이로드 에러 방지)
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new window.Image();
-        img.onload = () => {
-          const maxDim = 1600;
-          let { width, height } = img;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-          } else {
-            resolve(reader.result as string);
-          }
-        };
-        img.onerror = () => resolve(reader.result as string);
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    });
   };
 
   // 🌟 파일 선택 처리 (대용량 PDF / 이미지 자동 최적화 후 AI 분석 트리거)

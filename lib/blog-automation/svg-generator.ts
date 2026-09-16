@@ -15,6 +15,13 @@ const COLORS = [
 
 export function generateHeroBanner(title: string, tags: string[]): string {
   const tagStr = tags.slice(0, 3).map((t) => `#${t}`).join('  ');
+  const cleanTitle = (title || '').trim();
+  const maxChars = cleanTitle.length > 28 ? 22 : 25;
+  const fontSize = cleanTitle.length > 28 ? 22 : 26;
+  const lineHeight = fontSize + 10;
+  const lines = wrapText(cleanTitle, maxChars);
+  const startY = Math.max(130, 190 - ((lines.length - 1) * lineHeight) / 2);
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" style="width:100%;max-width:800px;border-radius:12px;margin:0 auto 24px;display:block;">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -29,11 +36,10 @@ export function generateHeroBanner(title: string, tags: string[]): string {
   <rect width="800" height="400" rx="12" fill="url(#bg)"/>
   <rect x="60" y="320" width="120" height="4" rx="2" fill="url(#accent)"/>
   ${generateDecoCircles()}
-  <text x="60" y="180" font-family="system-ui,sans-serif" font-size="28" font-weight="700" fill="#F8FAFC" style="max-width:680px;">
-    ${wrapText(title, 30).map((line, i) => `<tspan x="60" dy="${i === 0 ? 0 : 36}">${escSvg(line)}</tspan>`).join('')}
+  <text x="60" y="${startY}" font-family="system-ui,-apple-system,sans-serif" font-size="${fontSize}" font-weight="700" fill="#F8FAFC" style="max-width:680px;">
+    ${lines.map((line, i) => `<tspan x="60" dy="${i === 0 ? 0 : lineHeight}">${escSvg(line)}</tspan>`).join('')}
   </text>
-  <text x="60" y="345" font-family="system-ui,sans-serif" font-size="14" fill="#94A3B8">${escSvg(tagStr)}</text>
-  <text x="740" y="375" font-family="system-ui,sans-serif" font-size="11" fill="#475569" text-anchor="end">AI Generated</text>
+  <text x="60" y="345" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#94A3B8">${escSvg(tagStr)}</text>
 </svg>`;
 }
 
@@ -488,19 +494,40 @@ function truncate(s: string, max: number): string {
 }
 
 function wrapText(text: string, maxChars: number): string[] {
-  const words = String(text || '').split('');
+  const str = String(text || '').trim();
+  if (!str) return [];
+  const words = str.split(' ');
   const lines: string[] = [];
   let current = '';
-  for (const char of words) {
-    if (current.length >= maxChars && char === ' ') {
-      lines.push(current);
-      current = '';
+
+  for (const word of words) {
+    if (!current) {
+      if (word.length > maxChars) {
+        for (let i = 0; i < word.length; i += maxChars) {
+          lines.push(word.slice(i, i + maxChars));
+        }
+      } else {
+        current = word;
+      }
+    } else if ((current + ' ' + word).length <= maxChars) {
+      current += ' ' + word;
     } else {
-      current += char;
+      lines.push(current);
+      if (word.length > maxChars) {
+        for (let i = 0; i < word.length; i += maxChars) {
+          if (i + maxChars >= word.length) {
+            current = word.slice(i);
+          } else {
+            lines.push(word.slice(i, i + maxChars));
+          }
+        }
+      } else {
+        current = word;
+      }
     }
   }
   if (current) lines.push(current);
-  return lines.length > 0 ? lines : [text || ''];
+  return lines.slice(0, 3);
 }
 
 function formatNum(n: number | string): string {

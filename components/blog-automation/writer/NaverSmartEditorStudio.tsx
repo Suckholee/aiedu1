@@ -698,9 +698,9 @@ export function NaverSmartEditorStudio({
       ═════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex min-h-0 overflow-hidden relative">
         {/* ── 중앙 스마트에디터 화이트 캔버스 ── */}
-        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 flex justify-center custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6 flex justify-center items-start custom-scrollbar">
           <div
-            className={`w-full bg-white rounded-lg shadow-sm border border-[#e5e7eb] min-h-[900px] flex flex-col p-5 sm:p-8 md:p-10 relative transition-all ${
+            className={`w-full bg-white rounded-lg shadow-sm border border-[#e5e7eb] min-h-[900px] h-fit mb-12 flex flex-col p-5 sm:p-8 md:p-10 relative transition-all ${
               viewDevice === 'mobile' ? 'max-w-[420px]' : 'max-w-[880px]'
             }`}
           >
@@ -726,23 +726,33 @@ export function NaverSmartEditorStudio({
 
             {/* ── 캔버스 제목 입력란 ── */}
             <div className="relative mb-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3">
                 <button
                   type="button"
                   onClick={() => setTemplateDrawerOpen(true)}
-                  className="w-8 h-8 shrink-0 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-400 hover:text-[#03c75a] flex items-center justify-center transition-all shadow-2xs hover:scale-105"
+                  className="w-8 h-8 shrink-0 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-400 hover:text-[#03c75a] flex items-center justify-center transition-all shadow-2xs hover:scale-105 mt-1"
                   title="템플릿 설정 서랍 열기"
                 >
                   <Plus className="size-4" />
                 </button>
-                <input
+                <textarea
                   id="real-blog-generated-title"
                   data-testid="rendered-blog-title"
-                  type="text"
                   value={topic}
-                  onChange={(e) => onTopicChange(e.target.value)}
+                  onChange={(e) => {
+                    onTopicChange(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${e.target.scrollHeight}px`;
+                  }}
+                  ref={(el) => {
+                    if (el) {
+                      el.style.height = 'auto';
+                      el.style.height = `${el.scrollHeight}px`;
+                    }
+                  }}
+                  rows={1}
                   placeholder="제목을 입력하세요 (블로그 주제 및 메인 키워드)"
-                  className="real-blog-title-text flex-1 text-2xl md:text-3xl font-extrabold text-[#191919] placeholder:text-[#b8b8b8] border-none outline-hidden focus:outline-hidden bg-transparent leading-tight tracking-tight pr-2"
+                  className="real-blog-title-text flex-1 text-2xl md:text-3xl font-extrabold text-[#191919] placeholder:text-[#b8b8b8] border-none outline-hidden focus:outline-hidden bg-transparent leading-snug tracking-tight pr-2 resize-none overflow-hidden break-keep"
                 />
               </div>
               <span id="real-blog-title-hidden" data-testid="rendered-blog-title" className="sr-only">

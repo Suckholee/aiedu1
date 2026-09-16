@@ -249,19 +249,21 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
     }
   }
 
-  // Generate fallback charts if needed
-  if (svgCharts.length === 0 && inlineSvgPlaceholders.length === 0) {
+  const isOneToOne = skillId === 'one_to_one';
+
+  // Generate fallback charts if needed (skip for authentic 121 personal meetings)
+  if (!isOneToOne && svgCharts.length === 0 && inlineSvgPlaceholders.length === 0) {
     console.log('[blog-auto] No charts from Gemini, generating fallback charts from content');
     const fallbacks = generateFallbackCharts(post.title, post.content, post.tags || []);
     svgCharts.push(...fallbacks);
   }
   console.log('[blog-auto] Final SVG charts count:', svgCharts.length + inlineSvgPlaceholders.length);
 
-  // Generate hero banner
-  const heroBanner = generateHeroBanner(post.title, post.tags || []);
+  // Generate hero banner (omit for 121 meetings to maintain natural blog post look)
+  const heroBanner = isOneToOne ? '' : generateHeroBanner(post.title, post.tags || []);
 
   // Markdown → HTML 변환
-  let htmlContent = heroBanner + '\n' + markdownToHtml(post.content);
+  let htmlContent = (heroBanner ? heroBanner + '\n' : '') + markdownToHtml(post.content);
 
   // 인라인 차트 플레이스홀더 치환
   for (const item of inlineSvgPlaceholders) {
@@ -273,7 +275,7 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
   htmlContent = htmlContent.replace(/\[CHART_\d+\]/g, '');
 
   // 섹션 사이에 자동 배치해야 할 차트가 있고, 인라인 차트가 부족한 경우 삽입
-  if (svgCharts.length > 0 && inlineSvgPlaceholders.length === 0) {
+  if (!isOneToOne && svgCharts.length > 0 && inlineSvgPlaceholders.length === 0) {
     htmlContent = insertChartsAfterSections(htmlContent, svgCharts);
   }
 
@@ -586,7 +588,7 @@ function generateFallbackCharts(title: string, content: string, tags: string[]):
 function insertChartsAfterSections(html: string, charts: string[]): string {
   // <h2> 태그 위치를 찾아서 섹션 사이에 차트 삽입
   const h2Positions: number[] = [];
-  const h2Regex = /<h2>/g;
+  const h2Regex = /<h2[\s>]/gi;
   let match;
   while ((match = h2Regex.exec(html)) !== null) {
     h2Positions.push(match.index);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Users,
   Building2,
@@ -28,6 +28,11 @@ import {
   Loader2,
   Wand2,
   UserCheck,
+  UploadCloud,
+  FileSpreadsheet,
+  CheckCircle2,
+  FileCheck,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +45,7 @@ import {
   getBniAttendees,
   DEFAULT_BNI_ATTENDEES,
 } from '@/lib/blog-automation/bni-attendee-storage';
-import { AttendeeManageModal } from './AttendeeManageModal';
+import { AttendeeManageModal, loadPdfJs, compressImage } from './AttendeeManageModal';
 
 interface OneToOneMeetingPanelProps {
   customFields: Record<string, string>;
@@ -63,9 +68,9 @@ export function OneToOneMeetingPanel({
 }: OneToOneMeetingPanelProps) {
   const { user } = useAuth();
 
-  // 참석자 목록 및 선택 상태 (목업 배제, 사용자 등록 파트너만 관리)
+  // 참석자 목록 및 다중 선택 상태 (목업 배제, 사용자 등록 파트너만 관리)
   const [attendees, setAttendees] = useState<BniAttendee[]>([]);
-  const [selectedAttendeeId, setSelectedAttendeeId] = useState<string | null>(null);
+  const [selectedAttendeeIds, setSelectedAttendeeIds] = useState<string[]>([]);
 
   // 모달 상태
   const [modalOpen, setModalOpen] = useState(false);
@@ -98,6 +103,242 @@ export function OneToOneMeetingPanel({
     targetReferral: '',
   });
   const [isEditingMyProfile, setIsEditingMyProfile] = useState(false);
+
+  // ── 작성자(나 / 호스트 대표님) 121 양식지 업로드 & 파싱 상태 ──
+  const [myUploadMode, setMyUploadMode] = useState<'file' | 'text'>('file');
+  const [myRawSheetText, setMyRawSheetText] = useState('');
+  const [myUploadedFile, setMyUploadedFile] = useState<{
+    name: string;
+    size: number;
+    type: string;
+    base64: string;
+  } | null>(null);
+  const [isMyDragging, setIsMyDragging] = useState(false);
+  const [isParsingMySheet, setIsParsingMySheet] = useState(false);
+  const myFileInputRef = useRef<HTMLInputElement>(null);
+
+  const executeParseMySheet = async (params: {
+    sheetText?: string;
+    fileBase64?: string;
+    mimeType?: string;
+    fileName?: string;
+  }) => {
+    setIsParsingMySheet(true);
+    try {
+      const res = await fetch('/api/blog-auto/writer/parse-121-sheet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sheetText: params.sheetText,
+          fileBase64: params.fileBase64,
+          mimeType: params.mimeType,
+          partnerName: myProfile.name,
+        }),
+      });
+
+      const resText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(resText);
+      } catch {
+        if (res.status === 413 || resText.includes('Request Entity Too Large')) {
+          throw new Error('파일 크기가 서버 전송 한도를 초과했습니다. PDF의 텍스트를 복사하여 [📋 텍스트 붙여넣기]에 넣어주세요.');
+        }
+        throw new Error(`서버 처리 실패 (${res.status}): ${resText.slice(0, 100)}`);
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || '양식지 분석에 실패했습니다.');
+      }
+
+      const parsed = data.data;
+
+      // 성함: 없거나 새 정보가 있으면 업데이트
+      let updatedName = myProfile.name;
+      if (parsed.partnerName) {
+        updatedName = parsed.partnerName;
+      }
+
+      // 회사명 및 챕터 자동 분리
+      let updatedCompany = myProfile.company;
+      let updatedChapter = myProfile.chapter;
+      if (parsed.partnerCompany) {
+        const comp = parsed.partnerCompany;
+        if (comp.includes('(') && comp.includes(')')) {
+          const parts = comp.split('(');
+          updatedCompany = parts[0].trim();
+          if (!updatedChapter) {
+            updatedChapter = parts[1].replace(')', '').trim();
+          }
+        } else {
+          updatedCompany = comp;
+        }
+      }
+      if (parsed.partnerChapter && !updatedChapter) {
+        updatedChapter = parsed.partnerChapter;
+      }
+
+      const updatedSpecialty = parsed.partnerField || myProfile.specialty;
+      const updatedReferral = parsed.targetReferral || myProfile.targetReferral || '';
+
+      const updated = {
+        name: updatedName,
+        company: updatedCompany,
+        chapter: updatedChapter,
+        specialty: updatedSpecialty,
+        targetReferral: updatedReferral,
+      };
+
+      setMyProfile(updated);
+
+      if (updated.name) {
+        localStorage.setItem('bni_my_host_profile', JSON.stringify(updated));
+        onCustomFieldsChange({
+          ...customFields,
+          myAuthorName: updated.name,
+          myAuthorCompany: updated.company,
+          myAuthorChapter: updated.chapter,
+          myAuthorSpecialty: updated.specialty,
+          myAuthorReferral: updated.targetReferral,
+        });
+      }
+
+      toast.success('✨ 대표님의 121 양식지가 성공적으로 분석되어 내 정보가 자동 입력되었습니다!');
+    } catch (e: any) {
+      toast.error(e.message || '양식지 분석 중 오류가 발생했습니다.');
+    } finally {
+      setIsParsingMySheet(false);
+    }
+  };
+
+  const handleMyFileSelect = async (file: File) => {
+    if (!file) return;
+
+    const lowerName = file.name.toLowerCase();
+    const isPdf = file.type === 'application/pdf' || lowerName.endsWith('.pdf');
+    const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(lowerName);
+    const isText = file.type.startsWith('text/') || lowerName.endsWith('.txt');
+
+    if (!isPdf && !isImage && !isText) {
+      toast.error('지원 형식: 이미지 (JPG, PNG, WebP), PDF, TXT 파일만 가능합니다.');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('파일 크기는 최대 50MB까지 업로드할 수 있습니다.');
+      return;
+    }
+
+    setMyUploadedFile({
+      name: file.name,
+      size: file.size,
+      type: file.type || (isPdf ? 'application/pdf' : 'application/octet-stream'),
+      base64: '',
+    });
+
+    // 1) 텍스트 파일 (.txt)
+    if (isText) {
+      try {
+        const textContent = await file.text();
+        executeParseMySheet({ sheetText: textContent, fileName: file.name });
+      } catch (err: any) {
+        toast.error('텍스트 파일 읽기 실패: ' + err.message);
+      }
+      return;
+    }
+
+    // 2) 이미지 파일 (JPG, PNG, WebP) -> Canvas 경량 압축
+    if (isImage) {
+      try {
+        const compressedBase64 = await compressImage(file);
+        setMyUploadedFile((prev) => (prev ? { ...prev, base64: compressedBase64 } : null));
+        executeParseMySheet({
+          fileBase64: compressedBase64,
+          mimeType: 'image/jpeg',
+          fileName: file.name,
+        });
+      } catch (err: any) {
+        toast.error('이미지 처리 실패: ' + err.message);
+      }
+      return;
+    }
+
+    // 3) PDF 파일 (대용량 PDF 포함 -> 브라우저 텍스트 직접 추출)
+    if (isPdf) {
+      setIsParsingMySheet(true);
+      try {
+        const pdfjs = await loadPdfJs();
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+
+        let fullText = '';
+        const maxPages = Math.min(pdf.numPages, 10);
+
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageStrings = content.items
+            .map((it: any) => it.str)
+            .filter(Boolean);
+          if (pageStrings.length > 0) {
+            fullText += `\n[${i}페이지]\n` + pageStrings.join(' ');
+          }
+        }
+
+        if (fullText.trim().length >= 30) {
+          executeParseMySheet({ sheetText: fullText.trim(), fileName: file.name });
+          return;
+        }
+
+        if (pdf.numPages > 0) {
+          const firstPage = await pdf.getPage(1);
+          const viewport = firstPage.getViewport({ scale: 1.5 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            await firstPage.render({ canvasContext: ctx, viewport }).promise;
+            const pageImage = canvas.toDataURL('image/jpeg', 0.85);
+            setMyUploadedFile((prev) => (prev ? { ...prev, base64: pageImage } : null));
+            executeParseMySheet({
+              fileBase64: pageImage,
+              mimeType: 'image/jpeg',
+              fileName: file.name,
+            });
+            return;
+          }
+        }
+
+        if (file.size <= 3 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const b64 = e.target?.result as string;
+            executeParseMySheet({ fileBase64: b64, mimeType: 'application/pdf', fileName: file.name });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          throw new Error('PDF 텍스트 추출에 실패했습니다. 내용을 복사하여 [📋 텍스트 붙여넣기]로 입력해주세요.');
+        }
+      } catch (pdfErr: any) {
+        console.error('PDF parsing error:', pdfErr);
+        setIsParsingMySheet(false);
+        if (file.size <= 3 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const b64 = e.target?.result as string;
+            executeParseMySheet({ fileBase64: b64, mimeType: 'application/pdf', fileName: file.name });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          toast.error(
+            '대용량 PDF 처리 안내: 파일 크기가 커서 텍스트 복사 후 [📋 텍스트 붙여넣기]로 넣어주시면 가장 빠르고 정확하게 분석됩니다.'
+          );
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     try {
@@ -195,9 +436,26 @@ export function OneToOneMeetingPanel({
         const list = await getBniAttendees(user?.uid);
         if (list) {
           setAttendees(list);
+          if (customFields.attendeesJson) {
+            try {
+              const parsed = JSON.parse(customFields.attendeesJson);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const validIds = parsed
+                  .map((a: any) => a.id)
+                  .filter((id: string) => list.some((att) => att.id === id));
+                if (validIds.length > 0) {
+                  setSelectedAttendeeIds(validIds);
+                  return;
+                }
+              }
+            } catch {}
+          }
           if (customFields.partnerName) {
-            const found = list.find((a) => a.name === customFields.partnerName);
-            if (found) setSelectedAttendeeId(found.id);
+            const names = customFields.partnerName.split(',').map((n) => n.trim());
+            const matched = list.filter((a) => names.includes(a.name));
+            if (matched.length > 0) {
+              setSelectedAttendeeIds(matched.map((a) => a.id));
+            }
           }
         }
       } catch (e) {
@@ -214,44 +472,133 @@ export function OneToOneMeetingPanel({
     });
   };
 
-  // 2. 참석자 선택 시 모든 사전 양식지 정보 폼에 즉시 프리필(Pre-fill)
-  const handleSelectAttendee = (att: BniAttendee) => {
-    setSelectedAttendeeId(att.id);
+  // 2. 참석자 다중 선택 동기화 함수
+  const syncAttendeesToFields = (nextIds: string[], list = attendees) => {
+    const selected = list.filter((a) => nextIds.includes(a.id));
+    if (selected.length === 0) {
+      onCustomFieldsChange({
+        ...customFields,
+        partnerName: '',
+        partnerCompany: '',
+        partnerField: '',
+        targetReferral: '',
+        partnerStrength: '',
+        sheetSummary: '',
+        attendeesJson: '',
+      });
+      return;
+    }
 
-    const fullCompany = att.chapter ? `${att.company} (${att.chapter})` : att.company;
+    if (selected.length === 1) {
+      const att = selected[0];
+      const fullCompany = att.chapter ? `${att.company} (${att.chapter})` : att.company;
 
-    onCustomFieldsChange({
-      ...customFields,
-      partnerName: att.name,
-      partnerCompany: fullCompany,
-      partnerField: att.specialty,
-      targetReferral: att.targetReferral,
-      partnerStrength: att.partnerStrength,
-      sheetSummary: att.sheetSummary || '',
-      meetingPlace: att.preferredPlace || customFields.meetingPlace || '비즈니스 라운지 카페',
-      meetingDate: customFields.meetingDate || new Date().toISOString().slice(0, 10),
-    });
+      onCustomFieldsChange({
+        ...customFields,
+        partnerName: att.name,
+        partnerCompany: fullCompany,
+        partnerField: att.specialty,
+        targetReferral: att.targetReferral,
+        partnerStrength: att.partnerStrength,
+        sheetSummary: att.sheetSummary || '',
+        attendeesJson: JSON.stringify(selected),
+        meetingPlace: att.preferredPlace || customFields.meetingPlace || '비즈니스 라운지 카페',
+        meetingDate: customFields.meetingDate || new Date().toISOString().slice(0, 10),
+      });
 
-    // 추천 글 제목 및 키워드 자동 세팅
-    if (!topic || topic.includes('[BNI 원투원]')) {
-      const cleanName = att.name.replace(' 대표', '');
-      onTopicChange(
-        `[BNI 원투원] ${att.company} ${cleanName} 대표님과의 121 미팅 - 비즈니스 시너지와 인사이트`
+      if (!topic || topic.includes('[BNI 원투원]')) {
+        const cleanName = att.name.replace(' 대표', '');
+        onTopicChange(
+          `[BNI 원투원] ${att.company} ${cleanName} 대표님과의 121 미팅 - 비즈니스 시너지와 인사이트`
+        );
+      }
+
+      if (!requiredKeywords || requiredKeywords.includes('BNI원투원')) {
+        const cleanName = att.name.replace(' 대표', '');
+        onRequiredKeywordsChange(
+          `BNI원투원, 121미팅, ${att.company}, ${cleanName}대표, 비즈니스네트워킹, 상생협업`
+        );
+      }
+
+      if (onTargetAudienceChange) {
+        onTargetAudienceChange('BNI 멤버, 기업 대표님 및 사업가, 비즈니스 네트워킹 관심자');
+      }
+    } else {
+      // 2명 이상 다자간 121 미팅
+      const names = selected.map((a) => a.name).join(', ');
+      const companies = selected
+        .map((a) => `${a.company}${a.chapter ? ` (${a.chapter})` : ''}`)
+        .join(' / ');
+      const fields = selected.map((a) => `${a.name}: ${a.specialty}`).join(' | ');
+      const referrals = selected
+        .map((a) => `${a.name}: ${a.targetReferral || '미등록'}`)
+        .join(' | ');
+      const strengths = selected
+        .map((a) => `${a.name}: ${a.partnerStrength || '미등록'}`)
+        .join(' | ');
+      const summaries = selected
+        .map((a) => `[${a.name} (${a.company})]\n${a.sheetSummary || '양식지 요약 없음'}`)
+        .join('\n\n');
+
+      onCustomFieldsChange({
+        ...customFields,
+        partnerName: names,
+        partnerCompany: companies,
+        partnerField: fields,
+        targetReferral: referrals,
+        partnerStrength: strengths,
+        sheetSummary: summaries,
+        attendeesJson: JSON.stringify(selected),
+        meetingPlace: selected[0]?.preferredPlace || customFields.meetingPlace || '비즈니스 라운지 카페',
+        meetingDate: customFields.meetingDate || new Date().toISOString().slice(0, 10),
+      });
+
+      if (!topic || topic.includes('[BNI 원투원]')) {
+        const partnerLabels = selected
+          .map((a) => `${a.company} ${a.name.replace(' 대표', '')} 대표님`)
+          .join(' & ');
+        onTopicChange(
+          `[BNI 원투원] ${partnerLabels}과의 121 미팅 - 비즈니스 시너지와 상생 협업`
+        );
+      }
+
+      if (!requiredKeywords || requiredKeywords.includes('BNI원투원')) {
+        const kwNames = selected
+          .map((a) => `${a.company}, ${a.name.replace(' 대표', '')}대표`)
+          .join(', ');
+        onRequiredKeywordsChange(
+          `BNI원투원, 121미팅, 다자간121, ${kwNames}, 비즈니스네트워킹, 상생협업`
+        );
+      }
+
+      if (onTargetAudienceChange) {
+        onTargetAudienceChange('BNI 멤버, 기업 대표님 및 사업가, 비즈니스 네트워킹 관심자');
+      }
+    }
+  };
+
+  // 참석자 토글
+  const handleToggleAttendee = (att: BniAttendee) => {
+    let nextIds: string[];
+    if (selectedAttendeeIds.includes(att.id)) {
+      nextIds = selectedAttendeeIds.filter((id) => id !== att.id);
+      toast.info(`'${att.name}' 대표님이 미팅에서 제외되었습니다.`);
+    } else {
+      nextIds = [...selectedAttendeeIds, att.id];
+      toast.success(
+        nextIds.length > 1
+          ? `👥 '${att.name}' 대표님이 추가되어 총 ${nextIds.length}명의 다자간 121 미팅이 구성되었습니다.`
+          : `🤝 '${att.name}' 대표님이 선택되었습니다.`
       );
     }
+    setSelectedAttendeeIds(nextIds);
+    syncAttendeesToFields(nextIds);
+  };
 
-    if (!requiredKeywords || requiredKeywords.includes('BNI원투원')) {
-      const cleanName = att.name.replace(' 대표', '');
-      onRequiredKeywordsChange(
-        `BNI원투원, 121미팅, ${att.company}, ${cleanName}대표, 비즈니스네트워킹, 상생협업`
-      );
-    }
-
-    if (onTargetAudienceChange) {
-      onTargetAudienceChange('BNI 멤버, 기업 대표님 및 사업가, 비즈니스 네트워킹 관심자');
-    }
-
-    toast.success(`🤝 '${att.name}' 대표님의 사전 양식지 정보가 자동 적용되었습니다.`);
+  const handleClearAllAttendees = () => {
+    setSelectedAttendeeIds([]);
+    syncAttendeesToFields([]);
+    toast.info('참석자 선택이 모두 해제되었습니다.');
   };
 
   // 모달 열기 (신규 등록)
@@ -268,29 +615,33 @@ export function OneToOneMeetingPanel({
 
   // 모달에서 저장 완료 후 콜백
   const handleAttendeeSaved = (saved: BniAttendee) => {
-    setAttendees((prev) => {
-      const idx = prev.findIndex((a) => a.id === saved.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = saved;
-        return next;
-      }
-      return [saved, ...prev];
-    });
-    handleSelectAttendee(saved);
+    let updatedList = [...attendees];
+    const idx = updatedList.findIndex((a) => a.id === saved.id);
+    if (idx >= 0) {
+      updatedList[idx] = saved;
+    } else {
+      updatedList = [saved, ...updatedList];
+    }
+    setAttendees(updatedList);
+
+    const nextIds = selectedAttendeeIds.includes(saved.id)
+      ? selectedAttendeeIds
+      : [...selectedAttendeeIds, saved.id];
+    setSelectedAttendeeIds(nextIds);
+    syncAttendeesToFields(nextIds, updatedList);
   };
 
   // 모달에서 삭제 완료 후 콜백
   const handleAttendeeDeleted = (deletedId: string) => {
-    setAttendees((prev) => prev.filter((a) => a.id !== deletedId));
-    if (selectedAttendeeId === deletedId) {
-      setSelectedAttendeeId(null);
-      resetFields();
-    }
+    const updatedList = attendees.filter((a) => a.id !== deletedId);
+    setAttendees(updatedList);
+    const nextIds = selectedAttendeeIds.filter((id) => id !== deletedId);
+    setSelectedAttendeeIds(nextIds);
+    syncAttendeesToFields(nextIds, updatedList);
   };
 
   const resetFields = () => {
-    setSelectedAttendeeId(null);
+    setSelectedAttendeeIds([]);
     onCustomFieldsChange({
       ...customFields,
       partnerName: '',
@@ -299,6 +650,7 @@ export function OneToOneMeetingPanel({
       targetReferral: '',
       partnerStrength: '',
       sheetSummary: '',
+      attendeesJson: '',
       meetingDate: new Date().toISOString().slice(0, 10),
       meetingPlace: '',
       conversationCore: '',
@@ -308,7 +660,7 @@ export function OneToOneMeetingPanel({
     toast.info('원투원 양식이 비워졌습니다. 새 참석자를 선택하거나 직접 입력하세요.');
   };
 
-  const currentAttendee = attendees.find((a) => a.id === selectedAttendeeId);
+  const selectedAttendees = attendees.filter((a) => selectedAttendeeIds.includes(a.id));
 
   return (
     <div className="space-y-4 rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 via-white to-white p-3.5 sm:p-5 shadow-xs">
@@ -396,83 +748,225 @@ export function OneToOneMeetingPanel({
 
         {/* 내 프로필 인라인 수정 폼 */}
         {isEditingMyProfile && (
-          <form onSubmit={handleSaveMyProfile} className="space-y-3 pt-2 border-t border-indigo-100 animate-in fade-in duration-150">
+          <div className="space-y-3 pt-2 border-t border-indigo-100 animate-in fade-in duration-150">
             <div className="p-2 rounded-lg bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed">
-              💡 <strong>내 정보(성함, 회사, 챕터, 주력사업)</strong>를 한 번 등록해두면, 모든 121 블로그 글이 <strong>대표님의 시점(1인칭 '저희 회사')</strong>으로 자연스럽게 작성되며, 파트너와의 상생 시너지가 정확하게 담깁니다.
+              💡 <strong>내 121 양식지</strong>를 업로드하거나 내용을 붙여넣으시면, AI가 대표님의 성함, 회사, 챕터, 주력 사업, 희망 리퍼럴을 <strong>자동으로 분석하여 채워드립니다</strong>. 한 번 등록해두면 모든 121 글에 대표님의 시점(1인칭 '저희 회사')으로 자연스럽게 반영됩니다.
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-700">내 성함 / 직함 *</Label>
+            {/* 🌟 내 121 양식지 올리고 AI로 자동 채우기 */}
+            <div className="rounded-xl border border-indigo-200/90 bg-indigo-50/30 p-2.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-950">
+                  <Sparkles className="size-3.5 text-indigo-600" />
+                  <span>내 121 양식지로 내 정보 자동 완성</span>
+                </div>
+                <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200 text-[10.5px]">
+                  <button
+                    type="button"
+                    onClick={() => setMyUploadMode('file')}
+                    className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                      myUploadMode === 'file'
+                        ? 'bg-indigo-600 text-white shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    📁 사진/PDF 업로드
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMyUploadMode('text')}
+                    className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                      myUploadMode === 'text'
+                        ? 'bg-indigo-600 text-white shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    📋 텍스트/카톡 붙여넣기
+                  </button>
+                </div>
+              </div>
+
+              {myUploadMode === 'file' ? (
+                <div>
+                  <input
+                    ref={myFileInputRef}
+                    type="file"
+                    accept="image/*,application/pdf,.txt"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleMyFileSelect(file);
+                      e.target.value = '';
+                    }}
+                  />
+
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsMyDragging(true);
+                    }}
+                    onDragLeave={() => setIsMyDragging(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsMyDragging(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) handleMyFileSelect(file);
+                    }}
+                    onClick={() => !isParsingMySheet && myFileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition-all bg-white ${
+                      isMyDragging
+                        ? 'border-indigo-500 bg-indigo-50/50 scale-[0.99]'
+                        : 'border-indigo-200/80 hover:border-indigo-400 hover:bg-indigo-50/20'
+                    }`}
+                  >
+                    {isParsingMySheet ? (
+                      <div className="flex flex-col items-center justify-center py-2 space-y-1.5">
+                        <Loader2 className="size-5 text-indigo-600 animate-spin" />
+                        <span className="text-xs font-bold text-indigo-900">
+                          AI가 내 121 양식지를 분석하는 중...
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          성함, 회사명, BNI 챕터, 전문분야, 타겟 리퍼럴을 자동 추출합니다.
+                        </span>
+                      </div>
+                    ) : myUploadedFile ? (
+                      <div className="flex items-center justify-between p-1">
+                        <div className="flex items-center gap-2 min-w-0 text-left">
+                          <FileCheck className="size-4 text-emerald-600 shrink-0" />
+                          <div className="truncate">
+                            <span className="text-xs font-bold text-slate-800 truncate block">
+                              {myUploadedFile.name}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {(myUploadedFile.size / 1024).toFixed(0)} KB • 분석 완료
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10.5px] font-bold text-indigo-600 hover:underline shrink-0 ml-2">
+                          다른 파일 올리기
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-1.5 space-y-1">
+                        <UploadCloud className="size-5 text-indigo-500" />
+                        <span className="text-xs font-bold text-slate-700">
+                          내 121 양식지 파일(PDF, 사진, TXT)을 끌어다 놓거나 클릭하세요
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          대용량 PDF도 브라우저에서 텍스트만 안전하게 추출하여 즉시 분석됩니다
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Textarea
+                    value={myRawSheetText}
+                    onChange={(e) => setMyRawSheetText(e.target.value)}
+                    placeholder="카카오톡이나 메모장에 작성해 둔 내 121 양식지 텍스트를 여기에 그대로 붙여넣으세요."
+                    rows={3}
+                    className="text-xs bg-white resize-y leading-relaxed"
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isParsingMySheet || !myRawSheetText.trim()}
+                      onClick={() => executeParseMySheet({ sheetText: myRawSheetText.trim() })}
+                      className="h-7 text-xs px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center gap-1"
+                    >
+                      {isParsingMySheet ? (
+                        <>
+                          <Loader2 className="size-3 animate-spin" />
+                          <span>분석 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="size-3" />
+                          <span>⚡ 텍스트로 내 정보 자동 채우기</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={handleSaveMyProfile} className="space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-700">내 성함 / 직함 *</Label>
+                  <Input
+                    value={myProfile.name}
+                    onChange={(e) => setMyProfile({ ...myProfile, name: e.target.value })}
+                    placeholder="예: 이석호 대표"
+                    className="h-8 text-xs bg-white"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-700">내 회사명</Label>
+                  <Input
+                    value={myProfile.company}
+                    onChange={(e) => setMyProfile({ ...myProfile, company: e.target.value })}
+                    placeholder="예: 가호석호 / AI에듀"
+                    className="h-8 text-xs bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-700">소속 BNI 챕터</Label>
+                  <Input
+                    value={myProfile.chapter}
+                    onChange={(e) => setMyProfile({ ...myProfile, chapter: e.target.value })}
+                    placeholder="예: BNI 마스터 챕터"
+                    className="h-8 text-xs bg-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-700">내 전문분야 / 주력 사업</Label>
+                  <Input
+                    value={myProfile.specialty}
+                    onChange={(e) => setMyProfile({ ...myProfile, specialty: e.target.value })}
+                    placeholder="예: 생성형 AI 교육 및 비즈니스 업무 자동화 솔루션"
+                    className="h-8 text-xs bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1 text-xs">
+                <Label className="text-[11px] font-bold text-slate-700">내가 소개받고 싶은 고객 (내 타겟 리퍼럴)</Label>
                 <Input
-                  value={myProfile.name}
-                  onChange={(e) => setMyProfile({ ...myProfile, name: e.target.value })}
-                  placeholder="예: 이석호 대표"
+                  value={myProfile.targetReferral || ''}
+                  onChange={(e) => setMyProfile({ ...myProfile, targetReferral: e.target.value })}
+                  placeholder="예: AI 도입을 희망하는 중소기업 대표, 실무 자동화가 필요한 임직원"
                   className="h-8 text-xs bg-white"
-                  required
                 />
               </div>
 
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-700">내 회사명</Label>
-                <Input
-                  value={myProfile.company}
-                  onChange={(e) => setMyProfile({ ...myProfile, company: e.target.value })}
-                  placeholder="예: 가호석호 / AI에듀"
-                  className="h-8 text-xs bg-white"
-                />
+              <div className="flex justify-end gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingMyProfile(false)}
+                  className="px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-lg"
+                >
+                  닫기
+                </button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="h-7 text-xs font-bold bg-slate-900 hover:bg-black text-white px-3"
+                >
+                  💾 내 정보 저장
+                </Button>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-700">소속 BNI 챕터</Label>
-                <Input
-                  value={myProfile.chapter}
-                  onChange={(e) => setMyProfile({ ...myProfile, chapter: e.target.value })}
-                  placeholder="예: BNI 마스터 챕터"
-                  className="h-8 text-xs bg-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-700">내 전문분야 / 주력 사업</Label>
-                <Input
-                  value={myProfile.specialty}
-                  onChange={(e) => setMyProfile({ ...myProfile, specialty: e.target.value })}
-                  placeholder="예: 생성형 AI 교육 및 비즈니스 업무 자동화 솔루션"
-                  className="h-8 text-xs bg-white"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-xs">
-              <Label className="text-[11px] font-bold text-slate-700">내가 소개받고 싶은 고객 (내 타겟 리퍼럴)</Label>
-              <Input
-                value={myProfile.targetReferral || ''}
-                onChange={(e) => setMyProfile({ ...myProfile, targetReferral: e.target.value })}
-                placeholder="예: AI 도입을 희망하는 중소기업 대표, 실무 자동화가 필요한 임직원"
-                className="h-8 text-xs bg-white"
-              />
-            </div>
-
-            <div className="flex justify-end gap-1.5 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsEditingMyProfile(false)}
-                className="px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-lg"
-              >
-                닫기
-              </button>
-              <Button
-                type="submit"
-                size="sm"
-                className="h-7 text-xs font-bold bg-slate-900 hover:bg-black text-white px-3"
-              >
-                💾 내 정보 저장
-              </Button>
-            </div>
-          </form>
+            </form>
+          </div>
         )}
       </div>
 
@@ -507,12 +1001,12 @@ export function OneToOneMeetingPanel({
         ) : (
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
             {attendees.map((att) => {
-              const isSelected = selectedAttendeeId === att.id;
+              const isSelected = selectedAttendeeIds.includes(att.id);
               return (
                 <button
                   key={att.id}
                   type="button"
-                  onClick={() => handleSelectAttendee(att)}
+                  onClick={() => handleToggleAttendee(att)}
                   className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all shrink-0 active:scale-95 ${
                     isSelected
                       ? 'border-indigo-600 bg-indigo-600 text-white shadow-xs'
@@ -535,99 +1029,119 @@ export function OneToOneMeetingPanel({
         )}
       </div>
 
-      {/* 🌟 3. 회의 참석자 요약 바 (컴팩트 접이식 - 세로 공간 절약) */}
-      {currentAttendee && (
-        <div className="rounded-xl border border-indigo-200 bg-white p-2.5 shadow-2xs space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-xs shadow-2xs shrink-0">
-                {currentAttendee.name.slice(0, 1)}
-              </div>
-              <div className="truncate">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h4 className="text-xs font-black text-slate-900">
-                    {currentAttendee.name}
-                  </h4>
-                  <span className="rounded bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.2 text-[9.5px] font-bold text-indigo-700">
-                    {currentAttendee.company}
-                  </span>
-                  {currentAttendee.chapter && (
-                    <span className="text-[9.5px] text-slate-400 font-medium">
-                      ({currentAttendee.chapter})
-                    </span>
-                  )}
-                </div>
-                <p className="text-[10.5px] text-indigo-900/80 font-medium truncate">
-                  💼 {currentAttendee.specialty || '전문 분야'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 shrink-0">
+      {/* 🌟 3. 회의 참석자 요약 바 (다중 참석자 및 컴팩트 접이식 지원) */}
+      {selectedAttendees.length > 0 && (
+        <div className="space-y-2">
+          {selectedAttendees.length > 1 && (
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-indigo-50/80 border border-indigo-200 text-xs">
+              <span className="font-extrabold text-indigo-900 flex items-center gap-1.5">
+                <Users className="size-3.5 text-indigo-600" />
+                <span>다자간 121 미팅 (참석 파트너 {selectedAttendees.length}명)</span>
+              </span>
               <button
                 type="button"
-                onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 px-2 py-1 text-[10.5px] font-bold transition-all active:scale-95"
+                onClick={handleClearAllAttendees}
+                className="text-[10.5px] text-slate-500 hover:text-rose-600 font-bold underline transition-colors"
               >
-                {isSummaryExpanded ? (
-                  <>
-                    <span>요약 접기</span>
-                    <ChevronUp className="size-3" />
-                  </>
-                ) : (
-                  <>
-                    <span>양식지 확인</span>
-                    <ChevronDown className="size-3" />
-                  </>
-                )}
+                전체 해제
               </button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => handleOpenEditModal(currentAttendee)}
-                className="h-6 px-1.5 text-[10.5px] text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
-                title="참석자 양식지 직접 수정"
-              >
-                <Edit3 className="size-3 mr-0.5" />
-                수정
-              </Button>
             </div>
-          </div>
+          )}
 
-          {/* 세부 양식지 펼침 영역 */}
-          {isSummaryExpanded && (
-            <div className="pt-2 border-t border-slate-100 space-y-2 animate-in fade-in duration-150">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg bg-rose-50/60 border border-rose-100 p-2 space-y-0.5">
-                  <div className="text-[10px] font-bold text-rose-700 flex items-center gap-1">
-                    <Target className="size-3 text-rose-600" />
-                    <span>이상적인 리퍼럴 (소개 희망 고객)</span>
+          {selectedAttendees.map((att) => (
+            <div key={att.id} className="rounded-xl border border-indigo-200 bg-white p-2.5 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-xs shadow-2xs shrink-0">
+                    {att.name.slice(0, 1)}
                   </div>
-                  <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
-                    {currentAttendee.targetReferral || '미등록'}
-                  </p>
+                  <div className="truncate">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h4 className="text-xs font-black text-slate-900">
+                        {att.name}
+                      </h4>
+                      <span className="rounded bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.2 text-[9.5px] font-bold text-indigo-700">
+                        {att.company}
+                      </span>
+                      {att.chapter && (
+                        <span className="text-[9.5px] text-slate-400 font-medium">
+                          ({att.chapter})
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10.5px] text-indigo-900/80 font-medium truncate">
+                      💼 {att.specialty || '전문 분야'}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="rounded-lg bg-amber-50/60 border border-amber-100 p-2 space-y-0.5">
-                  <div className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
-                    <Award className="size-3 text-amber-600" />
-                    <span>차별화된 핵심 강점 &amp; 경쟁력</span>
-                  </div>
-                  <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
-                    {currentAttendee.partnerStrength || '미등록'}
-                  </p>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 px-2 py-1 text-[10.5px] font-bold transition-all active:scale-95"
+                  >
+                    {isSummaryExpanded ? (
+                      <>
+                        <span>요약 접기</span>
+                        <ChevronUp className="size-3" />
+                      </>
+                    ) : (
+                      <>
+                        <span>양식지 확인</span>
+                        <ChevronDown className="size-3" />
+                      </>
+                    )}
+                  </button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleOpenEditModal(att)}
+                    className="h-6 px-1.5 text-[10.5px] text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
+                    title="참석자 양식지 직접 수정"
+                  >
+                    <Edit3 className="size-3 mr-0.5" />
+                    수정
+                  </Button>
                 </div>
               </div>
 
-              {currentAttendee.sheetSummary && (
-                <div className="rounded-lg bg-slate-50 border border-slate-100 p-2 text-[11px] text-slate-600">
-                  <span className="font-bold text-slate-700 mr-1">📄 사전 양식지 메모:</span>
-                  <span>{currentAttendee.sheetSummary}</span>
+              {/* 세부 양식지 펼침 영역 */}
+              {isSummaryExpanded && (
+                <div className="pt-2 border-t border-slate-100 space-y-2 animate-in fade-in duration-150">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-rose-50/60 border border-rose-100 p-2 space-y-0.5">
+                      <div className="text-[10px] font-bold text-rose-700 flex items-center gap-1">
+                        <Target className="size-3 text-rose-600" />
+                        <span>이상적인 리퍼럴 (소개 희망 고객)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
+                        {att.targetReferral || '미등록'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg bg-amber-50/60 border border-amber-100 p-2 space-y-0.5">
+                      <div className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                        <Award className="size-3 text-amber-600" />
+                        <span>차별화된 핵심 강점 &amp; 경쟁력</span>
+                      </div>
+                      <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
+                        {att.partnerStrength || '미등록'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {att.sheetSummary && (
+                    <div className="rounded-lg bg-slate-50 border border-slate-100 p-2 text-[11px] text-slate-600">
+                      <span className="font-bold text-slate-700 mr-1">📄 사전 양식지 메모:</span>
+                      <span>{att.sheetSummary}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          ))}
         </div>
       )}
 
