@@ -79,6 +79,7 @@ export const BLOG_SKILLS: BlogSkill[] = [
       { key: 'partnerStrength', label: '차별화된 핵심 강점', type: 'text', placeholder: '예: 15년 실무 경력의 브랜드 분석과 맞춤형 디렉팅' },
       { key: 'meetingDate', label: '미팅 일자', type: 'text', placeholder: '예: 2026년 9월 16일' },
       { key: 'meetingPlace', label: '미팅 장소', type: 'text', placeholder: '예: 비즈니스 라운지 카페' },
+      { key: 'meetingTranscript', label: '녹음본 대화 텍스트 전문 (클로바노트/스크립트)', type: 'textarea', placeholder: '클로바노트, 비토, 스마트폰 음성메모에서 복사한 대화 텍스트 전문을 붙여넣으세요' },
       { key: 'conversationCore', label: '오늘 대화 핵심 주제', type: 'textarea', placeholder: '오늘 어떤 주제로 이야기했는지 메모' },
       { key: 'myInsight', label: '나의 비즈니스 인사이트', type: 'textarea', placeholder: '내 사업에 적용하고 싶은 깨달음이나 배운 점' },
       { key: 'synergyPlan', label: '상생 협업 / 다음 약속', type: 'textarea', placeholder: '서로 어떤 도움을 주고받을지, 다음 약속한 일' },
@@ -693,7 +694,8 @@ export function buildSkillPrompt(
 3. [네이버 블로그 친화적 서식]:
    - 각 섹션 시작 시 '> [말풍선] 핵심 한마디' 배치
    - 미팅 사진 [IMAGE_N] 자연스러운 배치
-   - 사실과 메모에 기반한 진정성 있는 1인칭 대표님 시점 유지`;
+   - 사실과 메모에 기반한 진정성 있는 1인칭 대표님 시점 유지
+4. [녹음본 대화 스크립트 반영]: 녹음본 텍스트 전문(클로바노트 전사본 등)이 제공된 경우, 두 대표님이 나눈 실제 대화 일화, 인상 깊었던 명언이나 고민, 구체적인 비즈니스 솔루션을 본문에 생생하게 녹여내어 글의 신뢰감과 현장감을 극대화하세요.`;
   }
 
   prompt += `\n\n주제: "${topic}"`;

@@ -21,6 +21,10 @@ import {
   Briefcase,
   ChevronRight,
   Info,
+  Mic,
+  FileAudio,
+  Loader2,
+  Wand2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,6 +75,52 @@ export function OneToOneMeetingPanel({
   const [includeInsight, setIncludeInsight] = useState(true);
   const [includeSynergy, setIncludeSynergy] = useState(true);
   const [includeLocationMap, setIncludeLocationMap] = useState(true);
+
+  // 🎙️ 녹음본 텍스트(클로바노트) AI 분석 상태
+  const [isAnalyzingTranscript, setIsAnalyzingTranscript] = useState(false);
+
+  const handleAnalyzeTranscript = async () => {
+    const transcript = customFields.meetingTranscript;
+    if (!transcript || !transcript.trim()) {
+      toast.error('분석할 녹음본 대화 텍스트(클로바노트 전사본)를 먼저 입력해주세요.');
+      return;
+    }
+
+    setIsAnalyzingTranscript(true);
+    try {
+      const res = await fetch('/api/blog-auto/writer/parse-transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: transcript.trim(),
+          partnerName: customFields.partnerName || '',
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || '녹음본 텍스트 분석에 실패했습니다.');
+      }
+
+      const { data } = await res.json();
+      if (data) {
+        onCustomFieldsChange({
+          ...customFields,
+          conversationCore: data.conversationCore || customFields.conversationCore || '',
+          myInsight: data.myInsight || customFields.myInsight || '',
+          synergyPlan: data.synergyPlan || customFields.synergyPlan || '',
+          targetReferral: customFields.targetReferral || data.targetReferral || '',
+          partnerStrength: customFields.partnerStrength || data.partnerStrength || '',
+        });
+        toast.success('🎙️ 녹음본 대화에서 핵심 이야기, 인사이트, 상생 협업 내용을 성공적으로 추출했습니다!');
+      }
+    } catch (e: any) {
+      console.error('Transcript analyze error:', e);
+      toast.error(e.message || '녹음본 분석 중 오류가 발생했습니다.');
+    } finally {
+      setIsAnalyzingTranscript(false);
+    }
+  };
 
   // 1. 참석자 목록 로드
   useEffect(() => {
@@ -465,15 +515,70 @@ export function OneToOneMeetingPanel({
       </div>
 
       {/* ── 7. 대화 내용 & 비즈니스 인사이트 (사용자가 미팅 후 작성할 핵심 메모) ── */}
-      <div className="rounded-xl border border-indigo-100 bg-indigo-50/20 p-3 space-y-2.5">
+      <div className="rounded-xl border border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 to-purple-50/20 p-3.5 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-            <MessageSquareText className="size-3.5 text-blue-600" />
-            <span>4. 대화 내용 및 비즈니스 인사이트 (121 미팅 핵심 메모)</span>
+            <MessageSquareText className="size-4 text-indigo-600" />
+            <span>4. 대화 내용 및 비즈니스 인사이트 (121 미팅 메모)</span>
           </div>
-          <span className="text-[10px] text-indigo-700 font-semibold bg-indigo-100/70 px-2 py-0.5 rounded-full">
-            여기에 미팅 메모를 입력하세요
+          <span className="text-[10px] text-indigo-700 font-bold bg-indigo-100/80 px-2 py-0.5 rounded-full border border-indigo-200">
+            실제 대화 메모 반영
           </span>
+        </div>
+
+        {/* 🎙️ 클로바노트 / 녹음본 텍스트 전문 입력 및 AI 자동 분석 박스 */}
+        <div className="rounded-xl border border-indigo-200 bg-white p-3 space-y-2.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <Label className="text-[11px] font-bold text-indigo-950 flex items-center gap-1.5">
+              <Mic className="size-3.5 text-rose-500 animate-pulse" />
+              <span>🎙️ 녹음본 대화 전문 (클로바노트 / STT 텍스트)</span>
+              <span className="text-[9.5px] font-normal text-slate-500">
+                (원문 그대로 붙여넣기)
+              </span>
+            </Label>
+            {customFields.meetingTranscript && (
+              <button
+                type="button"
+                onClick={() => handleField('meetingTranscript', '')}
+                className="text-[10px] text-slate-400 hover:text-rose-600 transition-colors"
+              >
+                지우기
+              </button>
+            )}
+          </div>
+
+          <Textarea
+            value={customFields.meetingTranscript || ''}
+            onChange={(e) => handleField('meetingTranscript', e.target.value)}
+            placeholder="클로바노트, 비토, 스마트폰 음성메모에서 복사한 대화 텍스트 전문을 여기에 그대로 붙여넣으세요. (AI가 자동으로 대화 핵심, 인사이트, 협업 약속을 분석해 드립니다)"
+            rows={3}
+            className="text-xs bg-slate-50/50 hover:bg-white focus:bg-white transition-colors resize-y leading-relaxed"
+          />
+
+          <div className="flex items-center justify-between pt-0.5">
+            <p className="text-[10px] text-slate-500 leading-tight">
+              💡 붙여넣고 버튼을 누르면 아래 항목들이 자동 요약 입력됩니다.
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              disabled={isAnalyzingTranscript || !customFields.meetingTranscript?.trim()}
+              onClick={handleAnalyzeTranscript}
+              className="h-7 text-xs px-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold shadow-2xs flex items-center gap-1.5 transition-all shrink-0 active:scale-95"
+            >
+              {isAnalyzingTranscript ? (
+                <>
+                  <Loader2 className="size-3 animate-spin" />
+                  <span>대화 분석 중...</span>
+                </>
+              ) : (
+                <>
+                  <Wand2 className="size-3 text-yellow-300" />
+                  <span>⚡ AI 대화 분석 &amp; 자동 채우기</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-1">
