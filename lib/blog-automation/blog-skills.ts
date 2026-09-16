@@ -2,21 +2,22 @@
 import { getResearchPromptForType } from './blog-marketing-research';
 
 export type BlogSkillId =
-  | 'saju'
+  | 'one_to_one'
   | 'restaurant'
+  | 'consulting'
   | 'product'
+  | 'general'
+  | 'saju'
   | 'beauty'
   | 'medical'
   | 'education'
   | 'realestate'
   | 'travel'
   | 'itservice'
-  | 'consulting'
   | 'exchange'
   | 'event'
   | 'recruiting'
-  | 'personal'
-  | 'general';
+  | 'personal';
 
 export interface PhotoGuide {
   title: string;
@@ -44,10 +45,48 @@ export interface BlogSkill {
 
 export const BLOG_SKILLS: BlogSkill[] = [
   {
+    id: 'one_to_one',
+    name: 'BNI 원투원 (121 미팅)',
+    emoji: '🤝',
+    description: '대표님과의 1:1 미팅 기록, 비즈니스 인사이트 및 상생 협업 스토리',
+    copywritingFormula: 'BAB',
+    promptTemplate: `당신은 비즈니스 네트워킹 및 BNI 121 미팅 전문 비즈니스 작가입니다.
+실제 대표님과의 원투원(1:1) 만남에서 나눈 깊은 대화와 배움을 진정성 있고 품격 있게 블로그 글로 작성하세요.
+
+★ [BNI 원투원 작성 공식 (P-S-I)]:
+1. [만남의 배경 (Partner Intro)]: 언제, 어디서, 누구와, 어떤 이유로 만났는지 (만남의 계기와 상대방 대표님의 전문성)
+2. [대화의 핵심 (Story & Insight)]: 오늘 미팅에서 나눈 진솔한 대화와 실제 메모에 담긴 구체적인 이야기
+3. [나의 인사이트 (My Business Learning)]: 작성자(나)의 시점에서 느낀 배움과 내 사업(와인핏/르글라스 등)에 적용할 깨달음
+4. [상생 협업의 가능성 (Synergy & Impact)]: 두 기업이 서로 주고받을 수 있는 도움, 추천 리퍼럴, 다음 약속
+
+필수 작성 원칙:
+- 과장된 찬사나 영혼 없는 칭찬 대신, 상대방 사업의 '진짜 차별화된 가치와 전문성'을 깊이 있게 조명.
+- BNI 용어나 내부 은어는 일반 대중도 쉽게 이해하도록 자연스러운 비즈니스 언어로 순화.
+- 실제 미팅 메모와 사실에 기반하여 솔직하고 신뢰감 있는 대표님의 시점(1인칭)으로 작성.
+- 네이버 블로그 스마트에디터 최적화: 1~2문장 단위의 호흡, 인용구(따옴표/말풍선) 활용, 사진 자리([IMAGE_N]) 유기적 배치.
+- 글의 맺음말에 상대방 대표님 회사 소개 및 비즈니스 문의/연락처 안내 포함.`,
+    photoGuides: [
+      { title: '두 대표님 미팅 투샷', description: '미팅 장소에서 두 대표님이 정답게 마주보거나 함께 찍은 사진', exampleImageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400&h=300&fit=crop' },
+      { title: '원투원 자료/노트', description: '상대방 대표님 소개 자료나 미팅 메모, 다이어리 사진', exampleImageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=400&h=300&fit=crop' },
+      { title: '미팅 장소/티타임', description: '만난 카페나 레스토랑, 와인바의 정갈한 테이블 및 음료 사진', exampleImageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop' },
+      { title: '상대방 제품/사업장', description: '상대방 대표님의 사업장이나 제품, 시공/작업 사례 사진', exampleImageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop' },
+    ],
+    optionalFields: [
+      { key: 'partnerName', label: '파트너 대표님 성함', type: 'text', placeholder: '예: 방은주 대표' },
+      { key: 'partnerCompany', label: '회사명 / 챕터', type: 'text', placeholder: '예: 미래에셋 금융서비스 (BNI 마스터 챕터)' },
+      { key: 'partnerField', label: '전문 분야 / 핵심 강점', type: 'text', placeholder: '예: CEO 법인 자산관리 및 가업승계 컨설팅' },
+      { key: 'meetingDate', label: '미팅 일자', type: 'text', placeholder: '예: 2026년 9월 16일' },
+      { key: 'meetingPlace', label: '미팅 장소', type: 'text', placeholder: '예: 르글라스 압구정' },
+      { key: 'conversationCore', label: '오늘 대화 핵심 주제', type: 'textarea', placeholder: '오늘 어떤 주제로 이야기했는지 메모' },
+      { key: 'myInsight', label: '나의 비즈니스 인사이트', type: 'textarea', placeholder: '내 사업에 적용하고 싶은 깨달음이나 배운 점' },
+      { key: 'synergyPlan', label: '상생 협업 / 다음 약속', type: 'textarea', placeholder: '서로 어떤 도움을 주고받을지, 다음 약속한 일' },
+    ],
+  },
+  {
     id: 'restaurant',
-    name: '음식점/카페',
-    emoji: '🍽️',
-    description: '맛집 체험기, 메뉴 소개, 분위기 전달',
+    name: '와인·F&B / 매장 방문',
+    emoji: '🍷',
+    description: '르글라스 와인바, 다이닝, 레스토랑 및 카페 체험기',
     copywritingFormula: 'PAS',
     promptTemplate: `당신은 맛집 전문 블로거입니다. 실제 방문한 것처럼 생생한 체험기를 작성하세요.
 
@@ -485,8 +524,25 @@ export const BLOG_SKILLS: BlogSkill[] = [
   },
 ];
 
+// 5대 핵심 비즈니스 정예 스킬 (BNI 원투원 중심)
+export const CORE_BLOG_SKILL_IDS: BlogSkillId[] = [
+  'one_to_one',
+  'restaurant',
+  'consulting',
+  'product',
+  'general',
+];
+
+export const CORE_BLOG_SKILLS: BlogSkill[] = [
+  BLOG_SKILLS.find((s) => s.id === 'one_to_one') || BLOG_SKILLS[0],
+  BLOG_SKILLS.find((s) => s.id === 'restaurant')!,
+  BLOG_SKILLS.find((s) => s.id === 'consulting')!,
+  BLOG_SKILLS.find((s) => s.id === 'product')!,
+  BLOG_SKILLS.find((s) => s.id === 'general')!,
+];
+
 export function getSkillById(id: BlogSkillId): BlogSkill {
-  return BLOG_SKILLS.find(s => s.id === id) || BLOG_SKILLS[BLOG_SKILLS.length - 1];
+  return BLOG_SKILLS.find(s => s.id === id) || BLOG_SKILLS[0];
 }
 
 export type BlogPlatform = 'naver' | 'tstory' | 'wordpress';
@@ -619,6 +675,23 @@ export function buildSkillPrompt(
     if (fieldEntries.length > 0) {
       prompt += `\n\n[사용자 제공 정보 - 반드시 본문에 자연스럽게 반영하세요]\n${fieldEntries.join('\n')}`;
     }
+  }
+
+  // BNI 원투원 스킬 전용 프롬프트 가이드
+  if (skill.id === 'one_to_one') {
+    prompt += `\n\n★ [BNI 121 원투원 미팅 스토리텔링 전용 지침]:
+1. [글의 제목]: 반드시 "[BNI 원투원] {상대방 회사} {대표님 성함} 대표님과의 만남 — {핵심 인사이트/협업 가치}" 형식의 품격 있는 비즈니스 제목으로 작성.
+2. [6단계 서사 구조]:
+   - ① 만남의 배경: 대표님을 뵙게 된 계기와 미팅 장소 분위기
+   - ② 상대방의 전문성: 대표님의 사업 철학과 독보적인 비즈니스 강점
+   - ③ 대화의 핵심: 오늘 121 미팅에서 나눈 진솔한 대화와 실제 메모 스토리
+   - ④ 나의 인사이트: 내 사업에 적용하고 싶은 깨달음과 비즈니스 배움
+   - ⑤ 상생과 협업: 두 기업이 함께 그리는 시너지와 리퍼럴 협업 기회
+   - ⑥ 맺음말 및 추천: 대표님을 적극 추천하는 이유와 회사/문의 정보 안내
+3. [네이버 블로그 친화적 서식]:
+   - 각 섹션 시작 시 '> [말풍선] 핵심 한마디' 배치
+   - 미팅 사진 [IMAGE_N] 자연스러운 배치
+   - 사실과 메모에 기반한 진정성 있는 1인칭 대표님 시점 유지`;
   }
 
   prompt += `\n\n주제: "${topic}"`;

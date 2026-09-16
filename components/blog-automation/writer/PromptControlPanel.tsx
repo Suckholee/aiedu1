@@ -32,11 +32,13 @@ import {
 } from '@/components/ui/select';
 import {
   BLOG_SKILLS,
+  CORE_BLOG_SKILLS,
   getSkillById,
   type BlogSkillId,
   type BlogSkill,
   type BlogPlatform,
 } from '@/lib/blog-automation/blog-skills';
+import { OneToOneMeetingPanel } from './OneToOneMeetingPanel';
 import type { BlogCopyFormula, BlogTone } from '@/lib/blog-automation/types';
 import type { BlogProfile } from '@/lib/blog-automation/profile-storage';
 
@@ -183,6 +185,7 @@ export function PromptControlPanel({
 }: PromptControlPanelProps) {
   const [mounted, setMounted] = React.useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const selectedSkill = getSkillById(skillId);
   const hasManuallySelectedSkillRef = React.useRef(false);
 
@@ -391,21 +394,26 @@ export function PromptControlPanel({
 
       {/* Center Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 max-w-3xl mx-auto w-full">
-        {/* 1. 블로그 유형 (스킬) 선택 */}
+        {/* 1. 블로그 유형 (원투원 중심 정예 5종) */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <Label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <Layers className="size-3.5 text-blue-600" />
-              블로그 유형 ({BLOG_SKILLS.length}종 스킬)
+              <Layers className="size-3.5 text-indigo-600" />
+              블로그 유형 ({showAllSkills ? BLOG_SKILLS.length : CORE_BLOG_SKILLS.length}종 스킬)
             </Label>
-            <span className="text-[11px] text-slate-400">
-              선택한 유형에 최적화된 작성 공식과 톤이 적용됩니다
-            </span>
+            <button
+              type="button"
+              onClick={() => setShowAllSkills(!showAllSkills)}
+              className="text-[11px] font-bold text-indigo-600 hover:underline"
+            >
+              {showAllSkills ? '▲ 원투원 핵심 5종만 보기' : '▼ 전체 유형 펼치기'}
+            </button>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {BLOG_SKILLS.map((skill) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {(showAllSkills ? BLOG_SKILLS : CORE_BLOG_SKILLS).map((skill) => {
               const isSelected = skill.id === skillId;
+              const isOneToOne = skill.id === 'one_to_one';
               return (
                 <button
                   key={skill.id}
@@ -415,7 +423,11 @@ export function PromptControlPanel({
                     onSkillChange(skill.id);
                   }}
                   className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                    isSelected
+                    isOneToOne
+                      ? isSelected
+                        ? 'border-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 ring-2 ring-indigo-500/20 shadow-md font-bold'
+                        : 'border-indigo-200 bg-indigo-50/40 hover:bg-indigo-50 text-slate-800 font-semibold'
+                      : isSelected
                       ? 'border-blue-500 bg-blue-50/80 ring-2 ring-blue-500/20 shadow-sm'
                       : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
                   }`}
@@ -434,6 +446,19 @@ export function PromptControlPanel({
             })}
           </div>
         </div>
+
+        {/* 🌟 원투원 전용 스마트 워크스페이스 UI/UX (One-to-One UI/UX) */}
+        {skillId === 'one_to_one' && (
+          <OneToOneMeetingPanel
+            customFields={customFields}
+            onCustomFieldsChange={onCustomFieldsChange}
+            topic={topic}
+            onTopicChange={onTopicChange}
+            requiredKeywords={requiredKeywords}
+            onRequiredKeywordsChange={onRequiredKeywordsChange}
+            onTargetAudienceChange={onTargetAudienceChange}
+          />
+        )}
 
         {/* 2. 메인 주제 & 키워드 */}
         <div className="space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">

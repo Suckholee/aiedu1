@@ -47,11 +47,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import {
   BLOG_SKILLS,
+  CORE_BLOG_SKILLS,
   getSkillById,
   type BlogSkillId,
   type BlogSkill,
   type BlogPlatform,
 } from '@/lib/blog-automation/blog-skills';
+import { OneToOneMeetingPanel } from './OneToOneMeetingPanel';
 import type { BlogCopyFormula, BlogTone } from '@/lib/blog-automation/types';
 import type { BlogProfile } from '@/lib/blog-automation/profile-storage';
 import {
@@ -165,6 +167,7 @@ export function NaverSmartEditorStudio({
 }: NaverSmartEditorStudioProps) {
   // ── UI 인터랙션 상태 ──
   const [isTemplateDrawerOpen, setTemplateDrawerOpen] = useState(true);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const [viewDevice, setViewDevice] = useState<'pc' | 'mobile'>('pc');
   const [copiedFormat, setCopiedFormat] = useState<string | null>(null);
@@ -945,42 +948,71 @@ export function NaverSmartEditorStudio({
 
             {/* 서랍 스크롤 바디 (이미지 1의 폼 내용 집약) */}
             <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar text-xs">
-              {/* ① 15종 블로그 스킬 선택 (이미지 1의 핵심 블록) */}
+              {/* ① 블로그 유형 (원투원 중심 정예 5종) */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Layers className="size-3.5 text-blue-600" />
-                    <span>블로그 유형 (15종 스킬)</span>
+                    <Layers className="size-3.5 text-indigo-600" />
+                    <span>블로그 유형 ({showAllSkills ? BLOG_SKILLS.length : CORE_BLOG_SKILLS.length}종)</span>
                   </Label>
-                  <span className="text-[10px] text-slate-400">공식 & 톤 최적화</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSkills(!showAllSkills)}
+                    className="text-[10px] font-bold text-indigo-600 hover:underline"
+                  >
+                    {showAllSkills ? '▲ 원투원 핵심 5종만 보기' : '▼ 전체 유형 펼치기'}
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
-                  {BLOG_SKILLS.map((skill) => {
+                  {(showAllSkills ? BLOG_SKILLS : CORE_BLOG_SKILLS).map((skill) => {
                     const isSelected = skillId === skill.id;
+                    const isOneToOne = skill.id === 'one_to_one';
                     return (
                       <button
                         key={skill.id}
                         type="button"
                         onClick={() => onSkillChange(skill.id)}
-                        className={`p-2 rounded-lg border text-left transition-all relative ${
-                          isSelected
+                        className={`p-2.5 rounded-xl border text-left transition-all relative ${
+                          isOneToOne
+                            ? isSelected
+                              ? 'col-span-2 border-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-950 shadow-xs font-bold ring-2 ring-indigo-500/20'
+                              : 'col-span-2 border-indigo-200 bg-indigo-50/40 hover:bg-indigo-50 text-slate-800 font-semibold'
+                            : isSelected
                             ? 'border-blue-500 bg-blue-50/70 text-blue-950 shadow-2xs font-bold'
                             : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm">{skill.emoji}</span>
-                          <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/90 border border-slate-200 text-slate-600 font-mono font-bold">
                             {skill.copywritingFormula}
                           </span>
                         </div>
-                        <div className="mt-1 font-semibold text-[11px] truncate">{skill.name}</div>
+                        <div className="mt-1 font-bold text-[11px] truncate">{skill.name}</div>
+                        {isOneToOne && (
+                          <div className="text-[10px] text-indigo-600 font-medium truncate mt-0.5">
+                            ★ BNI 121 미팅 기록, 비즈니스 인사이트 및 상생 협업
+                          </div>
+                        )}
                       </button>
                     );
                   })}
                 </div>
               </div>
+
+              {/* 🌟 원투원 전용 스마트 워크스페이스 UI/UX (One-to-One UI/UX) */}
+              {skillId === 'one_to_one' && (
+                <OneToOneMeetingPanel
+                  customFields={customFields}
+                  onCustomFieldsChange={onCustomFieldsChange}
+                  topic={topic}
+                  onTopicChange={onTopicChange}
+                  requiredKeywords={requiredKeywords}
+                  onRequiredKeywordsChange={onRequiredKeywordsChange}
+                  onTargetAudienceChange={onTargetAudienceChange}
+                />
+              )}
 
               {/* ② 타겟 독자 (오디언스 칩) */}
               <div className="space-y-2">

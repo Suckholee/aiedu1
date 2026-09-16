@@ -34,8 +34,8 @@ export default function BlogStudioPage() {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
 
-  // 2. 가운데 패널: AI 파라미터 상태
-  const [skillId, setSkillId] = useState<BlogSkillId>('restaurant');
+  // 2. 가운데 패널: AI 파라미터 상태 (기본 BNI 원투원 121 미팅)
+  const [skillId, setSkillId] = useState<BlogSkillId>('one_to_one');
   const [platform, setPlatform] = useState<BlogPlatform>('naver');
   const [topic, setTopic] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
