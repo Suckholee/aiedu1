@@ -54,8 +54,9 @@ export async function POST(req: NextRequest) {
         const base64Data = img.url;
         if (base64Data && (base64Data.startsWith('data:image/') || base64Data.startsWith('http'))) {
           try {
-            const { GoogleGenerativeAI } = await import('@google/generative-ai');
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+            const genAI = new GoogleGenerativeAI(
+              process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || ''
+            );
             const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
             let inlinePart: any = null;
