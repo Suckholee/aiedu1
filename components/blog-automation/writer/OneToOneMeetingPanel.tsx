@@ -62,8 +62,8 @@ export function OneToOneMeetingPanel({
 }: OneToOneMeetingPanelProps) {
   const { user } = useAuth();
 
-  // 참석자 목록 및 선택 상태
-  const [attendees, setAttendees] = useState<BniAttendee[]>(DEFAULT_BNI_ATTENDEES);
+  // 참석자 목록 및 선택 상태 (목업 배제, 사용자 등록 파트너만 관리)
+  const [attendees, setAttendees] = useState<BniAttendee[]>([]);
   const [selectedAttendeeId, setSelectedAttendeeId] = useState<string | null>(null);
 
   // 모달 상태
@@ -133,11 +133,11 @@ export function OneToOneMeetingPanel({
     const loadAttendees = async () => {
       try {
         const list = await getBniAttendees(user?.uid);
-        if (list && list.length > 0) {
+        if (list) {
           setAttendees(list);
-          // 만약 폼에 이미 partnerName이 있으면 매칭 시도, 없으면 첫 번째 선택
-          if (!customFields.partnerName && list.length > 0) {
-            handleSelectAttendee(list[0]);
+          if (customFields.partnerName) {
+            const found = list.find((a) => a.name === customFields.partnerName);
+            if (found) setSelectedAttendeeId(found.id);
           }
         }
       } catch (e) {
@@ -253,84 +253,97 @@ export function OneToOneMeetingPanel({
   return (
     <div className="space-y-4 rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 via-white to-white p-3.5 sm:p-5 shadow-xs">
       {/* ── 1. 헤더 (BNI 원투원 양식) ── */}
-      <div className="flex flex-col gap-2 pb-3 border-b border-indigo-100">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-xs shrink-0">
-              <Handshake className="size-4" />
-            </span>
-            <h3 className="text-sm font-black text-slate-900 break-keep whitespace-nowrap">
-              BNI 원투원 양식 (121 미팅)
-            </h3>
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 whitespace-nowrap shrink-0">
-              실제 참석자 양식지 연동
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={handleOpenAddModal}
-              className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95 whitespace-nowrap"
-            >
-              <UserPlus className="size-3 text-indigo-500" />
-              <span>+ 새 참석자/양식지 등록</span>
-            </button>
-            <button
-              type="button"
-              onClick={resetFields}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition whitespace-nowrap"
-              title="양식 비우기"
-            >
-              <RotateCcw className="size-3 text-slate-400" />
-              <span>양식 비우기</span>
-            </button>
-          </div>
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-indigo-100 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-xs shrink-0">
+            <Handshake className="size-4" />
+          </span>
+          <h3 className="text-sm font-black text-slate-900 break-keep whitespace-nowrap">
+            BNI 원투원 양식 (121 미팅)
+          </h3>
+          <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 whitespace-nowrap shrink-0">
+            실제 참석자 양식지 연동
+          </span>
         </div>
-        <p className="text-[11px] text-slate-500 break-keep">
-          회의 참석자를 선택하면 상대방 대표님의 121 양식지 정보가 자동으로 입력됩니다. 미팅 후 대화 메모와 나의 배움만 기록하면 완벽한 블로그 글이 완성됩니다.
-        </p>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95 whitespace-nowrap"
+          >
+            <UserPlus className="size-3 text-indigo-500" />
+            <span>+ 새 참석자/양식지 등록</span>
+          </button>
+          <button
+            type="button"
+            onClick={resetFields}
+            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition whitespace-nowrap"
+            title="양식 비우기"
+          >
+            <RotateCcw className="size-3 text-slate-400" />
+            <span>양식 비우기</span>
+          </button>
+        </div>
       </div>
 
-      {/* 🌟 2. 회의 참석자(파트너) 선택 바 (Directory Pills) */}
+      {/* 🌟 2. 회의 참석자(파트너) 선택 바 (실제 등록된 대표님만 표시) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs font-bold text-slate-700">
           <span className="flex items-center gap-1.5">
             <Users className="size-3.5 text-indigo-600" />
             <span>회의 참석자(파트너) 선택</span>
           </span>
-          <span className="text-[10px] text-slate-400">
-            총 {attendees.length}명의 파트너 등록됨
-          </span>
+          {attendees.length > 0 && (
+            <span className="text-[10px] text-slate-400">
+              총 {attendees.length}명의 파트너 등록됨
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-          {attendees.map((att) => {
-            const isSelected = selectedAttendeeId === att.id;
-            return (
-              <button
-                key={att.id}
-                type="button"
-                onClick={() => handleSelectAttendee(att)}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all shrink-0 active:scale-95 ${
-                  isSelected
-                    ? 'border-indigo-600 bg-indigo-600 text-white shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50/50'
-                }`}
-              >
-                {isSelected && <Check className="size-3 text-white" />}
-                <span>{att.name}</span>
-                <span
-                  className={`text-[10px] font-normal ${
-                    isSelected ? 'text-indigo-200' : 'text-slate-400'
+        {attendees.length === 0 ? (
+          <div className="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-indigo-200/80 bg-indigo-50/30 text-xs">
+            <span className="text-slate-500 font-medium text-[11px]">
+              아직 등록된 파트너가 없습니다.
+            </span>
+            <button
+              type="button"
+              onClick={handleOpenAddModal}
+              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+            >
+              <UserPlus className="size-3" />
+              <span>+ 실제 파트너 양식지 등록</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            {attendees.map((att) => {
+              const isSelected = selectedAttendeeId === att.id;
+              return (
+                <button
+                  key={att.id}
+                  type="button"
+                  onClick={() => handleSelectAttendee(att)}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all shrink-0 active:scale-95 ${
+                    isSelected
+                      ? 'border-indigo-600 bg-indigo-600 text-white shadow-xs'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50/50'
                   }`}
                 >
-                  {att.company}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                  {isSelected && <Check className="size-3 text-white" />}
+                  <span>{att.name}</span>
+                  <span
+                    className={`text-[10px] font-normal ${
+                      isSelected ? 'text-indigo-200' : 'text-slate-400'
+                    }`}
+                  >
+                    {att.company}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 🌟 3. 회의 참석자 요약 바 (컴팩트 접이식 - 세로 공간 절약) */}
