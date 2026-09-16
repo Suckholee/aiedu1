@@ -10,13 +10,11 @@ import {
   Sparkles,
   Zap,
   ArrowRight,
-  ShieldCheck,
   RotateCcw,
   Smartphone,
-  Layers,
   Users,
-  Store,
-  Briefcase,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +28,8 @@ import {
   reviseRoutineTask,
   batchApproveToday,
   resetRoutineTasks,
+  addRoutineTask,
+  deleteRoutineTask,
 } from '@/lib/routine-calendar/routine-storage';
 import { CalendarView } from '@/components/routine-calendar/CalendarView';
 import { MobileApprovalDeck } from '@/components/routine-calendar/MobileApprovalDeck';
@@ -46,7 +46,8 @@ export default function RoutineCalendarPage() {
   const [selectedTask, setSelectedTask] = useState<RoutineTask | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedAgentFilter, setSelectedAgentFilter] = useState<AgentRole | 'all'>('all');
-  const [activeTab, setActiveTab] = useState<'deck' | 'calendar' | 'teams'>('deck');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'deck' | 'teams'>('calendar');
+  const [cockpitHeaderOpen, setCockpitHeaderOpen] = useState(true);
 
   // 데이터 로드
   useEffect(() => {
@@ -55,7 +56,6 @@ export default function RoutineCalendarPage() {
   }, []);
 
   // 통계 계산
-  const todayStr = new Date().toISOString().slice(0, 10);
   const pendingTasks = tasks.filter((t) => t.status === 'draft_ready');
   const approvedTasks = tasks.filter((t) => t.status === 'approved');
   const totalSavedMinutes = approvedTasks.reduce((acc, c) => acc + c.estimatedSavedMinutes, 0);
@@ -79,6 +79,18 @@ export default function RoutineCalendarPage() {
     toast.success('⚡ 오늘 대기 중이던 모든 AI 업무가 일괄 승인되었습니다!');
   };
 
+  // 새 루틴 일정 추가
+  const handleAddTask = (newTask: RoutineTask) => {
+    const updated = addRoutineTask(newTask, user);
+    setTasks(updated);
+  };
+
+  // 루틴 일정 삭제
+  const handleDeleteTask = (taskId: string) => {
+    const updated = deleteRoutineTask(taskId, user);
+    setTasks(updated);
+  };
+
   // 프리셋 초기화
   const handleResetPresets = () => {
     const restored = resetRoutineTasks();
@@ -92,41 +104,36 @@ export default function RoutineCalendarPage() {
   };
 
   return (
-    <div className="space-y-6 pb-16">
-      {/* ── 1. CEO Cockpit Header ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-lg border border-slate-800">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 size-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-8 size-48 rounded-full bg-rose-500/10 blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-[11px] font-black px-3 py-0.5">
-                AI 1인 기업 콕핏 시스템
-              </span>
-              <span className="rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 text-[11px] font-black px-3 py-0.5">
-                곽성진 대표 (르글라스 · 와인핏)
-              </span>
+    <div className="space-y-4 pb-12">
+      {/* ── 1. Collapsible CEO Cockpit Briefing Bar ── */}
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white shadow-md">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800/80">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white font-black text-xs shadow-xs">
+              CEO
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-black tracking-tight text-white">
+                  곽성진 대표 AI 루틴 캘린더 &amp; 콕핏
+                </h1>
+                <span className="rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.2 border border-emerald-500/30">
+                  Google Calendar 연동형
+                </span>
+              </div>
             </div>
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
-              AI 업무 루틴 캘린더 &amp; 모바일 원터치 승인
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              <strong>"반복은 AI 직원팀에게, 최종 결정은 나에게"</strong> — 밤새 준비된 콘텐츠와 매장 운영 서식을 모바일에서 1초 만에 승인·발행합니다.
-            </p>
           </div>
 
-          {/* 일괄 승인 액션 */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2">
             {pendingTasks.length > 0 && (
               <Button
                 type="button"
+                size="sm"
                 onClick={handleBatchApprove}
-                className="h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
+                className="h-8 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs shadow-xs flex items-center gap-1.5"
               >
-                <Zap className="size-4 fill-white" />
-                <span>오늘 업무 일괄 승인 ({pendingTasks.length}건)</span>
+                <Zap className="size-3.5 fill-white" />
+                <span>오늘 일괄 승인 ({pendingTasks.length})</span>
               </Button>
             )}
 
@@ -135,63 +142,102 @@ export default function RoutineCalendarPage() {
               variant="outline"
               size="sm"
               onClick={handleResetPresets}
-              className="h-12 rounded-2xl border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold"
+              className="h-8 rounded-xl border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold"
               title="초기 루틴 프리셋으로 복원"
             >
-              <RotateCcw className="size-3.5 mr-1" />
+              <RotateCcw className="size-3 mr-1" />
               <span>기본 루틴 복구</span>
             </Button>
+
+            <button
+              type="button"
+              onClick={() => setCockpitHeaderOpen(!cockpitHeaderOpen)}
+              className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+              title={cockpitHeaderOpen ? '요약 지표 접기' : '요약 지표 펼치기'}
+            >
+              {cockpitHeaderOpen ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* ── 4대 핵심 지표 바 ── */}
-        <div className="mt-6 pt-5 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
-            <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
-              <span>승인 대기</span>
+        {cockpitHeaderOpen && (
+          <div className="p-4 sm:p-5 pt-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                  <span className="size-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  승인 대기
+                </span>
+                <p className="text-lg font-black text-white mt-0.5">{pendingTasks.length}건</p>
+              </div>
+              <span className="text-xl">⏳</span>
             </div>
-            <p className="text-xl font-black text-white mt-0.5">{pendingTasks.length}건</p>
-          </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
-            <div className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5" />
-              <span>실행 완료</span>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="size-3" />
+                  실행 완료
+                </span>
+                <p className="text-lg font-black text-white mt-0.5">{approvedTasks.length}건</p>
+              </div>
+              <span className="text-xl">✅</span>
             </div>
-            <p className="text-xl font-black text-white mt-0.5">{approvedTasks.length}건</p>
-          </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
-            <div className="text-[11px] font-bold text-indigo-400 flex items-center gap-1.5">
-              <Clock className="size-3.5" />
-              <span>절약된 대표 시간</span>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-indigo-400 flex items-center gap-1">
+                  <Clock className="size-3" />
+                  대표 절약 시간
+                </span>
+                <p className="text-lg font-black text-white mt-0.5">
+                  {totalSavedMinutes > 60
+                    ? `${Math.floor(totalSavedMinutes / 60)}h ${totalSavedMinutes % 60}m`
+                    : `${totalSavedMinutes}분`}
+                </p>
+              </div>
+              <span className="text-xl">⚡</span>
             </div>
-            <p className="text-xl font-black text-white mt-0.5">
-              {totalSavedMinutes > 60
-                ? `${Math.floor(totalSavedMinutes / 60)}시간 ${totalSavedMinutes % 60}분`
-                : `${totalSavedMinutes}분`}
-            </p>
-          </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
-            <div className="text-[11px] font-bold text-purple-400 flex items-center gap-1.5">
-              <Coins className="size-3.5" />
-              <span>토큰 비용 효율</span>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-purple-400 flex items-center gap-1">
+                  <Coins className="size-3" />
+                  비용 절감 효율
+                </span>
+                <p className="text-lg font-black text-white mt-0.5">87% 절감</p>
+              </div>
+              <span className="text-xl">🎯</span>
             </div>
-            <p className="text-xl font-black text-white mt-0.5">87% 비용 절감</p>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* ── 2. 뷰 모드 탭 (모바일 1초 승인 vs 캘린더 전체 타임라인 vs 4대 AI팀) ── */}
-      <div className="flex items-center gap-2 border-b border-slate-200">
+      {/* ── 2. 뷰 모드 탭 (Google 캘린더 vs 모바일 카드 덱 vs 4대 AI팀) ── */}
+      <div className="flex items-center gap-1 sm:gap-2 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setActiveTab('calendar')}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
+            activeTab === 'calendar'
+              ? 'border-[#1a73e8] text-[#1a73e8]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <CalendarIcon className="size-4" />
+          <span>📅 Google 캘린더 (AI 루틴)</span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveTab('deck')}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition cursor-pointer ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
             activeTab === 'deck'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-[#1a73e8] text-[#1a73e8]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -206,23 +252,10 @@ export default function RoutineCalendarPage() {
 
         <button
           type="button"
-          onClick={() => setActiveTab('calendar')}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition cursor-pointer ${
-            activeTab === 'calendar'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <CalendarIcon className="size-4" />
-          <span>📅 주간/월간 캘린더 타임라인</span>
-        </button>
-
-        <button
-          type="button"
           onClick={() => setActiveTab('teams')}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition cursor-pointer ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
             activeTab === 'teams'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-[#1a73e8] text-[#1a73e8]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -233,7 +266,24 @@ export default function RoutineCalendarPage() {
 
       {/* ── 3. 탭별 컨텐츠 ── */}
 
-      {/* TAB 1: 모바일 원터치 승인 덱 */}
+      {/* TAB 1: 구글 캘린더 전체 화면 (Google Calendar Iconic Replica) */}
+      {activeTab === 'calendar' && (
+        <CalendarView
+          tasks={tasks}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          onSelectTask={handleOpenTask}
+          selectedAgentFilter={selectedAgentFilter}
+          onSelectAgentFilter={setSelectedAgentFilter}
+          onApprove={handleApprove}
+          onRevise={handleRevise}
+          onBatchApprove={handleBatchApprove}
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+        />
+      )}
+
+      {/* TAB 2: 모바일 원터치 승인 덱 */}
       {activeTab === 'deck' && (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
           <MobileApprovalDeck
@@ -245,7 +295,6 @@ export default function RoutineCalendarPage() {
 
           {/* 우측 보조 가이드 & 오늘 실행 완료 목록 */}
           <div className="space-y-4">
-            {/* 완료된 업무 목록 */}
             <div className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-xs space-y-3">
               <h4 className="text-xs font-black text-slate-900 flex items-center justify-between">
                 <span>✓ 오늘 승인 완료된 업무 ({approvedTasks.length}건)</span>
@@ -275,11 +324,10 @@ export default function RoutineCalendarPage() {
               )}
             </div>
 
-            {/* 대표 원칙 카드 */}
             <div className="rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 to-purple-50/40 p-5 space-y-2 text-xs">
               <span className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
                 <Sparkles className="size-3.5 text-indigo-600" />
-                <span>곽성진 대표 1인 회사 운영 원칙</span>
+                <span>AI Proposes, CEO Disposes</span>
               </span>
               <p className="text-slate-600 leading-relaxed text-[11px]">
                 매번 AI 툴을 켜서 프롬프트를 고민하지 마세요. 매일 정해진 시각에 4대 AI 직원이 초안을 등록해 두면, 대표님은 스마트폰에서 <strong>[승인]</strong> 또는 <strong>[1줄 수정]</strong>만 지시하시면 됩니다.
@@ -287,18 +335,6 @@ export default function RoutineCalendarPage() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* TAB 2: 주간/월간 캘린더 전체 타임라인 */}
-      {activeTab === 'calendar' && (
-        <CalendarView
-          tasks={tasks}
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-          onSelectTask={handleOpenTask}
-          selectedAgentFilter={selectedAgentFilter}
-          onSelectAgentFilter={setSelectedAgentFilter}
-        />
       )}
 
       {/* TAB 3: 4대 AI 직원팀 현황 */}
@@ -338,7 +374,7 @@ export default function RoutineCalendarPage() {
                     }}
                     className="font-bold text-indigo-600 hover:underline flex items-center gap-1"
                   >
-                    <span>이 팀의 주간 일정 보기</span>
+                    <span>이 팀의 구글 캘린더 일정 보기</span>
                     <ArrowRight className="size-3" />
                   </button>
                 </div>
@@ -348,7 +384,7 @@ export default function RoutineCalendarPage() {
         </div>
       )}
 
-      {/* ── 4. Task 상세 모달 ── */}
+      {/* ── 4. Task 상세 모달 (백업용) ── */}
       <TaskDetailModal
         task={selectedTask}
         open={detailModalOpen}

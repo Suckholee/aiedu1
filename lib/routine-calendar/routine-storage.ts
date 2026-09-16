@@ -131,9 +131,45 @@ export async function batchApproveToday(
   return updated;
 }
 
+// 새 루틴 일정 추가
+export function addRoutineTask(
+  newTask: RoutineTask,
+  user?: { uid: string } | null
+): RoutineTask[] {
+  const current = getLocalRoutineTasks();
+  const updated = [newTask, ...current];
+  saveLocalRoutineTasks(updated);
+
+  if (user?.uid && user.uid !== 'guest' && db) {
+    try {
+      const docRef = doc(db, 'users', user.uid, 'routine_tasks', newTask.id);
+      setDoc(docRef, {
+        ...newTask,
+        createdAt: Timestamp.now(),
+      });
+    } catch (e) {
+      console.warn('Firestore sync failed:', e);
+    }
+  }
+
+  return updated;
+}
+
+// 루틴 일정 삭제
+export function deleteRoutineTask(
+  taskId: string,
+  user?: { uid: string } | null
+): RoutineTask[] {
+  const current = getLocalRoutineTasks();
+  const updated = current.filter((t) => t.id !== taskId);
+  saveLocalRoutineTasks(updated);
+  return updated;
+}
+
 // 초기 프리셋 복구
 export function resetRoutineTasks(): RoutineTask[] {
   if (typeof window === 'undefined') return INITIAL_KWAK_ROUTINE_TASKS;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_KWAK_ROUTINE_TASKS));
   return INITIAL_KWAK_ROUTINE_TASKS;
 }
+
