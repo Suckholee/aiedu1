@@ -125,11 +125,12 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
   parts.push({ text: prompt });
 
   const genAI = getGenAIClient();
-  const configuredModel = process.env.GOOGLE_API_MODEL || 'gemini-2.0-flash';
+  const configuredModel = process.env.GOOGLE_API_MODEL || 'gemini-2.5-flash';
   const candidateModels = [
     configuredModel,
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-3-flash-preview',
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   let response: any = null;

@@ -90,7 +90,12 @@ ${textContent ? `[텍스트 내용]:\n${textContent}\n` : ''}
 
     parts.push({ text: prompt });
 
-    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    const candidateModels = [
+      process.env.GOOGLE_API_MODEL || 'gemini-2.5-flash',
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3-flash-preview',
+    ];
     let lastError: any = null;
     let parsed: any = null;
 

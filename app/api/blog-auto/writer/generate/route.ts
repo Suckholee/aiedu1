@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
             const genAI = new GoogleGenerativeAI(
               process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || ''
             );
-            const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+            const visionModel = genAI.getGenerativeModel({ model: process.env.GOOGLE_API_MODEL || 'gemini-2.5-flash' });
 
             let inlinePart: any = null;
             if (base64Data.startsWith('data:image/')) {

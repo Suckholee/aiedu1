@@ -62,8 +62,13 @@ export async function POST(req: NextRequest) {
   "suggestedCaption": "사진 바로 아래 들어갈 감성적인 1줄 캡션 (예: 겉바속촉 그 자체! 육즙이 팡 터지는 순간)"
 }`;
 
-    // 빠른 Vision 모델 순서 (gemini-2.0-flash -> gemini-1.5-flash -> gemini-1.5-pro)
-    const visionModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    // 빠른 Vision 모델 순서
+    const visionModels = [
+      process.env.GOOGLE_API_MODEL || 'gemini-2.5-flash',
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-2.5-pro',
+    ];
     let result: any = null;
     let lastError: any = null;
 

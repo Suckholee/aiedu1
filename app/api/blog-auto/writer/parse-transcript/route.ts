@@ -49,7 +49,12 @@ ${transcript.trim()}
 `;
 
     // 일시적 네트워크 끊김이나 쿼터 제한을 극복하기 위한 다단계 재시도 & 모델 폴백
-    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    const candidateModels = [
+      process.env.GOOGLE_API_MODEL || 'gemini-2.5-flash',
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3-flash-preview',
+    ];
     let lastError: any = null;
     let parsed: any = null;
 
