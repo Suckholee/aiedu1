@@ -132,7 +132,17 @@ export function AttendeeManageModal({
         }),
       });
 
-      const data = await res.json();
+      const resText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(resText);
+      } catch {
+        if (res.status === 413 || resText.includes('Request Entity Too Large')) {
+          throw new Error('파일 크기가 서버 전송 한도를 초과했습니다. PDF의 텍스트를 복사하여 [📋 텍스트 붙여넣기]에 넣어주세요.');
+        }
+        throw new Error(`서버 처리 실패 (${res.status}): ${resText.slice(0, 100)}`);
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || '양식지 분석에 실패했습니다.');
       }
@@ -179,46 +189,198 @@ export function AttendeeManageModal({
     }
   };
 
-  // 파일 선택 처리 (선택 즉시 자동 파싱 트리거)
-  const handleFileSelect = (file: File) => {
+  // 🌟 브라우저 동적 PDF.js 로더 (10MB+ 대용량 PDF도 텍스트로 즉시 경량 추출)
+  const loadPdfJs = async (): Promise<any> => {
+    if (typeof window === 'undefined') return null;
+    if ((window as any).pdfjsLib) return (window as any).pdfjsLib;
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => {
+        const lib = (window as any).pdfjsLib;
+        if (lib) {
+          lib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          resolve(lib);
+        } else {
+          reject(new Error('PDF.js 로드 실패'));
+        }
+      };
+      script.onerror = () => reject(new Error('PDF.js 스크립트 로드 실패'));
+      document.head.appendChild(script);
+    });
+  };
+
+  // 🌟 이미지 압축 (10MB 사진도 300KB로 압축하여 413 페이로드 에러 방지)
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 1600;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          } else {
+            resolve(reader.result as string);
+          }
+        };
+        img.onerror = () => resolve(reader.result as string);
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // 🌟 파일 선택 처리 (대용량 PDF / 이미지 자동 최적화 후 AI 분석 트리거)
+  const handleFileSelect = async (file: File) => {
     if (!file) return;
 
-    const validTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-      'application/pdf',
-      'text/plain',
-    ];
-    if (!validTypes.includes(file.type) && !file.name.endsWith('.txt')) {
+    const lowerName = file.name.toLowerCase();
+    const isPdf = file.type === 'application/pdf' || lowerName.endsWith('.pdf');
+    const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(lowerName);
+    const isText = file.type.startsWith('text/') || lowerName.endsWith('.txt');
+
+    if (!isPdf && !isImage && !isText) {
       toast.error('지원 형식: 이미지 (JPG, PNG, WebP), PDF, TXT 파일만 가능합니다.');
       return;
     }
 
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error('파일 크기는 최대 20MB까지 업로드할 수 있습니다.');
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('파일 크기는 최대 50MB까지 업로드할 수 있습니다.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      const fileInfo = {
-        name: file.name,
-        size: file.size,
-        type: file.type || 'image/jpeg',
-        base64,
-      };
-      setUploadedFile(fileInfo);
+    setUploadedFile({
+      name: file.name,
+      size: file.size,
+      type: file.type || (isPdf ? 'application/pdf' : 'application/octet-stream'),
+      base64: '',
+    });
 
-      // 🌟 파일이 업로드되면 사용자가 따로 버튼을 찾을 필요 없이 즉시 AI 자동 파싱 시작!
-      executeParse({
-        fileBase64: base64,
-        mimeType: fileInfo.type,
-        fileName: file.name,
-      });
-    };
-    reader.readAsDataURL(file);
+    // 1) 텍스트 파일 (.txt)
+    if (isText) {
+      try {
+        const textContent = await file.text();
+        executeParse({ sheetText: textContent, fileName: file.name });
+      } catch (err: any) {
+        toast.error('텍스트 파일 읽기 실패: ' + err.message);
+      }
+      return;
+    }
+
+    // 2) 이미지 파일 (JPG, PNG, WebP) -> Canvas 경량 압축
+    if (isImage) {
+      try {
+        const compressedBase64 = await compressImage(file);
+        setUploadedFile((prev) => (prev ? { ...prev, base64: compressedBase64 } : null));
+        executeParse({
+          fileBase64: compressedBase64,
+          mimeType: 'image/jpeg',
+          fileName: file.name,
+        });
+      } catch (err: any) {
+        toast.error('이미지 처리 실패: ' + err.message);
+      }
+      return;
+    }
+
+    // 3) PDF 파일 (13.8MB 등 대용량 PDF 포함)
+    if (isPdf) {
+      setIsParsing(true);
+      try {
+        // PDF.js를 통해 브라우저에서 텍스트 직접 추출
+        const pdfjs = await loadPdfJs();
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+
+        let fullText = '';
+        const maxPages = Math.min(pdf.numPages, 10);
+
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageStrings = content.items
+            .map((it: any) => it.str)
+            .filter(Boolean);
+          if (pageStrings.length > 0) {
+            fullText += `\n[${i}페이지]\n` + pageStrings.join(' ');
+          }
+        }
+
+        // 텍스트가 풍부한 일반 PDF인 경우 -> 텍스트로 즉시 분석 전송 (용량 수 KB로 극적 축소!)
+        if (fullText.trim().length >= 30) {
+          executeParse({ sheetText: fullText.trim(), fileName: file.name });
+          return;
+        }
+
+        // 텍스트가 없는 스캔형 이미지 PDF인 경우 -> 1~2페이지를 캔버스로 렌더링하여 경량 이미지로 전송
+        if (pdf.numPages > 0) {
+          const firstPage = await pdf.getPage(1);
+          const viewport = firstPage.getViewport({ scale: 1.5 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            await firstPage.render({ canvasContext: ctx, viewport }).promise;
+            const pageImage = canvas.toDataURL('image/jpeg', 0.85);
+            setUploadedFile((prev) => (prev ? { ...prev, base64: pageImage } : null));
+            executeParse({
+              fileBase64: pageImage,
+              mimeType: 'image/jpeg',
+              fileName: file.name,
+            });
+            return;
+          }
+        }
+
+        // 폴백 (3MB 이하인 경우 직접 Base64 전송)
+        if (file.size <= 3 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const b64 = e.target?.result as string;
+            executeParse({ fileBase64: b64, mimeType: 'application/pdf', fileName: file.name });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          throw new Error('PDF 텍스트 추출에 실패했습니다. 내용을 복사하여 [📋 텍스트 붙여넣기]로 입력해주세요.');
+        }
+      } catch (pdfErr: any) {
+        console.error('PDF parsing error:', pdfErr);
+        setIsParsing(false);
+        // 만약 3MB 이하 파일이면 직접 base64 전송 시도
+        if (file.size <= 3 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const b64 = e.target?.result as string;
+            executeParse({ fileBase64: b64, mimeType: 'application/pdf', fileName: file.name });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          toast.error(
+            '대용량 PDF 처리 안내: 파일 크기가 커서 텍스트 복사 후 [📋 텍스트 붙여넣기]로 넣어주시면 가장 빠르고 정확하게 분석됩니다.'
+          );
+        }
+      }
+    }
   };
 
   // 드래그 앤 드롭
