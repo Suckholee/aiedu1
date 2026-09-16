@@ -73,7 +73,7 @@ export default function BlogStudioPage() {
 
   const handleSelectProfile = (profile: BlogProfile) => {
     setCurrentProfile(profile);
-    setSkillId(profile.skillId || 'general');
+    setSkillId(profile.skillId || 'one_to_one');
     setPlatform(profile.platform || 'naver');
     setTone(profile.tone || 'friendly');
     setCopyFormula(profile.copyFormula || 'auto');
@@ -89,7 +89,7 @@ export default function BlogStudioPage() {
 
   const handleDirectStart = () => {
     setCurrentProfile(null);
-    setSkillId('restaurant');
+    setSkillId('one_to_one');
     setPlatform('naver');
     setTone('friendly');
     setCopyFormula('auto');
