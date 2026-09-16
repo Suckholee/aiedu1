@@ -72,11 +72,13 @@ export const BLOG_SKILLS: BlogSkill[] = [
       { title: '상대방 제품/사업장', description: '상대방 대표님의 사업장이나 제품, 시공/작업 사례 사진', exampleImageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop' },
     ],
     optionalFields: [
-      { key: 'partnerName', label: '파트너 대표님 성함', type: 'text', placeholder: '예: 방은주 대표' },
-      { key: 'partnerCompany', label: '회사명 / 챕터', type: 'text', placeholder: '예: 미래에셋 금융서비스 (BNI 마스터 챕터)' },
-      { key: 'partnerField', label: '전문 분야 / 핵심 강점', type: 'text', placeholder: '예: CEO 법인 자산관리 및 가업승계 컨설팅' },
+      { key: 'partnerName', label: '파트너 대표님 성함', type: 'text', placeholder: '예: 홍길동 대표 (파트너 대표님 성함)' },
+      { key: 'partnerCompany', label: '회사명 / 챕터', type: 'text', placeholder: '예: OO솔루션 (BNI 챕터)' },
+      { key: 'partnerField', label: '전문 분야 / 핵심 사업', type: 'text', placeholder: '예: 기업 브랜딩 및 공간 디자인' },
+      { key: 'targetReferral', label: '이상적인 추천 고객 (타겟 리퍼럴)', type: 'text', placeholder: '예: 신규 매장 오픈 예정인 대표, 리브랜딩이 필요한 기업' },
+      { key: 'partnerStrength', label: '차별화된 핵심 강점', type: 'text', placeholder: '예: 15년 실무 경력의 브랜드 분석과 맞춤형 디렉팅' },
       { key: 'meetingDate', label: '미팅 일자', type: 'text', placeholder: '예: 2026년 9월 16일' },
-      { key: 'meetingPlace', label: '미팅 장소', type: 'text', placeholder: '예: 르글라스 압구정' },
+      { key: 'meetingPlace', label: '미팅 장소', type: 'text', placeholder: '예: 비즈니스 라운지 카페' },
       { key: 'conversationCore', label: '오늘 대화 핵심 주제', type: 'textarea', placeholder: '오늘 어떤 주제로 이야기했는지 메모' },
       { key: 'myInsight', label: '나의 비즈니스 인사이트', type: 'textarea', placeholder: '내 사업에 적용하고 싶은 깨달음이나 배운 점' },
       { key: 'synergyPlan', label: '상생 협업 / 다음 약속', type: 'textarea', placeholder: '서로 어떤 도움을 주고받을지, 다음 약속한 일' },
@@ -679,15 +681,15 @@ export function buildSkillPrompt(
 
   // BNI 원투원 스킬 전용 프롬프트 가이드
   if (skill.id === 'one_to_one') {
-    prompt += `\n\n★ [BNI 121 원투원 미팅 스토리텔링 전용 지침]:
+    prompt += `\n\n★ [BNI 121 원투원 양식 기반 스토리텔링 전용 지침]:
 1. [글의 제목]: 반드시 "[BNI 원투원] {상대방 회사} {대표님 성함} 대표님과의 만남 — {핵심 인사이트/협업 가치}" 형식의 품격 있는 비즈니스 제목으로 작성.
-2. [6단계 서사 구조]:
-   - ① 만남의 배경: 대표님을 뵙게 된 계기와 미팅 장소 분위기
-   - ② 상대방의 전문성: 대표님의 사업 철학과 독보적인 비즈니스 강점
-   - ③ 대화의 핵심: 오늘 121 미팅에서 나눈 진솔한 대화와 실제 메모 스토리
-   - ④ 나의 인사이트: 내 사업에 적용하고 싶은 깨달음과 비즈니스 배움
-   - ⑤ 상생과 협업: 두 기업이 함께 그리는 시너지와 리퍼럴 협업 기회
-   - ⑥ 맺음말 및 추천: 대표님을 적극 추천하는 이유와 회사/문의 정보 안내
+2. [BNI 원투원 6단계 서사 구조 (P-S-I)]:
+   - ① 만남의 배경: 대표님을 뵙게 된 계기와 미팅 일시/장소 분위기
+   - ② 파트너의 전문성 & 추천 고객: 대표님의 독보적인 강점과 어떤 고객을 연결해드리면 좋은지(타겟 리퍼럴) 상세 조명
+   - ③ 오늘 나눈 대화의 핵심: 오늘 121 미팅에서 나눈 진솔한 대화와 실제 메모에 담긴 생생한 비즈니스 스토리
+   - ④ 나의 인사이트 (배운 점): 작성자(나)의 시점에서 느낀 비즈니스 인사이트와 내 사업에 적용할 점
+   - ⑤ 상생과 협업 계획: 두 기업이 함께 그리는 시너지, 서로 줄 수 있는 소개 기회, 다음 약속한 일정
+   - ⑥ 맺음말 및 문의 안내: 파트너 대표님을 적극 추천하는 이유와 회사/문의처 안내
 3. [네이버 블로그 친화적 서식]:
    - 각 섹션 시작 시 '> [말풍선] 핵심 한마디' 배치
    - 미팅 사진 [IMAGE_N] 자연스러운 배치

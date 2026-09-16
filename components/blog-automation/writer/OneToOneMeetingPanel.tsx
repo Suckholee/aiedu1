@@ -12,64 +12,33 @@ import {
   Sparkles,
   CheckSquare,
   RotateCcw,
+  Target,
+  Award,
+  FileText,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
-export interface OneToOnePreset {
-  id: string;
-  name: string;
-  partnerName: string;
-  partnerCompany: string;
-  partnerField: string;
-  meetingDate: string;
-  meetingPlace: string;
-  conversationCore: string;
-  myInsight: string;
-  synergyPlan: string;
-  topic: string;
-  keywords: string;
-}
-
-export const BNI_ONE_TO_ONE_PRESETS: OneToOnePreset[] = [
-  {
-    id: 'bangeunju',
-    name: '방은주 대표 (금융·자산관리)',
-    partnerName: '방은주 대표',
-    partnerCompany: '미래에셋 금융서비스 (BNI 마스터 챕터)',
-    partnerField: 'CEO 법인 자산관리, 가업승계 및 VIP 재무 컨설팅',
-    meetingDate: new Date().toISOString().slice(0, 10),
-    meetingPlace: '르글라스 압구정',
-    conversationCore:
-      '중소기업 CEO들의 가업승계 고민과 절세 플랜에 대한 심도 있는 대화. 단순 상품 판매가 아닌 고객의 생애 주기와 기업 가치를 함께 지키는 파트너십 철학 공유.',
-    myInsight:
-      '와인바 르글라스나 와인핏의 VIP 고객들에게도 결국 필요한 것은 "신뢰에 기반한 맞춤형 가치 제안"이라는 점을 다시금 절감함. 고객의 진짜 고민에 귀 기울이는 상담 프레임워크를 사업에 적용하기로 결심.',
-    synergyPlan:
-      '미래에셋 VIP 고객 대상 프라이빗 와인 클래스 및 CEO 비즈니스 살롱 공동 개최 논의. 르글라스 프라이빗 룸에서 법인 컨설팅과 와인 페어링을 결합한 세미나 기획.',
-    topic: '[BNI 원투원] 미래에셋 방은주 대표님과의 만남 - CEO 법인 자산관리와 VIP 와인 페어링의 비즈니스 시너지',
-    keywords: 'BNI원투원, 121미팅, 방은주대표, 미래에셋, 법인자산관리, 르글라스, 비즈니스네트워킹',
-  },
-  {
-    id: 'anchanmin',
-    name: '안찬민 대표 (인테리어·시공)',
-    partnerName: '안찬민 대표',
-    partnerCompany: '디자인스페이스 (BNI 마스터 챕터)',
-    partnerField: '하이엔드 상업공간 및 주거 인테리어 설계·시공',
-    meetingDate: new Date().toISOString().slice(0, 10),
-    meetingPlace: '압구정 로데오 카페',
-    conversationCore:
-      '상업공간에서 고객의 체류 시간을 늘리고 객단가를 높이는 공간 브랜딩과 조명 설계의 디테일. 시공 이후에도 이어지는 철저한 하자보수와 고객 만족 원칙.',
-    myInsight:
-      '공간이 곧 브랜드의 메시지라는 점. 르글라스 매장 내부의 조도와 동선 하나하나가 손님들의 와인 경험에 미치는 영향을 공간 전문가의 시각에서 새롭게 배움.',
-    synergyPlan:
-      '신규 오픈하는 고급 와인바 및 레스토랑 인테리어 프로젝트에 와인 셀러 구성 및 글라스웨어 컨설팅 상생 협업 진행. 안 대표님 완공 현장에 오픈 축하 와인 선물 큐레이션 제휴.',
-    topic: '[BNI 원투원] 디자인스페이스 안찬민 대표님과의 만남 - 공간의 디테일이 고객의 경험을 완성한다',
-    keywords: 'BNI원투원, 121미팅, 안찬민대표, 상업인테리어, 공간브랜딩, 르글라스, 협업시너지',
-  },
-];
+/** BNI 공식 원투원 양식 표준 가이드 샘플 (실제 개인 식별 정보 배제) */
+export const BNI_STANDARD_SAMPLE = {
+  partnerName: '김대표',
+  partnerCompany: '알파브랜딩 (BNI 챕터)',
+  partnerField: '기업 브랜딩 및 공간 디자인 디렉팅',
+  targetReferral: '신규 사옥 이전 기업, 프리미엄 매장 오픈 준비 중인 F&B 브랜드 대표',
+  partnerStrength: '15년 업력의 브랜드 정체성 분석과 감각적인 공간 연출 역량',
+  meetingDate: new Date().toISOString().slice(0, 10),
+  meetingPlace: '비즈니스 라운지 카페',
+  conversationCore:
+    '고객의 브랜드 경험을 극대화하는 공간 설계 철학과, 단순 인테리어를 넘어 매출로 연결되는 비즈니스 동선 설계의 노하우 공유.',
+  myInsight:
+    '공간과 제품이 고객에게 전달하는 일관된 메시지의 중요성을 절감함. 고객과의 첫 접점부터 사후 관리까지 신뢰를 주는 프로세스를 우리 사업에도 적극 반영하기로 함.',
+  synergyPlan:
+    '신규 오픈하는 프리미엄 고객사 프로젝트에 맞춤형 제휴 및 공동 프로모션 논의. 상호 고객 네트워킹 소개 및 분기별 비즈니스 협력 미팅 진행 약속.',
+  topic: '[BNI 원투원] 알파브랜딩 김대표님과의 121 미팅 - 공간 브랜딩이 비즈니스 성장에 미치는 시너지',
+  keywords: 'BNI원투원, 121미팅, 비즈니스네트워킹, 공간브랜딩, 비즈니스시너지, 대표인터뷰',
+};
 
 interface OneToOneMeetingPanelProps {
   customFields: Record<string, string>;
@@ -90,8 +59,9 @@ export function OneToOneMeetingPanel({
   onRequiredKeywordsChange,
   onTargetAudienceChange,
 }: OneToOneMeetingPanelProps) {
-  // 블록 포함 토글
+  // 블록 포함 토글 상태
   const [includePartnerIntro, setIncludePartnerIntro] = useState(true);
+  const [includeStrength, setIncludeStrength] = useState(true);
   const [includeConversation, setIncludeConversation] = useState(true);
   const [includeInsight, setIncludeInsight] = useState(true);
   const [includeSynergy, setIncludeSynergy] = useState(true);
@@ -104,24 +74,26 @@ export function OneToOneMeetingPanel({
     });
   };
 
-  const applyPreset = (preset: OneToOnePreset) => {
+  const applyStandardSample = () => {
     onCustomFieldsChange({
       ...customFields,
-      partnerName: preset.partnerName,
-      partnerCompany: preset.partnerCompany,
-      partnerField: preset.partnerField,
-      meetingDate: preset.meetingDate,
-      meetingPlace: preset.meetingPlace,
-      conversationCore: preset.conversationCore,
-      myInsight: preset.myInsight,
-      synergyPlan: preset.synergyPlan,
+      partnerName: BNI_STANDARD_SAMPLE.partnerName,
+      partnerCompany: BNI_STANDARD_SAMPLE.partnerCompany,
+      partnerField: BNI_STANDARD_SAMPLE.partnerField,
+      targetReferral: BNI_STANDARD_SAMPLE.targetReferral,
+      partnerStrength: BNI_STANDARD_SAMPLE.partnerStrength,
+      meetingDate: BNI_STANDARD_SAMPLE.meetingDate,
+      meetingPlace: BNI_STANDARD_SAMPLE.meetingPlace,
+      conversationCore: BNI_STANDARD_SAMPLE.conversationCore,
+      myInsight: BNI_STANDARD_SAMPLE.myInsight,
+      synergyPlan: BNI_STANDARD_SAMPLE.synergyPlan,
     });
-    onTopicChange(preset.topic);
-    onRequiredKeywordsChange(preset.keywords);
+    onTopicChange(BNI_STANDARD_SAMPLE.topic);
+    onRequiredKeywordsChange(BNI_STANDARD_SAMPLE.keywords);
     if (onTargetAudienceChange) {
       onTargetAudienceChange('BNI 멤버, 기업 대표님 및 사업가, 비즈니스 네트워킹 관심자');
     }
-    toast.success(`🤝 '${preset.name}' 데이터가 원투원 폼에 자동 입력되었습니다!`);
+    toast.success('🤝 BNI 원투원 표준 예시 데이터가 입력되었습니다.');
   };
 
   const resetFields = () => {
@@ -130,137 +102,184 @@ export function OneToOneMeetingPanel({
       partnerName: '',
       partnerCompany: '',
       partnerField: '',
+      targetReferral: '',
+      partnerStrength: '',
       meetingDate: new Date().toISOString().slice(0, 10),
       meetingPlace: '',
       conversationCore: '',
       myInsight: '',
       synergyPlan: '',
     });
-    toast.info('원투원 입력 필드가 초기화되었습니다.');
+    toast.info('원투원 양식이 비워졌습니다. 실제 미팅 내용을 입력하세요.');
   };
 
   return (
-    <div className="space-y-4 rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 via-white to-white p-4 sm:p-5 shadow-xs">
-      {/* ── 1. Header & Fast Presets ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-indigo-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-xs">
+    <div className="space-y-4 rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 via-white to-white p-3.5 sm:p-5 shadow-xs">
+      {/* ── 1. 헤더 (BNI 원투원 양식) & 표준 샘플 액션 ── */}
+      <div className="flex flex-col gap-2 pb-3 border-b border-indigo-100">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-xs shrink-0">
               <Handshake className="size-4" />
             </span>
-            <h3 className="text-sm font-black text-slate-900">
-              BNI 원투원 (121 미팅) 전용 워크스페이스
+            <h3 className="text-sm font-black text-slate-900 break-keep whitespace-nowrap">
+              BNI 원투원 양식 (121 미팅)
             </h3>
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
-              P-S-I 스토리 공식
+            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 whitespace-nowrap shrink-0">
+              공식 121 시트 구조
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            대표님과의 만남에서 나눈 대화와 배운 점을 기록하여 품격 있는 비즈니스 블로그 글로 완성합니다.
-          </p>
-        </div>
 
-        {/* 빠른 프리셋 버튼들 */}
-        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-          {BNI_ONE_TO_ONE_PRESETS.map((preset) => (
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
-              key={preset.id}
               type="button"
-              onClick={() => applyPreset(preset)}
-              className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95"
+              onClick={applyStandardSample}
+              className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95 whitespace-nowrap"
             >
               <Sparkles className="size-3 text-indigo-500" />
-              <span>{preset.partnerName} 예시</span>
+              <span>표준 샘플 채우기</span>
             </button>
-          ))}
-          <button
-            type="button"
-            onClick={resetFields}
-            className="rounded-xl border border-slate-200 bg-white p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-            title="초기화"
-          >
-            <RotateCcw className="size-3.5" />
-          </button>
+            <button
+              type="button"
+              onClick={resetFields}
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition whitespace-nowrap"
+              title="양식 비우기"
+            >
+              <RotateCcw className="size-3 text-slate-400" />
+              <span>양식 비우기</span>
+            </button>
+          </div>
+        </div>
+        <p className="text-[11px] text-slate-500 break-keep">
+          BNI 121 미팅 표준 질문 구조에 맞춰 대화 내용과 비즈니스 배움을 기록하면, 신뢰도 높은 네이버 블로그 글로 자동 완성됩니다.
+        </p>
+      </div>
+
+      {/* ── 2. 파트너 기본 정보 ── */}
+      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+          <Users className="size-3.5 text-indigo-600" />
+          <span>1. 파트너 대표님 기본 정보</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              파트너 대표님 성함 <span className="text-rose-500">*</span>
+            </Label>
+            <Input
+              value={customFields.partnerName || ''}
+              onChange={(e) => handleField('partnerName', e.target.value)}
+              placeholder="예: 홍길동 대표"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <Building2 className="size-3 text-slate-500" />
+              회사명 / 소속 챕터
+            </Label>
+            <Input
+              value={customFields.partnerCompany || ''}
+              onChange={(e) => handleField('partnerCompany', e.target.value)}
+              placeholder="예: OO솔루션 (BNI 챕터명)"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <FileText className="size-3 text-slate-500" />
+              전문분야 / 주력 사업
+            </Label>
+            <Input
+              value={customFields.partnerField || ''}
+              onChange={(e) => handleField('partnerField', e.target.value)}
+              placeholder="예: 기업 브랜딩 및 공간 디자인"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── 2. 파트너 대표님 기본 정보 ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <Users className="size-3.5 text-indigo-600" />
-            파트너 대표님 성함 <span className="text-rose-500">*</span>
-          </Label>
-          <Input
-            value={customFields.partnerName || ''}
-            onChange={(e) => handleField('partnerName', e.target.value)}
-            placeholder="예: 방은주 대표"
-            className="h-8 text-xs bg-white"
-          />
+      {/* ── 3. 비즈니스 프로필 & 이상적인 리퍼럴 (GAINS) ── */}
+      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+          <Target className="size-3.5 text-rose-600" />
+          <span>2. 비즈니스 프로필 &amp; 이상적인 리퍼럴 (소개 희망 고객)</span>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              이상적인 추천 고객 (타겟 리퍼럴)
+            </Label>
+            <Input
+              value={customFields.targetReferral || ''}
+              onChange={(e) => handleField('targetReferral', e.target.value)}
+              placeholder="어떤 고객을 만났을 때 연결해 드리면 가장 좋을까요?"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <Building2 className="size-3.5 text-indigo-600" />
-            회사명 / 챕터
-          </Label>
-          <Input
-            value={customFields.partnerCompany || ''}
-            onChange={(e) => handleField('partnerCompany', e.target.value)}
-            placeholder="예: 미래에셋 (BNI 마스터 챕터)"
-            className="h-8 text-xs bg-white"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <Lightbulb className="size-3.5 text-amber-500" />
-            전문분야 / 강점
-          </Label>
-          <Input
-            value={customFields.partnerField || ''}
-            onChange={(e) => handleField('partnerField', e.target.value)}
-            placeholder="예: CEO 법인 자산관리 및 가업승계"
-            className="h-8 text-xs bg-white"
-          />
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <Award className="size-3 text-amber-500" />
+              차별화된 핵심 강점 &amp; 경쟁력
+            </Label>
+            <Input
+              value={customFields.partnerStrength || ''}
+              onChange={(e) => handleField('partnerStrength', e.target.value)}
+              placeholder="경쟁사와 차별화되는 대표님만의 독보적인 강점"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── 3. 미팅 일시 및 장소 ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <CalendarIcon className="size-3.5 text-slate-500" />
-            미팅 일자
-          </Label>
-          <Input
-            type="date"
-            value={customFields.meetingDate || new Date().toISOString().slice(0, 10)}
-            onChange={(e) => handleField('meetingDate', e.target.value)}
-            className="h-8 text-xs bg-white"
-          />
+      {/* ── 4. 미팅 일시 및 장소 ── */}
+      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+          <CalendarIcon className="size-3.5 text-slate-600" />
+          <span>3. 미팅 일시 및 장소</span>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              미팅 일자
+            </Label>
+            <Input
+              type="date"
+              value={customFields.meetingDate || new Date().toISOString().slice(0, 10)}
+              onChange={(e) => handleField('meetingDate', e.target.value)}
+              className="h-8 text-xs bg-white"
+            />
+          </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <MapPin className="size-3.5 text-rose-500" />
-            미팅 장소
-          </Label>
-          <Input
-            value={customFields.meetingPlace || ''}
-            onChange={(e) => handleField('meetingPlace', e.target.value)}
-            placeholder="예: 르글라스 압구정 (서울 강남구 압구정로)"
-            className="h-8 text-xs bg-white"
-          />
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <MapPin className="size-3 text-rose-500" />
+              미팅 장소
+            </Label>
+            <Input
+              value={customFields.meetingPlace || ''}
+              onChange={(e) => handleField('meetingPlace', e.target.value)}
+              placeholder="예: 비즈니스 라운지 카페 (서울 강남구)"
+              className="h-8 text-xs bg-white"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── 4. 핵심 대화 & 비즈니스 인사이트 (원투원의 알맹이) ── */}
-      <div className="space-y-2.5 pt-1">
+      {/* ── 5. 대화 내용 & 비즈니스 인사이트 (121 미팅 핵심 메모) ── */}
+      <div className="rounded-xl border border-indigo-100 bg-indigo-50/20 p-3 space-y-2.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+          <MessageSquareText className="size-3.5 text-blue-600" />
+          <span>4. 대화 내용 및 비즈니스 인사이트 (핵심 메모)</span>
+        </div>
+
         <div className="space-y-1">
-          <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <MessageSquareText className="size-3.5 text-blue-600" />
-            <span>오늘 나눈 대화의 핵심 &amp; 인상 깊었던 이야기</span>
+          <Label className="text-[11px] font-semibold text-slate-700">
+            오늘 나눈 대화의 핵심 &amp; 인상 깊었던 이야기
           </Label>
           <Textarea
             value={customFields.conversationCore || ''}
@@ -273,28 +292,28 @@ export function OneToOneMeetingPanel({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div className="space-y-1">
-            <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <Lightbulb className="size-3.5 text-amber-600" />
-              <span>나의 인사이트 (내 사업에 적용할 점)</span>
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <Lightbulb className="size-3 text-amber-500" />
+              나의 비즈니스 인사이트 (내 사업에 적용할 점)
             </Label>
             <Textarea
               value={customFields.myInsight || ''}
               onChange={(e) => handleField('myInsight', e.target.value)}
-              placeholder="만남을 통해 얻은 깨달음이나 내 사업(와인핏/르글라스)에 적용하고 싶은 점"
+              placeholder="만남을 통해 얻은 깨달음이나 내 사업에 적용하고 싶은 점"
               rows={2}
               className="text-xs bg-white resize-none"
             />
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <Handshake className="size-3.5 text-emerald-600" />
-              <span>상생 협업 / 다음 약속</span>
+            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+              <Handshake className="size-3 text-emerald-600" />
+              상생 협업 / 다음 약속
             </Label>
             <Textarea
               value={customFields.synergyPlan || ''}
               onChange={(e) => handleField('synergyPlan', e.target.value)}
-              placeholder="서로 주고받을 수 있는 비즈니스 도움, 추천 리퍼럴 또는 다음 약속한 일"
+              placeholder="서로 주고받을 수 있는 비즈니스 소개, 시너지 프로젝트, 다음 약속한 일정"
               rows={2}
               className="text-xs bg-white resize-none"
             />
@@ -302,8 +321,8 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* ── 5. 원투원 블록 포함 체크리스트 (토글) ── */}
-      <div className="pt-2 border-t border-indigo-100/80">
+      {/* ── 6. 블로그 본문 포함 블록 선택 (토글) ── */}
+      <div className="pt-2 border-t border-indigo-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
             <CheckSquare className="size-3.5 text-indigo-600" />
@@ -315,7 +334,7 @@ export function OneToOneMeetingPanel({
         </div>
 
         <div className="flex flex-wrap gap-2 text-xs">
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50">
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
             <input
               type="checkbox"
               checked={includePartnerIntro}
@@ -325,44 +344,54 @@ export function OneToOneMeetingPanel({
             <span className="text-[11px] font-semibold text-slate-700">① 만남 배경 &amp; 대표님 소개</span>
           </label>
 
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50">
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
+            <input
+              type="checkbox"
+              checked={includeStrength}
+              onChange={(e) => setIncludeStrength(e.target.checked)}
+              className="rounded text-indigo-600"
+            />
+            <span className="text-[11px] font-semibold text-slate-700">② 차별화 강점 &amp; 주력 비즈니스</span>
+          </label>
+
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
             <input
               type="checkbox"
               checked={includeConversation}
               onChange={(e) => setIncludeConversation(e.target.checked)}
               className="rounded text-indigo-600"
             />
-            <span className="text-[11px] font-semibold text-slate-700">② 대화 핵심 &amp; 스토리</span>
+            <span className="text-[11px] font-semibold text-slate-700">③ 대화 핵심 &amp; 스토리</span>
           </label>
 
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50">
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
             <input
               type="checkbox"
               checked={includeInsight}
               onChange={(e) => setIncludeInsight(e.target.checked)}
               className="rounded text-indigo-600"
             />
-            <span className="text-[11px] font-semibold text-slate-700">③ 나의 비즈니스 인사이트</span>
+            <span className="text-[11px] font-semibold text-slate-700">④ 나의 비즈니스 인사이트</span>
           </label>
 
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50">
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
             <input
               type="checkbox"
               checked={includeSynergy}
               onChange={(e) => setIncludeSynergy(e.target.checked)}
               className="rounded text-indigo-600"
             />
-            <span className="text-[11px] font-semibold text-slate-700">④ 상생 협업 &amp; 리퍼럴 기회</span>
+            <span className="text-[11px] font-semibold text-slate-700">⑤ 상생 협업 &amp; 리퍼럴 기회</span>
           </label>
 
-          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50">
+          <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 cursor-pointer hover:bg-slate-50 transition">
             <input
               type="checkbox"
               checked={includeLocationMap}
               onChange={(e) => setIncludeLocationMap(e.target.checked)}
               className="rounded text-indigo-600"
             />
-            <span className="text-[11px] font-semibold text-slate-700">⑤ 미팅 장소 및 파트너사 지도 안내</span>
+            <span className="text-[11px] font-semibold text-slate-700">⑥ 미팅 장소 및 파트너사 정보 안내</span>
           </label>
         </div>
       </div>
