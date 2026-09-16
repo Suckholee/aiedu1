@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateBlogContent } from '@/lib/blog-automation/content-generator';
 import { getSkillById, type BlogSkillId } from '@/lib/blog-automation/blog-skills';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // 전역 최신 글 캐시 (크롬 확장 프로그램용)
 const globalForLatest = globalThis as unknown as { _latestBlogAutoPost?: any };
