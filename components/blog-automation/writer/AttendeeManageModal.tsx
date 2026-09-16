@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,13 @@ import {
   Loader2,
   Wand2,
   ClipboardPaste,
+  UploadCloud,
+  FileCheck,
+  CheckCircle2,
+  RefreshCw,
+  X,
+  File,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +55,7 @@ export function AttendeeManageModal({
   onSaved,
   onDeleted,
 }: AttendeeManageModalProps) {
+  // 기본 입력 정보
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [chapter, setChapter] = useState('');
@@ -57,10 +65,22 @@ export function AttendeeManageModal({
   const [sheetSummary, setSheetSummary] = useState('');
   const [preferredPlace, setPreferredPlace] = useState('');
 
-  // AI 분석용 원문 양식지 텍스트
+  // 양식지 입력 방식: 'file' (사진/PDF 파일 업로드) | 'text' (카톡/텍스트 붙여넣기)
+  const [uploadMode, setUploadMode] = useState<'file' | 'text'>('file');
   const [rawSheetText, setRawSheetText] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<{
+    name: string;
+    size: number;
+    type: string;
+    base64: string;
+  } | null>(null);
+
+  const [isDragging, setIsDragging] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
+  const [isParsedSuccess, setIsParsedSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (attendee) {
@@ -73,6 +93,8 @@ export function AttendeeManageModal({
       setSheetSummary(attendee.sheetSummary || '');
       setPreferredPlace(attendee.preferredPlace || '');
       setRawSheetText('');
+      setUploadedFile(null);
+      setIsParsedSuccess(false);
     } else {
       setName('');
       setCompany('');
@@ -83,22 +105,31 @@ export function AttendeeManageModal({
       setSheetSummary('');
       setPreferredPlace('');
       setRawSheetText('');
+      setUploadedFile(null);
+      setIsParsedSuccess(false);
     }
   }, [attendee, open]);
 
-  // AI 양식지 스마트 파싱
-  const handleParseSheet = async () => {
-    if (!rawSheetText.trim()) {
-      toast.error('분석할 양식지 또는 카카오톡 소개글을 입력해주세요.');
-      return;
-    }
-
+  // AI 양식지 스마트 파싱 공통 함수
+  const executeParse = async (params: {
+    sheetText?: string;
+    fileBase64?: string;
+    mimeType?: string;
+    fileName?: string;
+  }) => {
     setIsParsing(true);
+    setIsParsedSuccess(false);
+
     try {
       const res = await fetch('/api/blog-auto/writer/parse-121-sheet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sheetText: rawSheetText }),
+        body: JSON.stringify({
+          sheetText: params.sheetText,
+          fileBase64: params.fileBase64,
+          mimeType: params.mimeType,
+          partnerName: name,
+        }),
       });
 
       const data = await res.json();
@@ -107,24 +138,39 @@ export function AttendeeManageModal({
       }
 
       const parsed = data.data;
-      if (parsed.partnerName) setName(parsed.partnerName);
+
+      // 성함: 사용자가 비워뒀거나 직함 보강이 가능한 경우 반영
+      if (parsed.partnerName) {
+        if (!name.trim()) {
+          setName(parsed.partnerName);
+        }
+      }
+
+      // 회사명 및 챕터 자동 분리
       if (parsed.partnerCompany) {
         const comp = parsed.partnerCompany;
-        // 챕터 분리 시도
         if (comp.includes('(') && comp.includes(')')) {
           const parts = comp.split('(');
           setCompany(parts[0].trim());
-          setChapter(parts[1].replace(')', '').trim());
+          if (!chapter.trim()) {
+            setChapter(parts[1].replace(')', '').trim());
+          }
         } else {
           setCompany(comp);
         }
       }
+
+      if (parsed.partnerChapter && !chapter.trim()) {
+        setChapter(parsed.partnerChapter);
+      }
+
       if (parsed.partnerField) setSpecialty(parsed.partnerField);
       if (parsed.targetReferral) setTargetReferral(parsed.targetReferral);
       if (parsed.partnerStrength) setPartnerStrength(parsed.partnerStrength);
       if (parsed.sheetSummary) setSheetSummary(parsed.sheetSummary);
       if (parsed.preferredPlace) setPreferredPlace(parsed.preferredPlace);
 
+      setIsParsedSuccess(true);
       toast.success('✨ 양식지 내용이 분석되어 항목별로 자동 입력되었습니다!');
     } catch (e: any) {
       toast.error(e.message || '양식지 분석 중 오류가 발생했습니다.');
@@ -133,6 +179,77 @@ export function AttendeeManageModal({
     }
   };
 
+  // 파일 선택 처리 (선택 즉시 자동 파싱 트리거)
+  const handleFileSelect = (file: File) => {
+    if (!file) return;
+
+    const validTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'application/pdf',
+      'text/plain',
+    ];
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.txt')) {
+      toast.error('지원 형식: 이미지 (JPG, PNG, WebP), PDF, TXT 파일만 가능합니다.');
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('파일 크기는 최대 20MB까지 업로드할 수 있습니다.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      const fileInfo = {
+        name: file.name,
+        size: file.size,
+        type: file.type || 'image/jpeg',
+        base64,
+      };
+      setUploadedFile(fileInfo);
+
+      // 🌟 파일이 업로드되면 사용자가 따로 버튼을 찾을 필요 없이 즉시 AI 자동 파싱 시작!
+      executeParse({
+        fileBase64: base64,
+        mimeType: fileInfo.type,
+        fileName: file.name,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 드래그 앤 드롭
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  // 텍스트 붙여넣기 분석
+  const handleParseText = () => {
+    if (!rawSheetText.trim()) {
+      toast.error('분석할 양식지 또는 카카오톡 소개글 텍스트를 입력해주세요.');
+      return;
+    }
+    executeParse({ sheetText: rawSheetText });
+  };
+
+  // 저장
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -145,7 +262,7 @@ export function AttendeeManageModal({
       const itemToSave: BniAttendee = {
         id: attendee?.id || `att_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         name: name.trim(),
-        company: company.trim(),
+        company: company.trim() || '회사명 미등록',
         chapter: chapter.trim() || 'BNI 챕터',
         specialty: specialty.trim(),
         targetReferral: targetReferral.trim(),
@@ -183,7 +300,7 @@ export function AttendeeManageModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white p-5 sm:p-6 rounded-3xl border-slate-200 shadow-2xl">
+      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-auto bg-white p-5 sm:p-6 rounded-3xl border-slate-200 shadow-2xl">
         <DialogHeader className="pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
@@ -194,89 +311,246 @@ export function AttendeeManageModal({
                 {attendee ? '회의 참석자(파트너) 정보 수정' : '새 BNI 파트너 및 원투원 양식지 등록'}
               </DialogTitle>
               <p className="text-xs text-slate-500 mt-0.5">
-                상대방 대표님의 121 사전 양식지와 프로필을 등록해두면 미팅 시 클릭 한 번으로 자동 완성됩니다.
+                대표님 성함과 양식지만 업로드하면 회사, 사업, 리퍼럴 정보가 AI로 즉시 자동 파싱됩니다.
               </p>
             </div>
           </div>
         </DialogHeader>
 
         <form onSubmit={handleSave} className="space-y-4 pt-2">
-          {/* 🌟 1. 양식지 원문 붙여넣기 & AI 자동 분석 섹션 */}
-          <div className="rounded-2xl border border-indigo-200/90 bg-gradient-to-br from-indigo-50/60 to-purple-50/40 p-3.5 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-                <ClipboardPaste className="size-3.5 text-indigo-600" />
-                <span>원투원 양식지 / 카카오톡 소개글 붙여넣기 (선택)</span>
-              </span>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isParsing || !rawSheetText.trim()}
-                onClick={handleParseSheet}
-                className="h-7 text-xs font-bold border-indigo-300 text-indigo-700 bg-white hover:bg-indigo-100/80 shadow-2xs gap-1"
-              >
-                {isParsing ? (
-                  <>
-                    <Loader2 className="size-3 animate-spin" />
-                    <span>AI 분석 중...</span>
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="size-3 text-indigo-600" />
-                    <span>AI 자동 분석 채우기</span>
-                  </>
-                )}
-              </Button>
-            </div>
-            <Textarea
-              value={rawSheetText}
-              onChange={(e) => setRawSheetText(e.target.value)}
-              placeholder="상대방 대표님이 보내주신 BNI 121 양식지, 회사 소개서 내용 또는 카톡 프로필 텍스트를 여기에 그대로 붙여넣고 [AI 자동 분석 채우기]를 누르시면 아래 항목들이 자동으로 채워집니다."
-              rows={3}
-              className="text-xs bg-white resize-none border-indigo-200 focus-visible:ring-indigo-500"
-            />
-          </div>
-
-          {/* ── 2. 기본 정보 ── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* 🌟 1. 참석자 성함 & 121 양식지 업로드 (핵심 2단계 입력) */}
+          <div className="rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30 p-4 space-y-3.5 shadow-xs">
+            {/* 1단계: 대표님 성함 */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                <User className="size-3 text-indigo-600" />
-                참석자(대표님) 성함 <span className="text-rose-500">*</span>
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
+                  <User className="size-3.5 text-indigo-600" />
+                  <span>참석자(대표님) 성함</span>
+                  <span className="text-rose-500 font-black">*</span>
+                </Label>
+                <span className="text-[10.5px] text-slate-400">
+                  (비워두시면 양식지에서 자동 추출됩니다)
+                </span>
+              </div>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="예: 김성훈 대표"
-                className="h-8 text-xs bg-white"
-                required
+                placeholder="예: 김성훈 대표 (비워두고 양식지만 올려도 AI가 성함을 찾아냅니다)"
+                className="h-9 text-xs bg-white border-indigo-200 focus-visible:ring-indigo-500 font-semibold"
               />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                <Building2 className="size-3 text-indigo-600" />
-                회사명
-              </Label>
-              <Input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="예: 알파브랜딩"
-                className="h-8 text-xs bg-white"
-              />
+            {/* 2단계: 양식지 업로드 방식 탭 */}
+            <div className="space-y-2 pt-1 border-t border-indigo-100/80">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
+                  <FileSpreadsheet className="size-3.5 text-indigo-600" />
+                  <span>원투원 양식지 업로드 / 입력</span>
+                </span>
+
+                <div className="flex items-center gap-1 bg-indigo-100/70 p-0.5 rounded-lg text-[10.5px] font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('file')}
+                    className={`px-2.5 py-1 rounded-md transition-all ${
+                      uploadMode === 'file'
+                        ? 'bg-white text-indigo-700 shadow-2xs font-black'
+                        : 'text-indigo-600/80 hover:text-indigo-900'
+                    }`}
+                  >
+                    📁 파일 업로드 (사진/PDF)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('text')}
+                    className={`px-2.5 py-1 rounded-md transition-all ${
+                      uploadMode === 'text'
+                        ? 'bg-white text-indigo-700 shadow-2xs font-black'
+                        : 'text-indigo-600/80 hover:text-indigo-900'
+                    }`}
+                  >
+                    📋 텍스트 붙여넣기
+                  </button>
+                </div>
+              </div>
+
+              {/* A. 파일 업로드 모드 (이미지 캡처/사진, PDF, TXT) */}
+              {uploadMode === 'file' ? (
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,application/pdf,text/plain"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleFileSelect(e.target.files[0]);
+                      }
+                    }}
+                  />
+
+                  {uploadedFile ? (
+                    <div className="rounded-xl border border-indigo-300 bg-white p-3 flex items-center justify-between gap-2 shadow-2xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="size-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                          <FileCheck className="size-5" />
+                        </div>
+                        <div className="truncate">
+                          <div className="text-xs font-bold text-slate-800 truncate">
+                            {uploadedFile.name}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {(uploadedFile.size / 1024).toFixed(1)} KB • 업로드 완료
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isParsing}
+                          onClick={() =>
+                            executeParse({
+                              fileBase64: uploadedFile.base64,
+                              mimeType: uploadedFile.type,
+                              fileName: uploadedFile.name,
+                            })
+                          }
+                          className="h-7 text-[11px] font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                        >
+                          <RefreshCw className={`size-3 mr-1 ${isParsing ? 'animate-spin' : ''}`} />
+                          재분석
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={isParsing}
+                          onClick={() => {
+                            setUploadedFile(null);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          className="h-7 px-1.5 text-slate-400 hover:text-rose-600"
+                          title="파일 제거"
+                        >
+                          <X className="size-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`cursor-pointer rounded-xl border-2 border-dashed p-4 text-center transition-all bg-white hover:bg-indigo-50/40 ${
+                        isDragging
+                          ? 'border-indigo-600 bg-indigo-50 scale-[1.01]'
+                          : 'border-indigo-200 hover:border-indigo-400'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center justify-center gap-1.5">
+                        <div className="size-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                          <UploadCloud className="size-5" />
+                        </div>
+                        <div className="text-xs font-black text-indigo-950">
+                          121 양식지 파일(사진 캡처본 / PDF / 텍스트)을 드래그하거나 클릭하여 업로드
+                        </div>
+                        <p className="text-[10.5px] text-slate-500">
+                          스마트폰 양식지 캡처 사진, 스캔본, PDF 문서 등 파일을 올리면 <span className="text-indigo-600 font-bold">즉시 AI가 내용을 자동 파싱</span>합니다.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* B. 텍스트 직접 붙여넣기 모드 */
+                <div className="space-y-2">
+                  <Textarea
+                    value={rawSheetText}
+                    onChange={(e) => setRawSheetText(e.target.value)}
+                    placeholder="상대방 대표님이 보내주신 BNI 121 양식지 전문, 카카오톡 소개글 또는 메일 내용을 그대로 붙여넣으세요."
+                    rows={4}
+                    className="text-xs bg-white resize-none border-indigo-200 focus-visible:ring-indigo-500"
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isParsing || !rawSheetText.trim()}
+                      onClick={handleParseText}
+                      className="h-7 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs gap-1"
+                    >
+                      {isParsing ? (
+                        <>
+                          <Loader2 className="size-3 animate-spin" />
+                          <span>AI 분석 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="size-3" />
+                          <span>텍스트 AI 자동 분석 채우기</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* 🌟 파싱 상태 알림 배너 */}
+              {isParsing && (
+                <div className="p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/80 flex items-center gap-2 text-indigo-900 text-xs font-bold animate-pulse">
+                  <Loader2 className="size-4 animate-spin text-indigo-600 shrink-0" />
+                  <span>AI가 양식지를 정밀 분석하여 회사명, 챕터, 주력사업, 리퍼럴 정보를 추출하고 있습니다...</span>
+                </div>
+              )}
+
+              {isParsedSuccess && !isParsing && (
+                <div className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/80 flex items-center justify-between gap-2 text-emerald-900 text-xs font-bold animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                    <span>양식지 파싱 완료! 아래 추출된 세부 정보를 확인해주세요.</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 font-normal">
+                    (필요 시 직접 수정 가능)
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700">소속 BNI 챕터</Label>
-              <Input
-                value={chapter}
-                onChange={(e) => setChapter(e.target.value)}
-                placeholder="예: BNI 마스터 챕터"
-                className="h-8 text-xs bg-white"
-              />
+          {/* ── 2. 자동 추출 및 세부 정보 ── */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 px-0.5">
+              <span>📋 자동 추출된 파트너 상세 프로필</span>
+              <span className="text-[10px] text-slate-400">수정이 필요하면 언제든 직접 고치실 수 있습니다</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Building2 className="size-3 text-indigo-600" />
+                  회사명
+                </Label>
+                <Input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="예: 알파브랜딩"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700">소속 BNI 챕터</Label>
+                <Input
+                  value={chapter}
+                  onChange={(e) => setChapter(e.target.value)}
+                  placeholder="예: BNI 마스터 챕터"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -288,58 +562,58 @@ export function AttendeeManageModal({
                 className="h-8 text-xs bg-white"
               />
             </div>
-          </div>
 
-          {/* ── 3. 비즈니스 리퍼럴 프로필 (GAINS) ── */}
-          <div className="space-y-3 pt-1 border-t border-slate-100">
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                <Target className="size-3.5 text-rose-500" />
-                이상적인 추천 고객 (소개 희망 리퍼럴)
-              </Label>
-              <Input
-                value={targetReferral}
-                onChange={(e) => setTargetReferral(e.target.value)}
-                placeholder="어떤 고객을 만났을 때 대표님께 연결해드리면 가장 좋을까요?"
-                className="h-8 text-xs bg-white"
-              />
-            </div>
+            {/* ── 3. 비즈니스 리퍼럴 프로필 (GAINS) ── */}
+            <div className="space-y-3 pt-1 border-t border-slate-100">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Target className="size-3.5 text-rose-500" />
+                  이상적인 추천 고객 (소개 희망 리퍼럴)
+                </Label>
+                <Input
+                  value={targetReferral}
+                  onChange={(e) => setTargetReferral(e.target.value)}
+                  placeholder="어떤 고객을 만났을 때 대표님께 연결해드리면 가장 좋을까요?"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                <Award className="size-3.5 text-amber-500" />
-                차별화된 핵심 강점 &amp; 경쟁력
-              </Label>
-              <Input
-                value={partnerStrength}
-                onChange={(e) => setPartnerStrength(e.target.value)}
-                placeholder="경쟁사와 다른 대표님만의 독보적인 강점"
-                className="h-8 text-xs bg-white"
-              />
-            </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Award className="size-3.5 text-amber-500" />
+                  차별화된 핵심 강점 &amp; 경쟁력
+                </Label>
+                <Input
+                  value={partnerStrength}
+                  onChange={(e) => setPartnerStrength(e.target.value)}
+                  placeholder="경쟁사와 다른 대표님만의 독보적인 강점"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                <FileText className="size-3.5 text-slate-500" />
-                121 사전 양식지 메모 요약
-              </Label>
-              <Textarea
-                value={sheetSummary}
-                onChange={(e) => setSheetSummary(e.target.value)}
-                placeholder="파트너의 가업/경력 배경, 주력 서비스 요약 등 기억해 둘 핵심 메모"
-                rows={2}
-                className="text-xs bg-white resize-none"
-              />
-            </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <FileText className="size-3.5 text-slate-500" />
+                  121 사전 양식지 메모 요약
+                </Label>
+                <Textarea
+                  value={sheetSummary}
+                  onChange={(e) => setSheetSummary(e.target.value)}
+                  placeholder="파트너의 가업/경력 배경, 주력 서비스 요약 등 기억해 둘 핵심 메모"
+                  rows={2}
+                  className="text-xs bg-white resize-none"
+                />
+              </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-700">선호 미팅 장소 (선택)</Label>
-              <Input
-                value={preferredPlace}
-                onChange={(e) => setPreferredPlace(e.target.value)}
-                placeholder="예: 압구정 로데오 카페, 르글라스 압구정"
-                className="h-8 text-xs bg-white"
-              />
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700">선호 미팅 장소 (선택)</Label>
+                <Input
+                  value={preferredPlace}
+                  onChange={(e) => setPreferredPlace(e.target.value)}
+                  placeholder="예: 압구정 로데오 카페, 르글라스 압구정"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
             </div>
           </div>
 
@@ -373,7 +647,7 @@ export function AttendeeManageModal({
               <Button
                 type="submit"
                 size="sm"
-                disabled={isSaving}
+                disabled={isSaving || isParsing}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold gap-1 shadow-xs"
               >
                 {isSaving ? (
@@ -381,7 +655,7 @@ export function AttendeeManageModal({
                 ) : (
                   <Save className="size-3.5" />
                 )}
-                <span>파트너 정보 저장 및 적용</span>
+                <span>파트너 정보 저장 및 등록</span>
               </Button>
             </div>
           </div>
