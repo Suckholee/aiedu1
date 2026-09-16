@@ -92,6 +92,44 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ── 1.5 🍷 곽성진 대표 AI 루틴 캘린더 & 모바일 1초 승인 콕핏 배너 ── */}
+      <div className="relative overflow-hidden rounded-3xl border border-amber-200/90 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 p-5 sm:p-6 shadow-xs backdrop-blur-xs">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-black text-amber-700">
+                <Sparkles className="size-3 text-amber-600" />
+                CEO 전용 AI 에이전트 콕핏
+              </span>
+              <span className="rounded-full bg-slate-900 text-white px-2 py-0.5 text-[10px] font-bold">
+                곽성진 대표 맞춤형
+              </span>
+              <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-bold">
+                AI Proposes, CEO Disposes
+              </span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-950">
+              반복은 AI 직원팀에게, 최종 결정은 나에게 — AI 루틴 캘린더
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              비서팀(네오) · 마케팅팀(와인핏) · 매장운영팀(르글라스) · 영업팀(B2B)이 준비한 업무 초안을
+              모바일에서 1초 만에 확인하고 바로 승인하세요!
+            </p>
+          </div>
+
+          <div className="shrink-0 w-full md:w-auto">
+            <Link
+              href="/tools/routine-calendar"
+              className="group flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-indigo-600 to-purple-600 px-6 py-3.5 text-xs sm:text-sm font-black text-white shadow-md shadow-indigo-200 hover:shadow-lg hover:brightness-105 active:scale-[0.98] transition-all"
+            >
+              <Calendar className="size-4.5" />
+              <span>AI 루틴 캘린더 입장하기</span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* ── 2. ⚡ 3대 실습실 퀵 런처 (Core Highlight) ── */}
       <QuickLabLauncher />
 

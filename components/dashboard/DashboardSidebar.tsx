@@ -24,6 +24,7 @@ import {
   Video,
   X,
   Camera,
+  Calendar,
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -44,7 +45,8 @@ export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
   const isWorkAuto = pathname === '/tools/work-automation';
   const isBlog = pathname === '/tools/blog';
   const isShorts = pathname === '/tools/shorts';
-  const isAnyLab = isWorkAuto || isBlog || isShorts;
+  const isRoutineCalendar = pathname === '/tools/routine-calendar';
+  const isAnyLab = isWorkAuto || isBlog || isShorts || isRoutineCalendar;
 
   return (
     <aside className="flex h-full w-64 flex-col justify-between border-r border-slate-200/80 bg-white p-4 select-none">
@@ -170,6 +172,24 @@ export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
                 >
                   <Video className="size-3.5 text-rose-600" />
                   <span>숏폼 실습 (VisKits)</span>
+                </Link>
+
+                <Link
+                  href="/tools/routine-calendar"
+                  onClick={onCloseMobile}
+                  className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs transition-colors ${
+                    isRoutineCalendar
+                      ? 'bg-amber-100 text-amber-900 font-bold'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="size-3.5 text-amber-600" />
+                    <span>AI 루틴 캘린더</span>
+                  </div>
+                  <span className="rounded-md bg-gradient-to-r from-amber-500 to-indigo-600 text-white px-1.5 py-0.5 text-[9px] font-black">
+                    CEO
+                  </span>
                 </Link>
               </div>
             )}
