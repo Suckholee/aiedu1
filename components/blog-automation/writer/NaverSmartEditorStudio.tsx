@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import JSZip from 'jszip';
 import { toast } from 'sonner';
 import {
   getSkillById,
@@ -420,7 +421,66 @@ export function NaverSmartEditorStudio({
     }
   };
 
-  // 복사 핸들러
+  // 📦 사진 일괄 다운로드 (ZIP)
+  const [isZipping, setIsZipping] = useState(false);
+  const handleDownloadAllZip = async () => {
+    if (!photos || photos.length === 0) {
+      toast.error('다운로드할 사진이 없습니다.');
+      return;
+    }
+
+    setIsZipping(true);
+    toast.info(`사진 ${photos.length}장을 압축하는 중입니다...`);
+
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder('blog_photos') || zip;
+
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        let blob: Blob;
+
+        if (photo.file) {
+          blob = photo.file;
+        } else {
+          const res = await fetch(photo.url);
+          blob = await res.blob();
+        }
+
+        const safeName = (photo.name || `photo_${i + 1}`).replace(/[^가-힣a-zA-Z0-9_-]/g, '_');
+        const fileName = `${String(i + 1).padStart(2, '0')}_${safeName.slice(0, 20)}.png`;
+        folder.file(fileName, blob);
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `blog_photos_${Date.now()}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast.success(`🎉 사진 ${photos.length}장이 번호순 ZIP 다운로드되었습니다! 네이버 에디터에서 [사진] 버튼으로 한 번에 올리세요.`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`사진 압축 다운로드 실패: ${err.message}`);
+    } finally {
+      setIsZipping(false);
+    }
+  };
+
+  // 📝 순수 한국어 본문 글자수 계산 (Base64 이미지 및 HTML/마크다운 태그 제외)
+  const pureTextLength = useMemo(() => {
+    if (!post?.content) return 0;
+    return post.content
+      .replace(/data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/!\[.*?\]\(.*?\)/g, '')
+      .replace(/\[IMAGE_\d+\]/g, '')
+      .trim().length;
+  }, [post?.content]);
+
+  // 📋 복사 핸들러 (5MB 초과 방지 최적화)
   const handleCopy = async (format: 'naver' | 'text') => {
     if (!post) {
       toast.error('복사할 생성된 글이 없습니다.');
@@ -428,23 +488,61 @@ export function NaverSmartEditorStudio({
     }
     try {
       if (format === 'naver') {
-        const html = post.htmlContent || markdownToHtml(post.content);
-        const blob = new Blob([html], { type: 'text/html' });
-        const textBlob = new Blob([post.content], { type: 'text/plain' });
+        let rawHtml = post.htmlContent || markdownToHtml(post.content);
+
+        // 🌟 5MB 초과 원인 제거: Base64 data:image/를 네이버 맞춤형 가이드 박스로 깔끔하게 치환
+        let naverHtml = rawHtml.replace(
+          /<div[^>]*>[\s\S]*?<img[^>]*src="data:image\/[^"]+"[\s\S]*?(?:📷\s*(?:<strong>)?\[사진\s*(\d+)\](?:<\/strong>)?\s*([^<]*))?[\s\S]*?<\/div>/gi,
+          (_match, p1, p2) => {
+            const num = p1 ? `#${p1}` : '';
+            const caption = p2 ? p2.trim() : '';
+            return `
+<div style="margin:26px 0;padding:16px 20px;border:2px dashed #03c75a;background-color:#f0fdf4;border-radius:12px;text-align:center;font-family:'Nanum Gothic', Apple SD Gothic Neo, sans-serif;">
+  <p style="margin:0 0 5px 0;font-size:15px;font-weight:bold;color:#03c75a;">
+    📷 [사진 ${num} 첨부 위치] ${caption}
+  </p>
+  <p style="margin:0;font-size:12px;color:#166534;line-height:1.5;">
+    💡 좌측 [사진 관리]의 <strong>[📋 네이버 붙여넣기용 사진 복사]</strong> 버튼을 누른 뒤 여기에 Ctrl+V로 붙여넣으세요.
+  </p>
+</div>`;
+          }
+        );
+
+        // 혹시 남아있는 독립된 data:image/ img 태그도 가이드 박스로 치환
+        naverHtml = naverHtml.replace(
+          /<img[^>]*src="data:image\/[^"]+"[^>]*>/gi,
+          '<div style="margin:20px 0;padding:14px;border:2px dashed #03c75a;background-color:#f0fdf4;border-radius:10px;text-align:center;color:#03c75a;font-size:13px;font-weight:bold;">📷 [사진 첨부 위치]</div>'
+        );
+
+        // 플레인 텍스트도 Base64 데이터 및 HTML 태그를 제거하여 순수 텍스트로 구성
+        const cleanPlainText = (post.content || '')
+          .replace(/data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/gi, '')
+          .replace(/<[^>]*>/g, '')
+          .trim();
+
+        const blob = new Blob([naverHtml], { type: 'text/html' });
+        const textBlob = new Blob([cleanPlainText], { type: 'text/plain' });
+
         await navigator.clipboard.write([
           new ClipboardItem({
             'text/html': blob,
             'text/plain': textBlob,
           }),
         ]);
-        toast.success('📋 네이버 스마트에디터 ONE 서식 그대로 복사되었습니다!');
+        toast.success('📋 네이버 블로그 복사 완료! (5MB 제한 해결) 네이버 스마트에디터에서 Ctrl+V로 붙여넣으세요.');
       } else {
-        await navigator.clipboard.writeText(`${post.title}\n\n${post.content}`);
+        const cleanText = (post.content || '')
+          .replace(/data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/gi, '')
+          .replace(/<div style="text-align:center;margin:28px 0;">[\s\S]*?<\/div>/gi, '')
+          .replace(/<[^>]*>/g, '')
+          .trim();
+        await navigator.clipboard.writeText(`${post.title}\n\n${cleanText}`);
         toast.success('📋 텍스트가 클립보드에 복사되었습니다.');
       }
       setCopiedFormat(format);
       setTimeout(() => setCopiedFormat(null), 2000);
     } catch (e) {
+      console.error('Clipboard copy error:', e);
       toast.error('클립보드 복사에 실패했습니다.');
     }
   };
@@ -697,18 +795,31 @@ export function NaverSmartEditorStudio({
             <span className="text-slate-400 hidden lg:inline shrink-0 whitespace-nowrap">| 줄간격 180% | 맞춤법 검사</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => handleCopy('naver')}
-              className="text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50 px-1.5 py-0.5 rounded transition-colors"
+              className="text-[11px] font-bold text-white bg-[#03c75a] hover:bg-[#02b350] px-2.5 py-1 rounded-md transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+              title="네이버 스마트에디터 ONE 서식 그대로 복사합니다 (5MB 초과 방지 최적화)"
             >
-              {copiedFormat === 'naver' ? '✓ 복사됨' : '네이버 복사'}
+              <span>{copiedFormat === 'naver' ? '✓ 복사완료' : '📋 네이버 복사'}</span>
             </button>
+            {photos && photos.length > 0 && (
+              <button
+                type="button"
+                onClick={handleDownloadAllZip}
+                disabled={isZipping}
+                className="text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                title="등록된 사진 전체를 번호순 ZIP 파일로 다운로드합니다"
+              >
+                {isZipping ? <Loader2 className="size-3 animate-spin" /> : <Download className="size-3" />}
+                <span>사진 ZIP ({photos.length}장)</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => handleCopy('text')}
-              className="text-[11px] font-medium text-slate-500 hover:bg-slate-100 px-1.5 py-0.5 rounded transition-colors"
+              className="text-[11px] font-medium text-slate-500 hover:bg-slate-100 px-1.5 py-1 rounded-md transition-colors cursor-pointer"
             >
               텍스트 복사
             </button>
@@ -1138,7 +1249,7 @@ export function NaverSmartEditorStudio({
       <footer className="h-10 bg-white/90 backdrop-blur-xs border-t border-slate-200 px-5 flex items-center justify-between shrink-0 z-20 text-xs text-slate-500">
         <div className="flex items-center gap-3">
           <span className="text-[11px] font-medium text-slate-600">
-            글자수: <strong className="text-slate-900">{post?.content?.length || 0}자</strong>
+            글자수: <strong className="text-slate-900">{pureTextLength.toLocaleString()}자</strong>
           </span>
           <span className="text-slate-300">|</span>
           <span className="text-[11px] font-medium text-slate-600">

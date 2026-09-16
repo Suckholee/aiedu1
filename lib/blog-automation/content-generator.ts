@@ -296,6 +296,11 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
       return `\n<div style="text-align:center;margin:28px 0;"><img src="${url}" alt="${captionText}" style="max-width:100%;height:auto;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);display:inline-block;" loading="lazy" onerror="if(!this.src.includes('images.unsplash.com')){this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80';}" /><p style="font-size:13px;color:#64748b;margin-top:8px;font-style:italic;line-height:1.5;">📷 <strong>[사진 ${idx + 1}]</strong> ${captionText}</p></div>\n`;
     };
 
+    const mdImgTag = (idx: number) => {
+      const captionText = getCaption(idx);
+      return `\n\n📷 **[사진 ${idx + 1}]** ${captionText}\n\n`;
+    };
+
     // 1차: 플레이스홀더 치환 ([IMAGE_1], [IMAGE_2], ...)
     const usedIndices = new Set<number>();
     for (let idx = 0; idx < imageUrls.length; idx++) {
@@ -310,7 +315,7 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
       }
 
       if (pattern.test(post.content)) {
-        post.content = post.content.replace(pattern, imgTag(imageUrls[idx], idx));
+        post.content = post.content.replace(pattern, mdImgTag(idx));
       }
     }
 
@@ -328,13 +333,13 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
           const targetPos = Math.min((i + 1) * step + insertOffset, paragraphs.length - 1);
           paragraphs[targetPos] = paragraphs[targetPos] + imgTag(imageUrls[imgIdx], imgIdx);
           
-          post.content += imgTag(imageUrls[imgIdx], imgIdx);
+          post.content += mdImgTag(imgIdx);
         });
         htmlContent = paragraphs.join('</p>');
       } else {
         unusedIndices.forEach((imgIdx) => {
           htmlContent += imgTag(imageUrls[imgIdx], imgIdx);
-          post.content += imgTag(imageUrls[imgIdx], imgIdx);
+          post.content += mdImgTag(imgIdx);
         });
       }
     }

@@ -350,10 +350,25 @@ export function BlogResultPanel({
 
     switch (format) {
       case 'naver': {
-        let naverHtml = rawHtml;
+        let naverHtml = rawHtml.replace(
+          /<div[^>]*>[\s\S]*?<img[^>]*src="data:image\/[^"]+"[\s\S]*?(?:📷\s*(?:<strong>)?\[사진\s*(\d+)\](?:<\/strong>)?\s*([^<]*))?[\s\S]*?<\/div>/gi,
+          (_match, p1, p2) => {
+            const num = p1 ? `#${p1}` : '';
+            const caption = p2 ? p2.trim() : '';
+            return `
+<div style="margin:26px 0;padding:16px 20px;border:2px dashed #03c75a;background-color:#f0fdf4;border-radius:12px;text-align:center;font-family:'Nanum Gothic', Apple SD Gothic Neo, sans-serif;">
+  <p style="margin:0 0 5px 0;font-size:15px;font-weight:bold;color:#03c75a;">
+    📷 [사진 ${num} 첨부 위치] ${caption}
+  </p>
+  <p style="margin:0;font-size:12px;color:#166534;line-height:1.5;">
+    💡 좌측 [사진 관리]의 <strong>[📋 네이버 붙여넣기용 사진 복사]</strong> 또는 <strong>[사진 일괄 다운로드]</strong> 후 첨부하세요.
+  </p>
+</div>`;
+          }
+        );
         naverHtml = naverHtml.replace(
-          /<div[^>]*>\s*<img[^>]*>\s*<p[^>]*>📷\s*(?:<strong>)?\[사진\s*(\d+)\](?:<\/strong>)?\s*([^<]*)<\/p>\s*<\/div>/gi,
-          '<div style="margin:24px 0;padding:16px;border:2px dashed #3b82f6;background:#eff6ff;border-radius:10px;text-align:center;color:#1e40af;font-size:13px;font-weight:bold;">📷 [사진 #$1 들어갈 자리] $2</div>'
+          /<img[^>]*src="data:image\/[^"]+"[^>]*>/gi,
+          '<div style="margin:20px 0;padding:14px;border:2px dashed #03c75a;background-color:#f0fdf4;border-radius:10px;text-align:center;color:#03c75a;font-size:13px;font-weight:bold;">📷 [사진 첨부 위치]</div>'
         );
         contentToCopy = `${titleHeaderHtml}${excerptHtml}${naverHtml}${faqHtml}${srcHtml}${tagChipsHtml}`;
         break;
