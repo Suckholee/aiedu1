@@ -20,6 +20,8 @@ import {
   Check,
   Briefcase,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Info,
   Mic,
   FileAudio,
@@ -75,6 +77,10 @@ export function OneToOneMeetingPanel({
   const [includeInsight, setIncludeInsight] = useState(true);
   const [includeSynergy, setIncludeSynergy] = useState(true);
   const [includeLocationMap, setIncludeLocationMap] = useState(true);
+
+  // 🌟 세로 공간 절약용 접기/펼치기 상태
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [isPreSheetExpanded, setIsPreSheetExpanded] = useState(false);
 
   // 🎙️ 녹음본 텍스트(클로바노트) AI 분석 상태
   const [isAnalyzingTranscript, setIsAnalyzingTranscript] = useState(false);
@@ -327,201 +333,110 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* 🌟 3. 회의 참석자 요약 카드 (Attendee Summary Card) */}
+      {/* 🌟 3. 회의 참석자 요약 바 (컴팩트 접이식 - 세로 공간 절약) */}
       {currentAttendee && (
-        <div className="rounded-2xl border-2 border-indigo-200 bg-white p-3.5 sm:p-4 shadow-sm space-y-2.5">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="grid size-10 place-items-center rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xs shrink-0">
+        <div className="rounded-xl border border-indigo-200 bg-white p-2.5 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-xs shadow-2xs shrink-0">
                 {currentAttendee.name.slice(0, 1)}
               </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-sm font-black text-slate-900">
+              <div className="truncate">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h4 className="text-xs font-black text-slate-900">
                     {currentAttendee.name}
                   </h4>
-                  <span className="rounded-md bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                  <span className="rounded bg-indigo-50 border border-indigo-200/80 px-1.5 py-0.2 text-[9.5px] font-bold text-indigo-700">
                     {currentAttendee.company}
                   </span>
                   {currentAttendee.chapter && (
-                    <span className="text-[10px] text-slate-500 font-medium">
-                      {currentAttendee.chapter}
+                    <span className="text-[9.5px] text-slate-400 font-medium">
+                      ({currentAttendee.chapter})
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-indigo-900/80 font-semibold mt-0.5">
+                <p className="text-[10.5px] text-indigo-900/80 font-medium truncate">
                   💼 {currentAttendee.specialty || '전문 분야'}
                 </p>
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleOpenEditModal(currentAttendee)}
-              className="h-7 text-xs border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 gap-1 shrink-0"
-            >
-              <Edit3 className="size-3" />
-              <span>양식지 수정</span>
-            </Button>
-          </div>
-
-          {/* 사전 양식지 핵심 요약 그리드 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
-            <div className="rounded-xl bg-rose-50/60 border border-rose-100 p-2.5 space-y-0.5">
-              <div className="text-[10px] font-bold text-rose-700 flex items-center gap-1">
-                <Target className="size-3 text-rose-600" />
-                <span>이상적인 리퍼럴 (소개 희망 고객)</span>
-              </div>
-              <p className="text-xs text-slate-800 font-medium leading-relaxed">
-                {currentAttendee.targetReferral || '미등록 (양식지 수정에서 입력 가능)'}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-amber-50/60 border border-amber-100 p-2.5 space-y-0.5">
-              <div className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
-                <Award className="size-3 text-amber-600" />
-                <span>차별화된 핵심 강점 &amp; 경쟁력</span>
-              </div>
-              <p className="text-xs text-slate-800 font-medium leading-relaxed">
-                {currentAttendee.partnerStrength || '미등록 (양식지 수정에서 입력 가능)'}
-              </p>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 px-2 py-1 text-[10.5px] font-bold transition-all active:scale-95"
+              >
+                {isSummaryExpanded ? (
+                  <>
+                    <span>요약 접기</span>
+                    <ChevronUp className="size-3" />
+                  </>
+                ) : (
+                  <>
+                    <span>양식지 확인</span>
+                    <ChevronDown className="size-3" />
+                  </>
+                )}
+              </button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => handleOpenEditModal(currentAttendee)}
+                className="h-6 px-1.5 text-[10.5px] text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
+                title="참석자 양식지 직접 수정"
+              >
+                <Edit3 className="size-3 mr-0.5" />
+                수정
+              </Button>
             </div>
           </div>
 
-          {currentAttendee.sheetSummary && (
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 text-xs text-slate-600">
-              <span className="font-bold text-slate-700 mr-1">📄 사전 양식지 메모:</span>
-              <span>{currentAttendee.sheetSummary}</span>
+          {/* 세부 양식지 펼침 영역 */}
+          {isSummaryExpanded && (
+            <div className="pt-2 border-t border-slate-100 space-y-2 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg bg-rose-50/60 border border-rose-100 p-2 space-y-0.5">
+                  <div className="text-[10px] font-bold text-rose-700 flex items-center gap-1">
+                    <Target className="size-3 text-rose-600" />
+                    <span>이상적인 리퍼럴 (소개 희망 고객)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
+                    {currentAttendee.targetReferral || '미등록'}
+                  </p>
+                </div>
+
+                <div className="rounded-lg bg-amber-50/60 border border-amber-100 p-2 space-y-0.5">
+                  <div className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                    <Award className="size-3 text-amber-600" />
+                    <span>차별화된 핵심 강점 &amp; 경쟁력</span>
+                  </div>
+                  <p className="text-[11px] text-slate-800 font-medium leading-relaxed">
+                    {currentAttendee.partnerStrength || '미등록'}
+                  </p>
+                </div>
+              </div>
+
+              {currentAttendee.sheetSummary && (
+                <div className="rounded-lg bg-slate-50 border border-slate-100 p-2 text-[11px] text-slate-600">
+                  <span className="font-bold text-slate-700 mr-1">📄 사전 양식지 메모:</span>
+                  <span>{currentAttendee.sheetSummary}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
 
-      {/* ── 4. 파트너 기본 정보 (자동 프리필 & 직접 수정 가능) ── */}
-      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          <Users className="size-3.5 text-indigo-600" />
-          <span>1. 파트너 대표님 기본 정보</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              파트너 대표님 성함 <span className="text-rose-500">*</span>
-            </Label>
-            <Input
-              value={customFields.partnerName || ''}
-              onChange={(e) => handleField('partnerName', e.target.value)}
-              placeholder="예: 홍길동 대표"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              <Building2 className="size-3 text-slate-500" />
-              회사명 / 소속 챕터
-            </Label>
-            <Input
-              value={customFields.partnerCompany || ''}
-              onChange={(e) => handleField('partnerCompany', e.target.value)}
-              placeholder="예: OO솔루션 (BNI 챕터명)"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              <FileText className="size-3 text-slate-500" />
-              전문분야 / 주력 사업
-            </Label>
-            <Input
-              value={customFields.partnerField || ''}
-              onChange={(e) => handleField('partnerField', e.target.value)}
-              placeholder="예: 기업 브랜딩 및 공간 디자인"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── 5. 비즈니스 프로필 & 이상적인 리퍼럴 (GAINS) ── */}
-      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          <Target className="size-3.5 text-rose-600" />
-          <span>2. 비즈니스 프로필 &amp; 이상적인 리퍼럴 (소개 희망 고객)</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              이상적인 추천 고객 (타겟 리퍼럴)
-            </Label>
-            <Input
-              value={customFields.targetReferral || ''}
-              onChange={(e) => handleField('targetReferral', e.target.value)}
-              placeholder="어떤 고객을 만났을 때 연결해 드리면 가장 좋을까요?"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              <Award className="size-3 text-amber-500" />
-              차별화된 핵심 강점 &amp; 경쟁력
-            </Label>
-            <Input
-              value={customFields.partnerStrength || ''}
-              onChange={(e) => handleField('partnerStrength', e.target.value)}
-              placeholder="경쟁사와 차별화되는 대표님만의 독보적인 강점"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── 6. 미팅 일시 및 장소 ── */}
-      <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          <CalendarIcon className="size-3.5 text-slate-600" />
-          <span>3. 미팅 일시 및 장소</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              미팅 일자
-            </Label>
-            <Input
-              type="date"
-              value={customFields.meetingDate || new Date().toISOString().slice(0, 10)}
-              onChange={(e) => handleField('meetingDate', e.target.value)}
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              <MapPin className="size-3 text-rose-500" />
-              미팅 장소
-            </Label>
-            <Input
-              value={customFields.meetingPlace || ''}
-              onChange={(e) => handleField('meetingPlace', e.target.value)}
-              placeholder="예: 비즈니스 라운지 카페 (서울 강남구)"
-              className="h-8 text-xs bg-white"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── 7. 대화 내용 & 비즈니스 인사이트 (사용자가 미팅 후 작성할 핵심 메모) ── */}
-      <div className="rounded-xl border border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 to-purple-50/20 p-3.5 space-y-3 shadow-2xs">
+      {/* 🌟 4. [핵심 입력] 오늘 대화 내용 & 비즈니스 인사이트 (최상단 전면 배치) ── */}
+      <div className="rounded-xl border-2 border-indigo-300 bg-gradient-to-b from-indigo-50/60 via-white to-purple-50/20 p-3 sm:p-4 space-y-3 shadow-xs">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+          <div className="flex items-center gap-1.5 text-xs font-black text-indigo-950">
             <MessageSquareText className="size-4 text-indigo-600" />
-            <span>4. 대화 내용 및 비즈니스 인사이트 (121 미팅 메모)</span>
+            <span>오늘 나눈 대화 내용 &amp; 비즈니스 인사이트 (121 미팅 메모)</span>
           </div>
-          <span className="text-[10px] text-indigo-700 font-bold bg-indigo-100/80 px-2 py-0.5 rounded-full border border-indigo-200">
+          <span className="text-[10px] text-indigo-700 font-bold bg-indigo-100/90 px-2 py-0.5 rounded-full border border-indigo-200">
             실제 대화 메모 반영
           </span>
         </div>
@@ -582,7 +497,7 @@ export function OneToOneMeetingPanel({
         </div>
 
         <div className="space-y-1">
-          <Label className="text-[11px] font-semibold text-slate-700">
+          <Label className="text-[11px] font-bold text-slate-800">
             오늘 나눈 대화의 핵심 &amp; 인상 깊었던 이야기
           </Label>
           <Textarea
@@ -596,7 +511,7 @@ export function OneToOneMeetingPanel({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+            <Label className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
               <Lightbulb className="size-3 text-amber-500" />
               나의 비즈니스 인사이트 (내 사업에 적용할 점)
             </Label>
@@ -610,7 +525,7 @@ export function OneToOneMeetingPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+            <Label className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
               <Handshake className="size-3 text-emerald-600" />
               상생 협업 / 다음 약속
             </Label>
@@ -623,6 +538,116 @@ export function OneToOneMeetingPanel({
             />
           </div>
         </div>
+      </div>
+
+      {/* ── 5. 사전 양식지 세부 항목 직접 확인/수정 (선택 접이식 아코디언) ── */}
+      <div className="rounded-xl border border-slate-200/90 bg-slate-50/60 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsPreSheetExpanded(!isPreSheetExpanded)}
+          className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <FileText className="size-3.5 text-slate-500" />
+            <span>사전 양식지 기본 정보 직접 수정 (선택사항)</span>
+            <span className="text-[10px] font-normal text-slate-400">
+              (파트너 정보 · GAINS · 일시/장소)
+            </span>
+          </div>
+          {isPreSheetExpanded ? (
+            <ChevronUp className="size-4 text-slate-400" />
+          ) : (
+            <ChevronDown className="size-4 text-slate-400" />
+          )}
+        </button>
+
+        {isPreSheetExpanded && (
+          <div className="p-3.5 pt-1 space-y-3 border-t border-slate-200 bg-white animate-in fade-in duration-150">
+            {/* 1. 파트너 기본 정보 */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-slate-700 block">1. 파트너 대표님 기본 정보</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">성함 *</Label>
+                  <Input
+                    value={customFields.partnerName || ''}
+                    onChange={(e) => handleField('partnerName', e.target.value)}
+                    placeholder="예: 홍길동 대표"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">회사명/챕터</Label>
+                  <Input
+                    value={customFields.partnerCompany || ''}
+                    onChange={(e) => handleField('partnerCompany', e.target.value)}
+                    placeholder="예: OO솔루션 (BNI 챕터)"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">전문분야</Label>
+                  <Input
+                    value={customFields.partnerField || ''}
+                    onChange={(e) => handleField('partnerField', e.target.value)}
+                    placeholder="예: 기업 브랜딩"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. GAINS 프로필 */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-bold text-slate-700 block">2. 비즈니스 프로필 &amp; GAINS</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">이상적인 추천 고객 (타겟 리퍼럴)</Label>
+                  <Input
+                    value={customFields.targetReferral || ''}
+                    onChange={(e) => handleField('targetReferral', e.target.value)}
+                    placeholder="어떤 고객을 소개받길 원하는지"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">차별화된 핵심 강점 &amp; 경쟁력</Label>
+                  <Input
+                    value={customFields.partnerStrength || ''}
+                    onChange={(e) => handleField('partnerStrength', e.target.value)}
+                    placeholder="대표님만의 독보적인 강점"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. 미팅 일시 및 장소 */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-bold text-slate-700 block">3. 미팅 일시 및 장소</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">미팅 일자</Label>
+                  <Input
+                    type="date"
+                    value={customFields.meetingDate || new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => handleField('meetingDate', e.target.value)}
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-slate-600">미팅 장소</Label>
+                  <Input
+                    value={customFields.meetingPlace || ''}
+                    onChange={(e) => handleField('meetingPlace', e.target.value)}
+                    placeholder="예: 비즈니스 라운지 카페"
+                    className="h-7 text-xs bg-slate-50"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── 8. 블로그 본문 포함 블록 선택 (토글) ── */}

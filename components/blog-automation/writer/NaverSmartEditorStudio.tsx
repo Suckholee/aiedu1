@@ -698,9 +698,9 @@ export function NaverSmartEditorStudio({
       </div>
 
       {/* ═════════════════════════════════════════════════════════════════════
-          3. 메인 작업 영역: 860px 중앙 캔버스 + 우측 [템플릿] 서랍 (Slide-over)
+          3. 메인 작업 영역: 중앙 캔버스 + 우측 [템플릿] 서랍 (Slide-over)
       ═════════════════════════════════════════════════════════════════════ */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex min-h-0 overflow-hidden relative">
         {/* ── 중앙 스마트에디터 화이트 캔버스 ── */}
         <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 flex justify-center custom-scrollbar">
           <div
@@ -917,7 +917,7 @@ export function NaverSmartEditorStudio({
                - 이미지 1의 모든 설정(15종 스킬, 오디언스, 키워드 등) 포함
         ═════════════════════════════════════════════════════════════════════ */}
         {isTemplateDrawerOpen && (
-          <aside className="w-[340px] sm:w-[360px] lg:w-[380px] bg-white border-l border-[#e5e7eb] flex flex-col h-full shrink-0 shadow-lg z-20 animate-in slide-in-from-right duration-200">
+          <aside className="w-[380px] sm:w-[420px] lg:w-[460px] xl:w-[480px] bg-white border-l border-[#e5e7eb] flex flex-col h-full min-h-0 shrink-0 shadow-xl z-20 animate-in slide-in-from-right duration-200">
             {/* 서랍 헤더 */}
             <div className="h-12 border-b border-slate-200 px-4 flex items-center justify-between bg-slate-50 shrink-0">
               <div className="flex items-center gap-2">
@@ -946,8 +946,8 @@ export function NaverSmartEditorStudio({
               </div>
             </div>
 
-            {/* 서랍 스크롤 바디 (이미지 1의 폼 내용 집약) */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar text-xs">
+            {/* 서랍 스크롤 바디: 하단 고정 생성 버튼에 가려지지 않도록 pb-28 여유 패딩 적용 */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar text-xs min-h-0 pb-28">
               {/* ① 블로그 유형 (원투원 중심 정예 5종) */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
