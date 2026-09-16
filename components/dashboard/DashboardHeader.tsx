@@ -13,6 +13,8 @@ import {
   User as UserIcon,
   Camera,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -27,24 +29,52 @@ import {
 
 interface DashboardHeaderProps {
   onOpenMobileMenu?: () => void;
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
+export function DashboardHeader({
+  onOpenMobileMenu,
+  isSidebarOpen = true,
+  onToggleSidebar,
+}: DashboardHeaderProps) {
   const { user, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 sm:px-6 backdrop-blur-md">
-      {/* Left: Mobile menu button + Search bar */}
-      <div className="flex items-center gap-3 flex-1 max-w-xl">
+      {/* Left: Sidebar Toggle (Desktop & Mobile) + Search bar */}
+      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 max-w-xl">
+        {/* Mobile menu button */}
         {onOpenMobileMenu && (
           <button
             type="button"
             onClick={onOpenMobileMenu}
             className="grid size-9 place-items-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 lg:hidden"
-            aria-label="메뉴 열기"
+            aria-label="모바일 메뉴 열기"
           >
             <Menu className="size-5" />
+          </button>
+        )}
+
+        {/* Desktop Sidebar Toggle button */}
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className={`hidden lg:grid size-9 place-items-center rounded-xl border transition-all ${
+              !isSidebarOpen
+                ? 'border-indigo-200 bg-indigo-50/90 text-indigo-600 hover:bg-indigo-100 shadow-xs'
+                : 'border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+            }`}
+            title={isSidebarOpen ? '사이드바 닫기 (Ctrl/Cmd + B)' : '사이드바 열기 (Ctrl/Cmd + B)'}
+            aria-label={isSidebarOpen ? '사이드바 닫기' : '사이드바 열기'}
+          >
+            {isSidebarOpen ? (
+              <PanelLeftClose className="size-4.5" />
+            ) : (
+              <PanelLeftOpen className="size-4.5 text-indigo-600" />
+            )}
           </button>
         )}
 

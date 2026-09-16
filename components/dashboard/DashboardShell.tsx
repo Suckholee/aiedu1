@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { PanelLeftOpen } from 'lucide-react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { Footer } from '@/components/layout/Footer';
@@ -12,13 +13,75 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children }: DashboardShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+
+  // Restore user's sidebar preference on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('app_desktop_sidebar_open');
+      if (saved !== null) {
+        setDesktopSidebarOpen(saved === 'true');
+      }
+    } catch {}
+  }, []);
+
+  const toggleDesktopSidebar = () => {
+    setDesktopSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('app_desktop_sidebar_open', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // Keyboard shortcut: Cmd/Ctrl + B to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+        e.preventDefault();
+        toggleDesktopSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex antialiased">
-      {/* Desktop Persistent Left Sidebar matching reference */}
-      <div className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 z-40 bg-white">
-        <DashboardSidebar />
+      {/* Desktop Collapsible Left Sidebar */}
+      <div
+        className={`hidden lg:block shrink-0 h-screen sticky top-0 z-40 bg-white transition-all duration-300 ease-in-out overflow-hidden ${
+          desktopSidebarOpen
+            ? 'w-64 opacity-100'
+            : 'w-0 opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="w-64 h-full">
+          <DashboardSidebar onToggleCollapse={toggleDesktopSidebar} />
+        </div>
       </div>
+
+      {/* Floating edge tab when sidebar is collapsed (Desktop) */}
+      {!desktopSidebarOpen && (
+        <button
+          type="button"
+          onClick={toggleDesktopSidebar}
+          className="hidden lg:flex fixed left-0 top-20 z-30 items-center justify-center size-8 rounded-r-xl border-y border-r border-slate-200/90 bg-white text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 shadow-xs transition-all hover:w-9 group"
+          title="사이드바 열기 (Ctrl/Cmd + B)"
+          aria-label="사이드바 열기"
+        >
+          <PanelLeftOpen className="size-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+        </button>
+      )}
 
       {/* Mobile Drawer Sidebar */}
       {mobileMenuOpen && (
@@ -35,8 +98,12 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
       {/* Main Content Column */}
       <div className="flex flex-1 flex-col min-w-0">
-        {/* Top Header matching reference */}
-        <DashboardHeader onOpenMobileMenu={() => setMobileMenuOpen(true)} />
+        {/* Top Header */}
+        <DashboardHeader
+          onOpenMobileMenu={() => setMobileMenuOpen(true)}
+          isSidebarOpen={desktopSidebarOpen}
+          onToggleSidebar={toggleDesktopSidebar}
+        />
 
         {/* Page Content */}
         <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 pb-24 md:pb-12 max-w-7xl w-full mx-auto">

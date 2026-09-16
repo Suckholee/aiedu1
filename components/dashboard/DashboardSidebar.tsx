@@ -25,15 +25,17 @@ import {
   X,
   Camera,
   Calendar,
+  PanelLeftClose,
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
   onCloseMobile?: () => void;
+  onToggleCollapse?: () => void;
 }
 
 const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScgfrrG2NV1QHbDG72TZEgmbLtqbpEsn9EE0Gv6LO8LCrggJg/viewform';
 
-export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
+export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [labsOpen, setLabsOpen] = useState(true);
 
@@ -71,14 +73,32 @@ export function DashboardSidebar({ onCloseMobile }: DashboardSidebarProps) {
             </div>
           </Link>
 
-          {onCloseMobile && (
-            <button
-              onClick={onCloseMobile}
-              className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 lg:hidden"
-            >
-              <X className="size-5" />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {/* Desktop Collapse Button */}
+            {onToggleCollapse && (
+              <button
+                type="button"
+                onClick={onToggleCollapse}
+                className="hidden lg:grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                title="사이드바 닫기 (Ctrl/Cmd + B)"
+                aria-label="사이드바 닫기"
+              >
+                <PanelLeftClose className="size-4.5" />
+              </button>
+            )}
+
+            {/* Mobile Close Button */}
+            {onCloseMobile && (
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 lg:hidden"
+                aria-label="메뉴 닫기"
+              >
+                <X className="size-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Navigation Links */}
