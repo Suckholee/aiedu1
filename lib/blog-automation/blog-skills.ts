@@ -56,8 +56,8 @@ export const BLOG_SKILLS: BlogSkill[] = [
 ★ [BNI 원투원 작성 공식 (P-S-I)]:
 1. [만남의 배경 (Partner Intro)]: 언제, 어디서, 누구와, 어떤 이유로 만났는지 (만남의 계기와 상대방 대표님의 전문성)
 2. [대화의 핵심 (Story & Insight)]: 오늘 미팅에서 나눈 진솔한 대화와 실제 메모에 담긴 구체적인 이야기
-3. [나의 인사이트 (My Business Learning)]: 작성자(나)의 시점에서 느낀 배움과 내 사업(와인핏/르글라스 등)에 적용할 깨달음
-4. [상생 협업의 가능성 (Synergy & Impact)]: 두 기업이 서로 주고받을 수 있는 도움, 추천 리퍼럴, 다음 약속
+3. [나의 인사이트 (My Business Learning)]: 작성자(나)의 시점에서 느낀 배움과 내 사업에 적용할 깨달음
+4. [상생 협업의 가능성 (Synergy & Impact)]: 두 기업이 서로 주고받을 수 있는 상생 시너지, 추천 리퍼럴, 다음 약속
 
 필수 작성 원칙:
 - 과장된 찬사나 영혼 없는 칭찬 대신, 상대방 사업의 '진짜 차별화된 가치와 전문성'을 깊이 있게 조명.
@@ -682,13 +682,32 @@ export function buildSkillPrompt(
 
   // BNI 원투원 스킬 전용 프롬프트 가이드
   if (skill.id === 'one_to_one') {
+    const myName = customFields.myAuthorName || '';
+    const myCompany = customFields.myAuthorCompany || '';
+    const myChapter = customFields.myAuthorChapter || '';
+    const mySpecialty = customFields.myAuthorSpecialty || '';
+    const myReferral = customFields.myAuthorReferral || '';
+
+    const hostProfileSection = (myName || myCompany)
+      ? `\n\n★ [글 작성자(나 / 호스트 대표님) 프로필]:
+- 작성자 성함: ${myName || '작성자 대표'}
+- 내 회사명 / 소속: ${myCompany || '소속 기업'}${myChapter ? ` (${myChapter})` : ''}
+- 내 전문분야 / 주력 사업: ${mySpecialty || '전문 비즈니스'}
+${myReferral ? `- 내 이상적인 추천 고객 (리퍼럴): ${myReferral}` : ''}
+
+★ [화자(1인칭 시점) 엄격 반영 지침]:
+- 이 블로그 글의 화자(1인칭 '저', '저희 ${myCompany || '회사'}')는 바로 위 [작성자(나)] 대표님입니다.
+- 오늘 만난 파트너 대표님(${customFields.partnerName || '상대방 대표'}님)과 대화하면서, 내 사업(${myCompany || '내 비즈니스'}) 관점에서 무엇을 배우고 느꼈는지, 그리고 내 전문분야(${mySpecialty || ''})와 파트너 대표님의 사업이 어떻게 상생 협력할 수 있는지를 진정성 있게 서술하세요.`
+      : '';
+
     prompt += `\n\n★ [BNI 121 원투원 양식 기반 스토리텔링 전용 지침]:
 1. [글의 제목]: 반드시 "[BNI 원투원] {상대방 회사} {대표님 성함} 대표님과의 만남 — {핵심 인사이트/협업 가치}" 형식의 품격 있는 비즈니스 제목으로 작성.
+${hostProfileSection}
 2. [BNI 원투원 6단계 서사 구조 (P-S-I)]:
    - ① 만남의 배경: 대표님을 뵙게 된 계기와 미팅 일시/장소 분위기
    - ② 파트너의 전문성 & 추천 고객: 대표님의 독보적인 강점과 어떤 고객을 연결해드리면 좋은지(타겟 리퍼럴) 상세 조명
    - ③ 오늘 나눈 대화의 핵심: 오늘 121 미팅에서 나눈 진솔한 대화와 실제 메모에 담긴 생생한 비즈니스 스토리
-   - ④ 나의 인사이트 (배운 점): 작성자(나)의 시점에서 느낀 비즈니스 인사이트와 내 사업에 적용할 점
+   - ④ 나의 인사이트 (배운 점): 작성자(나)의 시점에서 느낀 비즈니스 인사이트와 내 사업(${myCompany || '내 사업'})에 적용할 점
    - ⑤ 상생과 협업 계획: 두 기업이 함께 그리는 시너지, 서로 줄 수 있는 소개 기회, 다음 약속한 일정
    - ⑥ 맺음말 및 문의 안내: 파트너 대표님을 적극 추천하는 이유와 회사/문의처 안내
 3. [네이버 블로그 친화적 서식]:

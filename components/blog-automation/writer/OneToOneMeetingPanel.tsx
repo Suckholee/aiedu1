@@ -27,6 +27,7 @@ import {
   FileAudio,
   Loader2,
   Wand2,
+  UserCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,6 +82,65 @@ export function OneToOneMeetingPanel({
   // 🌟 세로 공간 절약용 접기/펼치기 상태
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [isPreSheetExpanded, setIsPreSheetExpanded] = useState(false);
+
+  // ── 작성자(나 / 호스트 대표님) 프로필 관리 ──
+  const [myProfile, setMyProfile] = useState<{
+    name: string;
+    company: string;
+    chapter: string;
+    specialty: string;
+    targetReferral?: string;
+  }>({
+    name: '',
+    company: '',
+    chapter: '',
+    specialty: '',
+    targetReferral: '',
+  });
+  const [isEditingMyProfile, setIsEditingMyProfile] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('bni_my_host_profile');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setMyProfile(parsed);
+        if (parsed.name && !customFields.myAuthorName) {
+          onCustomFieldsChange({
+            ...customFields,
+            myAuthorName: parsed.name,
+            myAuthorCompany: parsed.company || '',
+            myAuthorChapter: parsed.chapter || '',
+            myAuthorSpecialty: parsed.specialty || '',
+            myAuthorReferral: parsed.targetReferral || '',
+          });
+        }
+      }
+    } catch {}
+  }, []);
+
+  const handleSaveMyProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!myProfile.name.trim()) {
+      toast.error('대표님의 성함을 입력해주세요.');
+      return;
+    }
+    try {
+      localStorage.setItem('bni_my_host_profile', JSON.stringify(myProfile));
+      onCustomFieldsChange({
+        ...customFields,
+        myAuthorName: myProfile.name.trim(),
+        myAuthorCompany: myProfile.company.trim(),
+        myAuthorChapter: myProfile.chapter.trim(),
+        myAuthorSpecialty: myProfile.specialty.trim(),
+        myAuthorReferral: myProfile.targetReferral?.trim() || '',
+      });
+      setIsEditingMyProfile(false);
+      toast.success('👤 대표님의 정보가 저장되었습니다! 앞으로 모든 121 블로그 글에 내 사업 정보가 자동으로 반영됩니다.');
+    } catch {
+      toast.error('저장 중 오류가 발생했습니다.');
+    }
+  };
 
   // 🎙️ 녹음본 텍스트(클로바노트) AI 분석 상태
   const [isAnalyzingTranscript, setIsAnalyzingTranscript] = useState(false);
@@ -285,6 +345,135 @@ export function OneToOneMeetingPanel({
             <span>양식 비우기</span>
           </button>
         </div>
+      </div>
+
+      {/* 🌟 1.5 작성자(나 / 호스트 대표님) 프로필 바 */}
+      <div className="rounded-xl border border-indigo-200/80 bg-white p-3 shadow-2xs space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="flex size-6 items-center justify-center rounded-lg bg-slate-900 text-white text-[11px] font-black shrink-0">
+              나
+            </span>
+            <div className="truncate flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-black text-slate-900">
+                {myProfile.name ? `${myProfile.name} 대표 (글 작성자)` : '내 정보(글 작성자) 등록'}
+              </span>
+              {myProfile.company ? (
+                <span className="rounded bg-slate-100 border border-slate-200 px-1.5 py-0.2 text-[10px] font-bold text-slate-700">
+                  {myProfile.company} {myProfile.chapter ? `(${myProfile.chapter})` : ''}
+                </span>
+              ) : (
+                <span className="text-[10.5px] text-amber-600 font-bold">
+                  (미등록: 클릭하여 내 사업 정보를 등록해두세요)
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsEditingMyProfile(!isEditingMyProfile)}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 px-2 py-1 text-[10.5px] font-bold text-slate-600 transition-all shrink-0 active:scale-95"
+          >
+            {isEditingMyProfile ? '접기' : myProfile.name ? '✏️ 내 정보 수정' : '+ 내 정보 입력'}
+          </button>
+        </div>
+
+        {/* 내 프로필 요약 (접혀있을 때) */}
+        {!isEditingMyProfile && myProfile.name && (
+          <div className="text-[11px] text-slate-600 font-medium flex items-center gap-1.5 truncate border-t border-slate-100 pt-1.5 flex-wrap">
+            <span className="text-indigo-600 font-bold">💼 내 전문분야:</span>
+            <span className="truncate">{myProfile.specialty || '미등록'}</span>
+            {myProfile.targetReferral && (
+              <>
+                <span className="text-slate-300">•</span>
+                <span className="text-rose-600 font-bold">🎯 내 희망 리퍼럴:</span>
+                <span className="truncate">{myProfile.targetReferral}</span>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* 내 프로필 인라인 수정 폼 */}
+        {isEditingMyProfile && (
+          <form onSubmit={handleSaveMyProfile} className="space-y-3 pt-2 border-t border-indigo-100 animate-in fade-in duration-150">
+            <div className="p-2 rounded-lg bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed">
+              💡 <strong>내 정보(성함, 회사, 챕터, 주력사업)</strong>를 한 번 등록해두면, 모든 121 블로그 글이 <strong>대표님의 시점(1인칭 '저희 회사')</strong>으로 자연스럽게 작성되며, 파트너와의 상생 시너지가 정확하게 담깁니다.
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-slate-700">내 성함 / 직함 *</Label>
+                <Input
+                  value={myProfile.name}
+                  onChange={(e) => setMyProfile({ ...myProfile, name: e.target.value })}
+                  placeholder="예: 이석호 대표"
+                  className="h-8 text-xs bg-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-slate-700">내 회사명</Label>
+                <Input
+                  value={myProfile.company}
+                  onChange={(e) => setMyProfile({ ...myProfile, company: e.target.value })}
+                  placeholder="예: 가호석호 / AI에듀"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-slate-700">소속 BNI 챕터</Label>
+                <Input
+                  value={myProfile.chapter}
+                  onChange={(e) => setMyProfile({ ...myProfile, chapter: e.target.value })}
+                  placeholder="예: BNI 마스터 챕터"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-slate-700">내 전문분야 / 주력 사업</Label>
+                <Input
+                  value={myProfile.specialty}
+                  onChange={(e) => setMyProfile({ ...myProfile, specialty: e.target.value })}
+                  placeholder="예: 생성형 AI 교육 및 비즈니스 업무 자동화 솔루션"
+                  className="h-8 text-xs bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1 text-xs">
+              <Label className="text-[11px] font-bold text-slate-700">내가 소개받고 싶은 고객 (내 타겟 리퍼럴)</Label>
+              <Input
+                value={myProfile.targetReferral || ''}
+                onChange={(e) => setMyProfile({ ...myProfile, targetReferral: e.target.value })}
+                placeholder="예: AI 도입을 희망하는 중소기업 대표, 실무 자동화가 필요한 임직원"
+                className="h-8 text-xs bg-white"
+              />
+            </div>
+
+            <div className="flex justify-end gap-1.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsEditingMyProfile(false)}
+                className="px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-lg"
+              >
+                닫기
+              </button>
+              <Button
+                type="submit"
+                size="sm"
+                className="h-7 text-xs font-bold bg-slate-900 hover:bg-black text-white px-3"
+              >
+                💾 내 정보 저장
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* 🌟 2. 회의 참석자(파트너) 선택 바 (실제 등록된 대표님만 표시) */}
