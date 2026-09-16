@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
   Building2,
@@ -15,30 +15,25 @@ import {
   Target,
   Award,
   FileText,
+  UserPlus,
+  Edit3,
+  Check,
+  Briefcase,
+  ChevronRight,
+  Info,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-
-/** BNI 공식 원투원 양식 표준 가이드 샘플 (실제 개인 식별 정보 배제) */
-export const BNI_STANDARD_SAMPLE = {
-  partnerName: '김대표',
-  partnerCompany: '알파브랜딩 (BNI 챕터)',
-  partnerField: '기업 브랜딩 및 공간 디자인 디렉팅',
-  targetReferral: '신규 사옥 이전 기업, 프리미엄 매장 오픈 준비 중인 F&B 브랜드 대표',
-  partnerStrength: '15년 업력의 브랜드 정체성 분석과 감각적인 공간 연출 역량',
-  meetingDate: new Date().toISOString().slice(0, 10),
-  meetingPlace: '비즈니스 라운지 카페',
-  conversationCore:
-    '고객의 브랜드 경험을 극대화하는 공간 설계 철학과, 단순 인테리어를 넘어 매출로 연결되는 비즈니스 동선 설계의 노하우 공유.',
-  myInsight:
-    '공간과 제품이 고객에게 전달하는 일관된 메시지의 중요성을 절감함. 고객과의 첫 접점부터 사후 관리까지 신뢰를 주는 프로세스를 우리 사업에도 적극 반영하기로 함.',
-  synergyPlan:
-    '신규 오픈하는 프리미엄 고객사 프로젝트에 맞춤형 제휴 및 공동 프로모션 논의. 상호 고객 네트워킹 소개 및 분기별 비즈니스 협력 미팅 진행 약속.',
-  topic: '[BNI 원투원] 알파브랜딩 김대표님과의 121 미팅 - 공간 브랜딩이 비즈니스 성장에 미치는 시너지',
-  keywords: 'BNI원투원, 121미팅, 비즈니스네트워킹, 공간브랜딩, 비즈니스시너지, 대표인터뷰',
-};
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  BniAttendee,
+  getBniAttendees,
+  DEFAULT_BNI_ATTENDEES,
+} from '@/lib/blog-automation/bni-attendee-storage';
+import { AttendeeManageModal } from './AttendeeManageModal';
 
 interface OneToOneMeetingPanelProps {
   customFields: Record<string, string>;
@@ -59,6 +54,16 @@ export function OneToOneMeetingPanel({
   onRequiredKeywordsChange,
   onTargetAudienceChange,
 }: OneToOneMeetingPanelProps) {
+  const { user } = useAuth();
+
+  // 참석자 목록 및 선택 상태
+  const [attendees, setAttendees] = useState<BniAttendee[]>(DEFAULT_BNI_ATTENDEES);
+  const [selectedAttendeeId, setSelectedAttendeeId] = useState<string | null>(null);
+
+  // 모달 상태
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingAttendee, setEditingAttendee] = useState<BniAttendee | null>(null);
+
   // 블록 포함 토글 상태
   const [includePartnerIntro, setIncludePartnerIntro] = useState(true);
   const [includeStrength, setIncludeStrength] = useState(true);
@@ -67,6 +72,25 @@ export function OneToOneMeetingPanel({
   const [includeSynergy, setIncludeSynergy] = useState(true);
   const [includeLocationMap, setIncludeLocationMap] = useState(true);
 
+  // 1. 참석자 목록 로드
+  useEffect(() => {
+    const loadAttendees = async () => {
+      try {
+        const list = await getBniAttendees(user?.uid);
+        if (list && list.length > 0) {
+          setAttendees(list);
+          // 만약 폼에 이미 partnerName이 있으면 매칭 시도, 없으면 첫 번째 선택
+          if (!customFields.partnerName && list.length > 0) {
+            handleSelectAttendee(list[0]);
+          }
+        }
+      } catch (e) {
+        console.error('Error loading attendees:', e);
+      }
+    };
+    loadAttendees();
+  }, [user]);
+
   const handleField = (key: string, val: string) => {
     onCustomFieldsChange({
       ...customFields,
@@ -74,29 +98,83 @@ export function OneToOneMeetingPanel({
     });
   };
 
-  const applyStandardSample = () => {
+  // 2. 참석자 선택 시 모든 사전 양식지 정보 폼에 즉시 프리필(Pre-fill)
+  const handleSelectAttendee = (att: BniAttendee) => {
+    setSelectedAttendeeId(att.id);
+
+    const fullCompany = att.chapter ? `${att.company} (${att.chapter})` : att.company;
+
     onCustomFieldsChange({
       ...customFields,
-      partnerName: BNI_STANDARD_SAMPLE.partnerName,
-      partnerCompany: BNI_STANDARD_SAMPLE.partnerCompany,
-      partnerField: BNI_STANDARD_SAMPLE.partnerField,
-      targetReferral: BNI_STANDARD_SAMPLE.targetReferral,
-      partnerStrength: BNI_STANDARD_SAMPLE.partnerStrength,
-      meetingDate: BNI_STANDARD_SAMPLE.meetingDate,
-      meetingPlace: BNI_STANDARD_SAMPLE.meetingPlace,
-      conversationCore: BNI_STANDARD_SAMPLE.conversationCore,
-      myInsight: BNI_STANDARD_SAMPLE.myInsight,
-      synergyPlan: BNI_STANDARD_SAMPLE.synergyPlan,
+      partnerName: att.name,
+      partnerCompany: fullCompany,
+      partnerField: att.specialty,
+      targetReferral: att.targetReferral,
+      partnerStrength: att.partnerStrength,
+      sheetSummary: att.sheetSummary || '',
+      meetingPlace: att.preferredPlace || customFields.meetingPlace || '비즈니스 라운지 카페',
+      meetingDate: customFields.meetingDate || new Date().toISOString().slice(0, 10),
     });
-    onTopicChange(BNI_STANDARD_SAMPLE.topic);
-    onRequiredKeywordsChange(BNI_STANDARD_SAMPLE.keywords);
+
+    // 추천 글 제목 및 키워드 자동 세팅
+    if (!topic || topic.includes('[BNI 원투원]')) {
+      const cleanName = att.name.replace(' 대표', '');
+      onTopicChange(
+        `[BNI 원투원] ${att.company} ${cleanName} 대표님과의 121 미팅 - 비즈니스 시너지와 인사이트`
+      );
+    }
+
+    if (!requiredKeywords || requiredKeywords.includes('BNI원투원')) {
+      const cleanName = att.name.replace(' 대표', '');
+      onRequiredKeywordsChange(
+        `BNI원투원, 121미팅, ${att.company}, ${cleanName}대표, 비즈니스네트워킹, 상생협업`
+      );
+    }
+
     if (onTargetAudienceChange) {
       onTargetAudienceChange('BNI 멤버, 기업 대표님 및 사업가, 비즈니스 네트워킹 관심자');
     }
-    toast.success('🤝 BNI 원투원 표준 예시 데이터가 입력되었습니다.');
+
+    toast.success(`🤝 '${att.name}' 대표님의 사전 양식지 정보가 자동 적용되었습니다.`);
+  };
+
+  // 모달 열기 (신규 등록)
+  const handleOpenAddModal = () => {
+    setEditingAttendee(null);
+    setModalOpen(true);
+  };
+
+  // 모달 열기 (수정)
+  const handleOpenEditModal = (att: BniAttendee) => {
+    setEditingAttendee(att);
+    setModalOpen(true);
+  };
+
+  // 모달에서 저장 완료 후 콜백
+  const handleAttendeeSaved = (saved: BniAttendee) => {
+    setAttendees((prev) => {
+      const idx = prev.findIndex((a) => a.id === saved.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = saved;
+        return next;
+      }
+      return [saved, ...prev];
+    });
+    handleSelectAttendee(saved);
+  };
+
+  // 모달에서 삭제 완료 후 콜백
+  const handleAttendeeDeleted = (deletedId: string) => {
+    setAttendees((prev) => prev.filter((a) => a.id !== deletedId));
+    if (selectedAttendeeId === deletedId) {
+      setSelectedAttendeeId(null);
+      resetFields();
+    }
   };
 
   const resetFields = () => {
+    setSelectedAttendeeId(null);
     onCustomFieldsChange({
       ...customFields,
       partnerName: '',
@@ -104,18 +182,21 @@ export function OneToOneMeetingPanel({
       partnerField: '',
       targetReferral: '',
       partnerStrength: '',
+      sheetSummary: '',
       meetingDate: new Date().toISOString().slice(0, 10),
       meetingPlace: '',
       conversationCore: '',
       myInsight: '',
       synergyPlan: '',
     });
-    toast.info('원투원 양식이 비워졌습니다. 실제 미팅 내용을 입력하세요.');
+    toast.info('원투원 양식이 비워졌습니다. 새 참석자를 선택하거나 직접 입력하세요.');
   };
+
+  const currentAttendee = attendees.find((a) => a.id === selectedAttendeeId);
 
   return (
     <div className="space-y-4 rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-b from-indigo-50/40 via-white to-white p-3.5 sm:p-5 shadow-xs">
-      {/* ── 1. 헤더 (BNI 원투원 양식) & 표준 샘플 액션 ── */}
+      {/* ── 1. 헤더 (BNI 원투원 양식) ── */}
       <div className="flex flex-col gap-2 pb-3 border-b border-indigo-100">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
@@ -126,18 +207,18 @@ export function OneToOneMeetingPanel({
               BNI 원투원 양식 (121 미팅)
             </h3>
             <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 whitespace-nowrap shrink-0">
-              공식 121 시트 구조
+              실제 참석자 양식지 연동
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={applyStandardSample}
+              onClick={handleOpenAddModal}
               className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95 whitespace-nowrap"
             >
-              <Sparkles className="size-3 text-indigo-500" />
-              <span>표준 샘플 채우기</span>
+              <UserPlus className="size-3 text-indigo-500" />
+              <span>+ 새 참석자/양식지 등록</span>
             </button>
             <button
               type="button"
@@ -151,11 +232,124 @@ export function OneToOneMeetingPanel({
           </div>
         </div>
         <p className="text-[11px] text-slate-500 break-keep">
-          BNI 121 미팅 표준 질문 구조에 맞춰 대화 내용과 비즈니스 배움을 기록하면, 신뢰도 높은 네이버 블로그 글로 자동 완성됩니다.
+          회의 참석자를 선택하면 상대방 대표님의 121 양식지 정보가 자동으로 입력됩니다. 미팅 후 대화 메모와 나의 배움만 기록하면 완벽한 블로그 글이 완성됩니다.
         </p>
       </div>
 
-      {/* ── 2. 파트너 기본 정보 ── */}
+      {/* 🌟 2. 회의 참석자(파트너) 선택 바 (Directory Pills) */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+          <span className="flex items-center gap-1.5">
+            <Users className="size-3.5 text-indigo-600" />
+            <span>회의 참석자(파트너) 선택</span>
+          </span>
+          <span className="text-[10px] text-slate-400">
+            총 {attendees.length}명의 파트너 등록됨
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {attendees.map((att) => {
+            const isSelected = selectedAttendeeId === att.id;
+            return (
+              <button
+                key={att.id}
+                type="button"
+                onClick={() => handleSelectAttendee(att)}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all shrink-0 active:scale-95 ${
+                  isSelected
+                    ? 'border-indigo-600 bg-indigo-600 text-white shadow-xs'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50/50'
+                }`}
+              >
+                {isSelected && <Check className="size-3 text-white" />}
+                <span>{att.name}</span>
+                <span
+                  className={`text-[10px] font-normal ${
+                    isSelected ? 'text-indigo-200' : 'text-slate-400'
+                  }`}
+                >
+                  {att.company}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 🌟 3. 회의 참석자 요약 카드 (Attendee Summary Card) */}
+      {currentAttendee && (
+        <div className="rounded-2xl border-2 border-indigo-200 bg-white p-3.5 sm:p-4 shadow-sm space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="grid size-10 place-items-center rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xs shrink-0">
+                {currentAttendee.name.slice(0, 1)}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-sm font-black text-slate-900">
+                    {currentAttendee.name}
+                  </h4>
+                  <span className="rounded-md bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                    {currentAttendee.company}
+                  </span>
+                  {currentAttendee.chapter && (
+                    <span className="text-[10px] text-slate-500 font-medium">
+                      {currentAttendee.chapter}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-indigo-900/80 font-semibold mt-0.5">
+                  💼 {currentAttendee.specialty || '전문 분야'}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpenEditModal(currentAttendee)}
+              className="h-7 text-xs border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 gap-1 shrink-0"
+            >
+              <Edit3 className="size-3" />
+              <span>양식지 수정</span>
+            </Button>
+          </div>
+
+          {/* 사전 양식지 핵심 요약 그리드 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+            <div className="rounded-xl bg-rose-50/60 border border-rose-100 p-2.5 space-y-0.5">
+              <div className="text-[10px] font-bold text-rose-700 flex items-center gap-1">
+                <Target className="size-3 text-rose-600" />
+                <span>이상적인 리퍼럴 (소개 희망 고객)</span>
+              </div>
+              <p className="text-xs text-slate-800 font-medium leading-relaxed">
+                {currentAttendee.targetReferral || '미등록 (양식지 수정에서 입력 가능)'}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-amber-50/60 border border-amber-100 p-2.5 space-y-0.5">
+              <div className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                <Award className="size-3 text-amber-600" />
+                <span>차별화된 핵심 강점 &amp; 경쟁력</span>
+              </div>
+              <p className="text-xs text-slate-800 font-medium leading-relaxed">
+                {currentAttendee.partnerStrength || '미등록 (양식지 수정에서 입력 가능)'}
+              </p>
+            </div>
+          </div>
+
+          {currentAttendee.sheetSummary && (
+            <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 text-xs text-slate-600">
+              <span className="font-bold text-slate-700 mr-1">📄 사전 양식지 메모:</span>
+              <span>{currentAttendee.sheetSummary}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 4. 파트너 기본 정보 (자동 프리필 & 직접 수정 가능) ── */}
       <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
           <Users className="size-3.5 text-indigo-600" />
@@ -202,7 +396,7 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* ── 3. 비즈니스 프로필 & 이상적인 리퍼럴 (GAINS) ── */}
+      {/* ── 5. 비즈니스 프로필 & 이상적인 리퍼럴 (GAINS) ── */}
       <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
           <Target className="size-3.5 text-rose-600" />
@@ -236,7 +430,7 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* ── 4. 미팅 일시 및 장소 ── */}
+      {/* ── 6. 미팅 일시 및 장소 ── */}
       <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2.5">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
           <CalendarIcon className="size-3.5 text-slate-600" />
@@ -270,11 +464,16 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* ── 5. 대화 내용 & 비즈니스 인사이트 (121 미팅 핵심 메모) ── */}
+      {/* ── 7. 대화 내용 & 비즈니스 인사이트 (사용자가 미팅 후 작성할 핵심 메모) ── */}
       <div className="rounded-xl border border-indigo-100 bg-indigo-50/20 p-3 space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-          <MessageSquareText className="size-3.5 text-blue-600" />
-          <span>4. 대화 내용 및 비즈니스 인사이트 (핵심 메모)</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+            <MessageSquareText className="size-3.5 text-blue-600" />
+            <span>4. 대화 내용 및 비즈니스 인사이트 (121 미팅 핵심 메모)</span>
+          </div>
+          <span className="text-[10px] text-indigo-700 font-semibold bg-indigo-100/70 px-2 py-0.5 rounded-full">
+            여기에 미팅 메모를 입력하세요
+          </span>
         </div>
 
         <div className="space-y-1">
@@ -321,7 +520,7 @@ export function OneToOneMeetingPanel({
         </div>
       </div>
 
-      {/* ── 6. 블로그 본문 포함 블록 선택 (토글) ── */}
+      {/* ── 8. 블로그 본문 포함 블록 선택 (토글) ── */}
       <div className="pt-2 border-t border-indigo-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
@@ -395,6 +594,16 @@ export function OneToOneMeetingPanel({
           </label>
         </div>
       </div>
+
+      {/* ── 참석자 등록/수정 모달 ── */}
+      <AttendeeManageModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        attendee={editingAttendee}
+        userId={user?.uid}
+        onSaved={handleAttendeeSaved}
+        onDeleted={handleAttendeeDeleted}
+      />
     </div>
   );
 }
