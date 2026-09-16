@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { PanelLeftOpen } from 'lucide-react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
@@ -12,6 +13,8 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
+  const pathname = usePathname();
+  const isStudioPage = pathname?.startsWith('/tools/blog');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
@@ -56,7 +59,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex antialiased">
+    <div className="flex min-h-screen bg-[#f8fafc]">
       {/* Desktop Collapsible Left Sidebar */}
       <div
         className={`hidden lg:block shrink-0 h-screen sticky top-0 z-40 bg-white transition-all duration-300 ease-in-out overflow-hidden ${
@@ -105,17 +108,23 @@ export function DashboardShell({ children }: DashboardShellProps) {
           onToggleSidebar={toggleDesktopSidebar}
         />
 
-        {/* Page Content */}
-        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 pb-24 md:pb-12 max-w-7xl w-full mx-auto">
+        {/* Page Content: For Studio full-screen tools, use edge-to-edge without margins or padding */}
+        <main
+          className={
+            isStudioPage
+              ? 'flex-1 w-full min-w-0 p-0 m-0 overflow-hidden'
+              : 'flex-1 px-4 py-6 sm:px-8 sm:py-8 pb-24 md:pb-12 max-w-7xl w-full mx-auto'
+          }
+        >
           {children}
         </main>
 
-        {/* Footer */}
-        <Footer />
+        {/* Footer: Hidden on full-screen studio tools */}
+        {!isStudioPage && <Footer />}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav />
+      {/* Mobile Bottom Navigation: Hidden on studio pages to avoid blocking action buttons */}
+      {!isStudioPage && <MobileBottomNav />}
     </div>
   );
 }

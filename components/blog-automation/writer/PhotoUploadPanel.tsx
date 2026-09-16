@@ -589,7 +589,7 @@ export function PhotoUploadPanel({
   }
 
   return (
-    <aside className="w-80 lg:w-96 bg-white border-r border-slate-200 flex flex-col h-full shrink-0 transition-all duration-300 overflow-hidden shadow-sm">
+    <aside className="w-72 sm:w-80 bg-white border-r border-slate-200 flex flex-col h-full shrink-0 transition-all duration-300 overflow-hidden shadow-sm">
       {/* Panel Header */}
       <div className="h-14 border-b border-slate-200 px-4 flex items-center justify-between bg-slate-50/70 shrink-0">
         <div className="flex items-center gap-2">

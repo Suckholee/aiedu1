@@ -701,15 +701,15 @@ export function NaverSmartEditorStudio({
           3. 메인 작업 영역: 860px 중앙 캔버스 + 우측 [템플릿] 서랍 (Slide-over)
       ═════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* ── 860px 중앙 스마트에디터 화이트 캔버스 ── */}
-        <div className="flex-1 overflow-y-auto px-4 py-8 flex justify-center custom-scrollbar">
+        {/* ── 중앙 스마트에디터 화이트 캔버스 ── */}
+        <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 flex justify-center custom-scrollbar">
           <div
-            className={`w-full bg-white rounded-lg shadow-sm border border-[#e5e7eb] min-h-[900px] flex flex-col p-8 md:p-14 relative transition-all ${
-              viewDevice === 'mobile' ? 'max-w-[420px]' : 'max-w-[860px]'
+            className={`w-full bg-white rounded-lg shadow-sm border border-[#e5e7eb] min-h-[900px] flex flex-col p-5 sm:p-8 md:p-10 relative transition-all ${
+              viewDevice === 'mobile' ? 'max-w-[420px]' : 'max-w-[880px]'
             }`}
           >
-            {/* 캔버스 우상단 커버/레이아웃 아이콘 (이미지 2) */}
-            <div className="flex items-center justify-end gap-2 text-slate-400 mb-6">
+            {/* 캔버스 우상단 커버/레이아웃 아이콘 */}
+            <div className="flex items-center justify-end gap-2 text-slate-400 mb-4">
               <button
                 type="button"
                 onClick={() => toast.info('대표 이미지(커버)는 좌측 사진 관리 패널에서 첫 번째 사진으로 자동 지정됩니다.')}
@@ -720,7 +720,7 @@ export function NaverSmartEditorStudio({
               </button>
               <button
                 type="button"
-                onClick={() => toast.info('네이버 스마트에디터 ONE 860px 표준 레이아웃입니다.')}
+                onClick={() => toast.info('네이버 스마트에디터 ONE 표준 레이아웃입니다.')}
                 className="hover:text-slate-600 transition-colors p-1"
                 title="레이아웃 설정"
               >
@@ -728,31 +728,31 @@ export function NaverSmartEditorStudio({
               </button>
             </div>
 
-            {/* ── 캔버스 제목 입력란 (이미지 2의 '제목' 영역) ── */}
+            {/* ── 캔버스 제목 입력란 ── */}
             <div className="relative mb-6">
-              <input
-                id="real-blog-generated-title"
-                data-testid="rendered-blog-title"
-                type="text"
-                value={topic}
-                onChange={(e) => onTopicChange(e.target.value)}
-                placeholder="제목을 입력하세요 (블로그 주제 및 메인 키워드)"
-                className="real-blog-title-text w-full text-2xl md:text-3xl font-extrabold text-[#191919] placeholder:text-[#b8b8b8] border-none outline-hidden focus:outline-hidden bg-transparent leading-tight tracking-tight pr-8"
-              />
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTemplateDrawerOpen(true)}
+                  className="w-8 h-8 shrink-0 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-400 hover:text-[#03c75a] flex items-center justify-center transition-all shadow-2xs hover:scale-105"
+                  title="템플릿 설정 서랍 열기"
+                >
+                  <Plus className="size-4" />
+                </button>
+                <input
+                  id="real-blog-generated-title"
+                  data-testid="rendered-blog-title"
+                  type="text"
+                  value={topic}
+                  onChange={(e) => onTopicChange(e.target.value)}
+                  placeholder="제목을 입력하세요 (블로그 주제 및 메인 키워드)"
+                  className="real-blog-title-text flex-1 text-2xl md:text-3xl font-extrabold text-[#191919] placeholder:text-[#b8b8b8] border-none outline-hidden focus:outline-hidden bg-transparent leading-tight tracking-tight pr-2"
+                />
+              </div>
               <span id="real-blog-title-hidden" data-testid="rendered-blog-title" className="sr-only">
                 {topic}
               </span>
-              <div className="w-full h-px bg-[#e5e7eb] mt-6" />
-
-              {/* 좌측 여백 플로팅 [+] 버튼 (이미지 2의 + 아이콘) */}
-              <button
-                type="button"
-                onClick={() => setTemplateDrawerOpen(true)}
-                className="absolute -left-12 top-2 w-8 h-8 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-400 hover:text-[#03c75a] flex items-center justify-center transition-all shadow-2xs hover:scale-105"
-                title="템플릿 설정 서랍 열기"
-              >
-                <Plus className="size-4" />
-              </button>
+              <div className="w-full h-px bg-[#e5e7eb] mt-5" />
             </div>
 
             {/* ── 캔버스 본문 영역 (생성된 글 OR 템플릿 가이드 스켈레톤) ── */}
@@ -917,7 +917,7 @@ export function NaverSmartEditorStudio({
                - 이미지 1의 모든 설정(15종 스킬, 오디언스, 키워드 등) 포함
         ═════════════════════════════════════════════════════════════════════ */}
         {isTemplateDrawerOpen && (
-          <aside className="w-[380px] lg:w-[420px] bg-white border-l border-[#e5e7eb] flex flex-col h-full shrink-0 shadow-lg z-20 animate-in slide-in-from-right duration-200">
+          <aside className="w-[340px] sm:w-[360px] lg:w-[380px] bg-white border-l border-[#e5e7eb] flex flex-col h-full shrink-0 shadow-lg z-20 animate-in slide-in-from-right duration-200">
             {/* 서랍 헤더 */}
             <div className="h-12 border-b border-slate-200 px-4 flex items-center justify-between bg-slate-50 shrink-0">
               <div className="flex items-center gap-2">
