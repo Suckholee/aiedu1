@@ -53,10 +53,8 @@ export async function POST(req: NextRequest) {
       images.map(async (img: any, idx: number) => {
         const hasDetailedAnalysis =
           img.description &&
-          img.description.length > 25 &&
-          !img.description.includes('촬영 사진') &&
+          img.description.length >= 10 &&
           !img.description.includes('실습 사진') &&
-          !img.description.includes('원투원 양식지') &&
           img.description !== img.name;
 
         if (hasDetailedAnalysis) {

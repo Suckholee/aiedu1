@@ -142,12 +142,14 @@ export default function BlogStudioPage() {
     setIsGenerating(true);
 
     try {
-      const imagesPayload = photos.map((p) => ({
+      // 🌟 4.5MB Vercel 페이로드 한도 초과(413 에러) 완벽 방지:
+      // 대용량 Base64 data:image/는 서버로 보내지 않고 경량 토큰([LOCAL_PHOTO_N])을 전송합니다.
+      const imagesPayload = photos.map((p, idx) => ({
         id: p.id,
-        name: p.name,
-        url: p.url,
-        description: p.description,
-        caption: p.caption,
+        name: p.name || `사진 ${idx + 1}`,
+        url: p.url?.startsWith('http') ? p.url : `[LOCAL_PHOTO_${idx}]`,
+        description: p.description || p.caption || `${topic.trim()} 관련 사진`,
+        caption: p.caption || p.description || `${topic.trim()} 사진`,
       }));
 
       // 연결 끊김 방지: 최대 90초 타임아웃 및 일시 끊김 시 1회 자동 재시도
@@ -167,7 +169,7 @@ export default function BlogStudioPage() {
       const doFetch = async (retryCount = 0): Promise<any> => {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 90000); // 90초 타임아웃 제한 해제
+          const timeoutId = setTimeout(() => controller.abort(), 90000);
 
           const res = await fetch('/api/blog-auto/writer/generate', {
             method: 'POST',
@@ -177,9 +179,19 @@ export default function BlogStudioPage() {
           });
           clearTimeout(timeoutId);
 
-          const data = await res.json().catch(() => ({}));
+          let data: any = {};
+          try {
+            data = await res.json();
+          } catch {
+            const rawText = await res.text().catch(() => '');
+            if (res.status === 413 || rawText.includes('Payload Too Large')) {
+              throw new Error('전송 데이터 크기가 서버 한도를 초과했습니다.');
+            }
+            throw new Error(`서버 응답 오류 (${res.status}): ${rawText.slice(0, 100)}`);
+          }
+
           if (!res.ok || !data.success) {
-            throw new Error(data.error || '블로그 글 생성에 실패했습니다.');
+            throw new Error(data.error || `블로그 글 생성 실패 (${res.status})`);
           }
           return data;
         } catch (fetchErr: any) {
@@ -195,8 +207,17 @@ export default function BlogStudioPage() {
 
       const data = await doFetch();
 
+      // 🌟 [LOCAL_PHOTO_N] 토큰을 클라이언트 로컬 고화질 이미지 URL로 캔버스 렌더링용 복원
+      let clientHtml = data.post.htmlContent || '';
+      photos.forEach((p, idx) => {
+        if (p.url) {
+          clientHtml = clientHtml.replaceAll(`[LOCAL_PHOTO_${idx}]`, p.url);
+        }
+      });
+
       const postWithImages = {
         ...data.post,
+        htmlContent: clientHtml,
         images: photos.map((p, idx) => ({
           url: p.url,
           name: p.name || `사진 ${idx + 1}`,
