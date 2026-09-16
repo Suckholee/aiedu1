@@ -321,6 +321,7 @@ export default function BlogStudioPage() {
         onGenerate={handleGenerate}
         photos={photos}
         photosCount={photos.length}
+        onPhotosChange={setPhotos}
         onOpenAutoPilot={() => setAutoPilotOpen(true)}
         onOpenHistory={() => setHistoryOpen(true)}
         currentProfile={currentProfile}

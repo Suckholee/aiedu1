@@ -18,6 +18,7 @@ export interface BniAttendee {
   targetReferral: string; // 이상적인 추천 고객 (소개 희망 리퍼럴)
   partnerStrength: string; // 차별화된 핵심 강점 & USP
   sheetSummary: string; // 121 사전 양식지 메모 요약
+  sheetImages?: string[]; // 양식지에서 추출된 이미지 (페이지별 캡처/문서 내 사진)
   preferredPlace?: string; // 선호 미팅 장소
   phone?: string;
   email?: string;

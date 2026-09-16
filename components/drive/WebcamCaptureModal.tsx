@@ -187,8 +187,8 @@ export function WebcamCaptureModal({
             name: fileName,
             url: capturedImage,
             category,
-            caption: `${category} 관련 웹카메라 촬영 실습 사진입니다.`,
-            keywords: [category, '웹캠촬영', '실습사진'],
+            caption: `${category} 현장 촬영 사진`,
+            keywords: [category, '현장촬영'],
           },
         ],
         isPublic

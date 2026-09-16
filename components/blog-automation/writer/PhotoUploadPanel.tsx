@@ -243,7 +243,13 @@ export function PhotoUploadPanel({
 
   const autoAnalyzeNewPhotos = async (currentPhotos: UploadedPhoto[]) => {
     const unanalyzed = currentPhotos.filter(
-      (p) => !p.description && !p.analyzing && !isAnalyzingRef.current.has(p.id)
+      (p) =>
+        (!p.description ||
+          p.description.includes('실습 사진') ||
+          p.description.includes('현장 촬영') ||
+          p.description.length < 20) &&
+        !p.analyzing &&
+        !isAnalyzingRef.current.has(p.id)
     );
     if (unanalyzed.length === 0) return;
 
@@ -256,6 +262,25 @@ export function PhotoUploadPanel({
       }
     }
   };
+
+  // 🌟 외부/모달(양식지 추출, 웹캠, 드라이브 등)에서 새로운 사진이 유입될 때 미분석 사진 자동 Vision 분석 실행
+  useEffect(() => {
+    const unanalyzed = photos.filter(
+      (p) =>
+        (!p.description ||
+          p.description.includes('실습 사진') ||
+          p.description.includes('현장 촬영') ||
+          p.description.length < 20) &&
+        !p.analyzing &&
+        !isAnalyzingRef.current.has(p.id)
+    );
+    if (unanalyzed.length > 0) {
+      const timer = setTimeout(() => {
+        autoAnalyzeNewPhotos(unanalyzed);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [photos.length]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -1155,7 +1180,11 @@ export function PhotoUploadPanel({
         open={driveModalOpen}
         onOpenChange={setDriveModalOpen}
         onSelectPhotos={(selectedFromDrive) => {
-          updatePhotos((prev) => [...prev, ...selectedFromDrive]);
+          updatePhotos((prev) => {
+            const next = [...prev, ...selectedFromDrive];
+            setTimeout(() => autoAnalyzeNewPhotos(selectedFromDrive), 150);
+            return next;
+          });
         }}
         currentlySelectedCount={photos.length}
       />
@@ -1165,18 +1194,20 @@ export function PhotoUploadPanel({
         open={webcamModalOpen}
         onOpenChange={setWebcamModalOpen}
         onPhotoSaved={(savedItem) => {
-          updatePhotos((prev) => [
-            ...prev,
-            {
-              id: savedItem.id,
-              name: savedItem.name,
-              url: savedItem.url,
-              caption: savedItem.caption,
-              keywords: savedItem.keywords,
-              analyzing: false,
-            },
-          ]);
-          toast.success('웹카메라 촬영 사진이 블로그에 즉시 추가되었습니다!');
+          const newPhotoId = savedItem.id || `photo_webcam_${Date.now()}`;
+          const newPhoto: UploadedPhoto = {
+            id: newPhotoId,
+            name: savedItem.name,
+            url: savedItem.url,
+            caption: '',
+            keywords: savedItem.keywords || [],
+            analyzing: true,
+          };
+          updatePhotos((prev) => [...prev, newPhoto]);
+          toast.success('📷 촬영 사진이 추가되었습니다. AI Vision으로 피사체와 분위기를 분석합니다!');
+          setTimeout(() => {
+            handleAnalyzePhoto(newPhotoId, false);
+          }, 150);
         }}
       />
     </aside>

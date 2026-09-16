@@ -26,6 +26,9 @@ import {
   X,
   File,
   FileSpreadsheet,
+  ImageIcon,
+  Maximize2,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -104,6 +107,7 @@ interface AttendeeManageModalProps {
   userId?: string;
   onSaved: (attendee: BniAttendee) => void;
   onDeleted?: (attendeeId: string) => void;
+  onAddPhotos?: (photos: { name: string; url: string; caption?: string }[]) => void;
 }
 
 export function AttendeeManageModal({
@@ -113,6 +117,7 @@ export function AttendeeManageModal({
   userId,
   onSaved,
   onDeleted,
+  onAddPhotos,
 }: AttendeeManageModalProps) {
   // 기본 입력 정보
   const [name, setName] = useState('');
@@ -123,6 +128,10 @@ export function AttendeeManageModal({
   const [partnerStrength, setPartnerStrength] = useState('');
   const [sheetSummary, setSheetSummary] = useState('');
   const [preferredPlace, setPreferredPlace] = useState('');
+
+  // 📷 양식지 추출 이미지 및 미리보기 라이트박스 상태
+  const [extractedImages, setExtractedImages] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // 양식지 입력 방식: 'file' (사진/PDF 파일 업로드) | 'text' (카톡/텍스트 붙여넣기)
   const [uploadMode, setUploadMode] = useState<'file' | 'text'>('file');
@@ -151,6 +160,8 @@ export function AttendeeManageModal({
       setPartnerStrength(attendee.partnerStrength || '');
       setSheetSummary(attendee.sheetSummary || '');
       setPreferredPlace(attendee.preferredPlace || '');
+      setExtractedImages(attendee.sheetImages || []);
+      setPreviewImage(null);
       setRawSheetText('');
       setUploadedFile(null);
       setIsParsedSuccess(false);
@@ -163,6 +174,8 @@ export function AttendeeManageModal({
       setPartnerStrength('');
       setSheetSummary('');
       setPreferredPlace('');
+      setExtractedImages([]);
+      setPreviewImage(null);
       setRawSheetText('');
       setUploadedFile(null);
       setIsParsedSuccess(false);
@@ -290,6 +303,14 @@ export function AttendeeManageModal({
       try {
         const compressedBase64 = await compressImage(file);
         setUploadedFile((prev) => (prev ? { ...prev, base64: compressedBase64 } : null));
+        setExtractedImages([compressedBase64]);
+        onAddPhotos?.([
+          {
+            name: file.name,
+            url: compressedBase64,
+            caption: `${name.trim() || '파트너'} 원투원 양식지`,
+          },
+        ]);
         executeParse({
           fileBase64: compressedBase64,
           mimeType: 'image/jpeg',
@@ -311,6 +332,41 @@ export function AttendeeManageModal({
         const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
 
+        // 🌟 1. PDF의 모든 페이지를 이미지(JPEG DataURL)로 일괄 추출 (모달 갤러리 및 좌측 블로그 사진 패널 등록)
+        const renderedImages: string[] = [];
+        const maxImgPages = Math.min(pdf.numPages, 6);
+        for (let p = 1; p <= maxImgPages; p++) {
+          try {
+            const page = await pdf.getPage(p);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              await page.render({ canvasContext: ctx, viewport }).promise;
+              renderedImages.push(canvas.toDataURL('image/jpeg', 0.85));
+            }
+          } catch (pErr) {
+            console.warn(`PDF ${p}페이지 이미지 렌더링 실패:`, pErr);
+          }
+        }
+
+        if (renderedImages.length > 0) {
+          setExtractedImages(renderedImages);
+          onAddPhotos?.(
+            renderedImages.map((imgUrl, idx) => ({
+              name: `${file.name.replace(/\.pdf$/i, '')}_p${idx + 1}.jpg`,
+              url: imgUrl,
+              caption: `${name.trim() || '파트너'} 원투원 양식지 (${idx + 1}p)`,
+            }))
+          );
+          toast.success(
+            `📄 PDF에서 ${renderedImages.length}장의 페이지 이미지를 추출하여 블로그 사진 목록에 등록했습니다.`
+          );
+        }
+
+        // 🌟 2. 텍스트 추출 및 AI 파싱
         let fullText = '';
         const maxPages = Math.min(pdf.numPages, 10);
 
@@ -331,25 +387,14 @@ export function AttendeeManageModal({
           return;
         }
 
-        // 텍스트가 없는 스캔형 이미지 PDF인 경우 -> 1~2페이지를 캔버스로 렌더링하여 경량 이미지로 전송
-        if (pdf.numPages > 0) {
-          const firstPage = await pdf.getPage(1);
-          const viewport = firstPage.getViewport({ scale: 1.5 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            await firstPage.render({ canvasContext: ctx, viewport }).promise;
-            const pageImage = canvas.toDataURL('image/jpeg', 0.85);
-            setUploadedFile((prev) => (prev ? { ...prev, base64: pageImage } : null));
-            executeParse({
-              fileBase64: pageImage,
-              mimeType: 'image/jpeg',
-              fileName: file.name,
-            });
-            return;
-          }
+        // 텍스트가 없는 스캔형 이미지 PDF인 경우 -> 추출된 1페이지 이미지로 파싱 전송
+        if (renderedImages.length > 0) {
+          executeParse({
+            fileBase64: renderedImages[0],
+            mimeType: 'image/jpeg',
+            fileName: file.name,
+          });
+          return;
         }
 
         // 폴백 (3MB 이하인 경우 직접 Base64 전송)
@@ -380,6 +425,7 @@ export function AttendeeManageModal({
           );
         }
       }
+      return;
     }
   };
 
@@ -431,6 +477,7 @@ export function AttendeeManageModal({
         partnerStrength: partnerStrength.trim(),
         sheetSummary: sheetSummary.trim(),
         preferredPlace: preferredPlace.trim(),
+        sheetImages: extractedImages.length > 0 ? extractedImages : (attendee?.sheetImages || []),
         createdAt: attendee?.createdAt || Date.now(),
         updatedAt: Date.now(),
       };
@@ -462,7 +509,11 @@ export function AttendeeManageModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-auto bg-white p-5 sm:p-6 rounded-3xl border-slate-200 shadow-2xl">
+      <DialogContent
+        className={`max-h-[92vh] overflow-y-auto bg-white p-5 sm:p-6 rounded-3xl border-slate-200 shadow-2xl transition-all duration-200 ${
+          extractedImages.length > 0 ? 'max-w-5xl w-[95vw]' : 'sm:max-w-xl'
+        }`}
+      >
         <DialogHeader className="pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
@@ -479,8 +530,15 @@ export function AttendeeManageModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSave} className="space-y-4 pt-2">
-          {/* 🌟 1. 참석자 성함 & 121 양식지 업로드 (핵심 2단계 입력) */}
+        <div
+          className={`grid gap-6 ${
+            extractedImages.length > 0 ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'
+          }`}
+        >
+          {/* 좌측: 파트너 정보 입력 폼 */}
+          <div className={extractedImages.length > 0 ? 'lg:col-span-7' : ''}>
+            <form onSubmit={handleSave} className="space-y-4 pt-2">
+              {/* 🌟 1. 참석자 성함 & 121 양식지 업로드 (핵심 2단계 입력) */}
           <div className="rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30 p-4 space-y-3.5 shadow-xs">
             {/* 1단계: 대표님 성함 */}
             <div className="space-y-1">
@@ -822,7 +880,108 @@ export function AttendeeManageModal({
             </div>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
-  );
+      </div>
+
+      {/* 우측: 추출된 양식지 이미지 갤러리 */}
+      {extractedImages.length > 0 && (
+        <div className="lg:col-span-5 flex flex-col gap-3 rounded-2xl bg-gradient-to-b from-slate-50 to-indigo-50/20 p-4 border border-slate-200/80">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
+              <ImageIcon className="size-4 text-indigo-600" />
+              <span>추출된 양식지 갤러리</span>
+              <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-bold">
+                {extractedImages.length}장
+              </span>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                onAddPhotos?.(
+                  extractedImages.map((imgUrl, idx) => ({
+                    name: `${name.trim() || '양식지'}_p${idx + 1}.jpg`,
+                    url: imgUrl,
+                    caption: `${name.trim() || '파트너'} 원투원 양식지 (${idx + 1}p)`,
+                  }))
+                );
+                toast.success('📸 좌측 블로그 사진 목록에 다시 추가되었습니다.');
+              }}
+              className="h-7 text-[11px] font-bold text-indigo-700 border-indigo-200 bg-white hover:bg-indigo-50 gap-1"
+            >
+              <Plus className="size-3" />
+              블로그 사진에 추가
+            </Button>
+          </div>
+
+          <p className="text-[11px] text-slate-500 leading-snug">
+            양식지에서 추출된 페이지 이미지입니다. 블로그 좌측 사진 목록에 자동 반영되어 본문 이미지 및 비전 분석에 활용됩니다.
+          </p>
+
+          {/* 갤러리 썸네일 그리드 */}
+          <div className="grid grid-cols-2 gap-2.5 max-h-[500px] overflow-y-auto pr-1">
+            {extractedImages.map((imgUrl, idx) => (
+              <div
+                key={idx}
+                className="group relative rounded-xl overflow-hidden border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all cursor-pointer aspect-[3/4]"
+                onClick={() => setPreviewImage(imgUrl)}
+              >
+                <img
+                  src={imgUrl}
+                  alt={`양식지 ${idx + 1}페이지`}
+                  className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-slate-800 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 shadow-xs">
+                    <Maximize2 className="size-3" />
+                    확대보기
+                  </span>
+                </div>
+                <div className="absolute bottom-1.5 left-1.5 bg-black/60 backdrop-blur-xs text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                  {idx + 1}페이지
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExtractedImages((prev) => prev.filter((_, i) => i !== idx));
+                  }}
+                  className="absolute top-1.5 right-1.5 size-5 rounded-full bg-black/60 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="이 페이지 제거"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* ── 이미지 확대 라이트박스 ── */}
+    {previewImage && (
+      <div
+        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+        onClick={() => setPreviewImage(null)}
+      >
+        <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl p-2 shadow-2xl flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => setPreviewImage(null)}
+            className="absolute -top-3 -right-3 size-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg hover:bg-slate-700"
+          >
+            <X className="size-4.5" />
+          </button>
+          <img
+            src={previewImage}
+            alt="양식지 미리보기"
+            className="max-h-[85vh] max-w-full rounded-xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      </div>
+    )}
+  </DialogContent>
+</Dialog>
+);
 }

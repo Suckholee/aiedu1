@@ -89,6 +89,7 @@ export interface NaverSmartEditorStudioProps {
   // 사진 및 보조
   photos: UploadedPhoto[];
   photosCount: number;
+  onPhotosChange?: (photos: UploadedPhoto[] | ((prev: UploadedPhoto[]) => UploadedPhoto[])) => void;
   onOpenAutoPilot?: () => void;
   onOpenHistory?: () => void;
 
@@ -154,6 +155,7 @@ export function NaverSmartEditorStudio({
   onGenerate,
   photos,
   photosCount,
+  onPhotosChange,
   onOpenAutoPilot,
   onOpenHistory,
   currentProfile,
@@ -167,6 +169,27 @@ export function NaverSmartEditorStudio({
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const [viewDevice, setViewDevice] = useState<'pc' | 'mobile'>('pc');
   const [copiedFormat, setCopiedFormat] = useState<string | null>(null);
+
+  // 📷 양식지에서 추출된 사진을 좌측 패널(photos)로 자동 추가하는 핸들러 (중복 방지)
+  const handleAddPhotosFromSheet = (newPhotos: { name: string; url: string; caption?: string }[]) => {
+    if (onPhotosChange && newPhotos.length > 0) {
+      onPhotosChange((prev) => {
+        const existingUrls = new Set(prev.map((p) => p.url));
+        const filteredNew = newPhotos.filter((p) => !existingUrls.has(p.url));
+        if (filteredNew.length === 0) return prev;
+
+        const formatted: UploadedPhoto[] = filteredNew.map((p, idx) => ({
+          id: `sheet_photo_${Date.now()}_${idx}`,
+          name: p.name,
+          url: p.url,
+          caption: p.caption || '',
+          analyzing: false,
+        }));
+        return [...prev, ...formatted];
+      });
+      toast.success(`📷 양식지 이미지 ${newPhotos.length}장이 좌측 [사진 관리] 패널에 추가되었습니다!`);
+    }
+  };
 
   // ── 발행 설정 모달 상태 ──
   const [targetCategory, setTargetCategory] = useState('사주/운세');
@@ -791,8 +814,8 @@ export function NaverSmartEditorStudio({
                     <div className="text-[#03c75a] text-xl font-serif leading-none mt-2">”</div>
                   </div>
 
-                  {/* 본문 사진 (중앙 정렬) */}
-                  {photos.length > 0 && (
+                  {/* 본문 사진 (중앙 정렬) - 본문 내에 이미지가 포함되지 않은 경우에만 상단에 대표 사진 배치 */}
+                  {photos.length > 0 && !(post.htmlContent && post.htmlContent.includes('<img')) && (
                     <div className="my-6 flex flex-col items-center text-center">
                       <div className="max-w-[680px] w-full rounded-lg overflow-hidden border border-slate-200 shadow-xs bg-slate-100">
                         <img
@@ -802,7 +825,7 @@ export function NaverSmartEditorStudio({
                         />
                       </div>
                       <span className="text-xs text-slate-500 mt-2 font-medium">
-                        ▲ {photos[0].caption || photos[0].name || '사진 1'}
+                        ▲ {photos[0].caption && !photos[0].caption.includes('실습 사진') ? photos[0].caption : (photos[0].name || '현장 사진')}
                       </span>
                     </div>
                   )}
@@ -963,6 +986,7 @@ export function NaverSmartEditorStudio({
                 requiredKeywords={requiredKeywords}
                 onRequiredKeywordsChange={onRequiredKeywordsChange}
                 onTargetAudienceChange={onTargetAudienceChange}
+                onAddPhotos={handleAddPhotosFromSheet}
               />
 
               {/* ② 타겟 독자 (오디언스 칩) */}

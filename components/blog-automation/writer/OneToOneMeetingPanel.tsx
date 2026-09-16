@@ -55,6 +55,7 @@ interface OneToOneMeetingPanelProps {
   requiredKeywords: string;
   onRequiredKeywordsChange: (keywords: string) => void;
   onTargetAudienceChange?: (audience: string) => void;
+  onAddPhotos?: (photos: { name: string; url: string; caption?: string }[]) => void;
 }
 
 export function OneToOneMeetingPanel({
@@ -65,6 +66,7 @@ export function OneToOneMeetingPanel({
   requiredKeywords,
   onRequiredKeywordsChange,
   onTargetAudienceChange,
+  onAddPhotos,
 }: OneToOneMeetingPanelProps) {
   const { user } = useAuth();
 
@@ -252,6 +254,13 @@ export function OneToOneMeetingPanel({
       try {
         const compressedBase64 = await compressImage(file);
         setMyUploadedFile((prev) => (prev ? { ...prev, base64: compressedBase64 } : null));
+        onAddPhotos?.([
+          {
+            name: file.name,
+            url: compressedBase64,
+            caption: `${myProfile.name.trim() || '호스트'} 원투원 양식지`,
+          },
+        ]);
         executeParseMySheet({
           fileBase64: compressedBase64,
           mimeType: 'image/jpeg',
@@ -272,6 +281,36 @@ export function OneToOneMeetingPanel({
         const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
 
+        // 호스트 PDF 페이지 이미지 일괄 추출 (블로그 사진 패널 등록)
+        const renderedImages: string[] = [];
+        const maxImgPages = Math.min(pdf.numPages, 6);
+        for (let p = 1; p <= maxImgPages; p++) {
+          try {
+            const page = await pdf.getPage(p);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              await page.render({ canvasContext: ctx, viewport }).promise;
+              renderedImages.push(canvas.toDataURL('image/jpeg', 0.85));
+            }
+          } catch (pErr) {
+            console.warn(`호스트 PDF ${p}페이지 렌더링 실패:`, pErr);
+          }
+        }
+
+        if (renderedImages.length > 0) {
+          onAddPhotos?.(
+            renderedImages.map((imgUrl, idx) => ({
+              name: `${file.name.replace(/\.pdf$/i, '')}_host_p${idx + 1}.jpg`,
+              url: imgUrl,
+              caption: `${myProfile.name.trim() || '호스트'} 원투원 양식지 (${idx + 1}p)`,
+            }))
+          );
+        }
+
         let fullText = '';
         const maxPages = Math.min(pdf.numPages, 10);
 
@@ -291,24 +330,13 @@ export function OneToOneMeetingPanel({
           return;
         }
 
-        if (pdf.numPages > 0) {
-          const firstPage = await pdf.getPage(1);
-          const viewport = firstPage.getViewport({ scale: 1.5 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            await firstPage.render({ canvasContext: ctx, viewport }).promise;
-            const pageImage = canvas.toDataURL('image/jpeg', 0.85);
-            setMyUploadedFile((prev) => (prev ? { ...prev, base64: pageImage } : null));
-            executeParseMySheet({
-              fileBase64: pageImage,
-              mimeType: 'image/jpeg',
-              fileName: file.name,
-            });
-            return;
-          }
+        if (renderedImages.length > 0) {
+          executeParseMySheet({
+            fileBase64: renderedImages[0],
+            mimeType: 'image/jpeg',
+            fileName: file.name,
+          });
+          return;
         }
 
         if (file.size <= 3 * 1024 * 1024) {
@@ -590,6 +618,16 @@ export function OneToOneMeetingPanel({
           ? `👥 '${att.name}' 대표님이 추가되어 총 ${nextIds.length}명의 다자간 121 미팅이 구성되었습니다.`
           : `🤝 '${att.name}' 대표님이 선택되었습니다.`
       );
+      // 📷 선택된 파트너의 양식지 이미지가 있다면 블로그 사진 목록에 자동 등록
+      if (att.sheetImages && att.sheetImages.length > 0) {
+        onAddPhotos?.(
+          att.sheetImages.map((imgUrl, idx) => ({
+            name: `${att.name}_양식지_p${idx + 1}.jpg`,
+            url: imgUrl,
+            caption: `${att.name} 대표님 121 사전 양식지 (${idx + 1}p)`,
+          }))
+        );
+      }
     }
     setSelectedAttendeeIds(nextIds);
     syncAttendeesToFields(nextIds);
@@ -629,6 +667,17 @@ export function OneToOneMeetingPanel({
       : [...selectedAttendeeIds, saved.id];
     setSelectedAttendeeIds(nextIds);
     syncAttendeesToFields(nextIds, updatedList);
+
+    // 📷 저장된 파트너의 양식지 이미지도 블로그 사진 목록에 자동 등록
+    if (saved.sheetImages && saved.sheetImages.length > 0) {
+      onAddPhotos?.(
+        saved.sheetImages.map((imgUrl, idx) => ({
+          name: `${saved.name}_양식지_p${idx + 1}.jpg`,
+          url: imgUrl,
+          caption: `${saved.name} 대표님 121 사전 양식지 (${idx + 1}p)`,
+        }))
+      );
+    }
   };
 
   // 모달에서 삭제 완료 후 콜백
@@ -1449,6 +1498,7 @@ export function OneToOneMeetingPanel({
         userId={user?.uid}
         onSaved={handleAttendeeSaved}
         onDeleted={handleAttendeeDeleted}
+        onAddPhotos={onAddPhotos}
       />
     </div>
   );
