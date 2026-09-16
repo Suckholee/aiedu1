@@ -7,6 +7,9 @@ const apiKey =
   process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
   '';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     if (!apiKey) {
@@ -26,13 +29,6 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.2,
-      },
-    });
 
     const prompt = `당신은 BNI 비즈니스 네트워킹 전문 분석 비서입니다.
 아래 제공된 텍스트는 BNI 121 미팅(원투원) 참석자(상대방 대표님)의 양식지, 프로필 소개글, 카카오톡 메시지 또는 메모입니다.
@@ -53,9 +49,34 @@ export async function POST(req: NextRequest) {
 ${sheetText.trim()}
 `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    const parsed = JSON.parse(responseText);
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    let lastError: any = null;
+    let parsed: any = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.2,
+          },
+        });
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        parsed = JSON.parse(responseText);
+        if (parsed) break;
+      } catch (err: any) {
+        console.warn(`Attempt with ${modelName} failed, trying fallback:`, err.message);
+        lastError = err;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
+    if (!parsed) {
+      throw lastError || new Error('모든 모델에서 양식지 분석에 실패했습니다.');
+    }
 
     return NextResponse.json({
       success: true,

@@ -7,6 +7,9 @@ const apiKey =
   process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
   '';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function POST(req: NextRequest) {

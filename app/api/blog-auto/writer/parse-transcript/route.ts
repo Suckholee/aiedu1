@@ -7,6 +7,9 @@ const apiKey =
   process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
   '';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     if (!apiKey) {
@@ -26,13 +29,6 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.3,
-      },
-    });
 
     const prompt = `당신은 BNI 비즈니스 네트워킹 및 1:1 원투원 미팅 전문 분석 AI 작가입니다.
 아래 제공된 텍스트는 ${partnerName ? `${partnerName} 대표님과의 ` : ''}1:1 원투원(121) 미팅 중 스마트폰/클로바노트/비토 등으로 녹음한 후 변환된 실제 대화 텍스트(전사 스크립트)입니다.
@@ -52,9 +48,35 @@ export async function POST(req: NextRequest) {
 ${transcript.trim()}
 `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    const parsed = JSON.parse(responseText);
+    // 일시적 네트워크 끊김이나 쿼터 제한을 극복하기 위한 다단계 재시도 & 모델 폴백
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    let lastError: any = null;
+    let parsed: any = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.3,
+          },
+        });
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        parsed = JSON.parse(responseText);
+        if (parsed) break; // 성공 시 루프 탈출
+      } catch (err: any) {
+        console.warn(`Attempt with ${modelName} failed, trying fallback:`, err.message);
+        lastError = err;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
+    if (!parsed) {
+      throw lastError || new Error('모든 모델에서 대화 분석에 실패했습니다.');
+    }
 
     return NextResponse.json({
       success: true,

@@ -2,9 +2,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { generateHeroBanner, generateChart, generateMindMap, generateFlowChart, generateSummaryCard, generateBarChart, type ChartData } from './svg-generator';
 import { getSkillById, buildSkillPrompt, type BlogSkillId, type MarketingOptions } from './blog-skills';
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY || ''
-);
+function getGenAIClient() {
+  const apiKey =
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    '';
+  return new GoogleGenerativeAI(apiKey);
+}
 
 export interface GeneratedContent {
   title: string;
@@ -119,21 +124,57 @@ ${ragFileUris?.length ? `${imageUrls?.length ? '10' : '9'}. 업로드된 문서 
 
   parts.push({ text: prompt });
 
-  const model = genAI.getGenerativeModel({
-    model: process.env.GOOGLE_API_MODEL || 'gemini-3-flash-preview',
-    generationConfig: {
-      temperature: 0.8,
-      maxOutputTokens: 8192,
-    },
-  });
+  const genAI = getGenAIClient();
+  const configuredModel = process.env.GOOGLE_API_MODEL || 'gemini-2.0-flash';
+  const candidateModels = [
+    configuredModel,
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+  ].filter((v, i, a) => a.indexOf(v) === i);
 
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts }],
-    tools: [{ googleSearch: {} } as any],
-  });
+  let response: any = null;
+  let text = '';
+  let lastError: any = null;
 
-  const response = result.response;
-  const text = response.text();
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8192,
+        },
+      });
+
+      // 1. Google Search 포함 시도
+      try {
+        const result = await model.generateContent({
+          contents: [{ role: 'user', parts }],
+          tools: [{ googleSearch: {} } as any],
+        });
+        response = result.response;
+        text = response.text();
+        if (text) break;
+      } catch (groundingError: any) {
+        console.warn(`[ContentGenerator] Search grounding failed with ${modelName}, retrying without search tool:`, groundingError.message);
+        // 2. 검색 그라운딩 실패 시 지체 없이 순수 모델 호출로 즉각 폴백
+        const directResult = await model.generateContent({
+          contents: [{ role: 'user', parts }],
+        });
+        response = directResult.response;
+        text = response.text();
+        if (text) break;
+      }
+    } catch (err: any) {
+      console.warn(`[ContentGenerator] Model ${modelName} attempt failed:`, err.message);
+      lastError = err;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+
+  if (!text || !response) {
+    throw lastError || new Error('블로그 글 생성 중 AI 연결이 지연되었습니다. 다시 시도해 주세요.');
+  }
 
   // Parse JSON response safely with trailing comma and loose quote resilience
   let post = safeParseJson(text);

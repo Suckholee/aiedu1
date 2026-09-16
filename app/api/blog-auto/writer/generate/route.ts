@@ -3,6 +3,10 @@ import { generateBlogContent } from '@/lib/blog-automation/content-generator';
 import { getSkillById, type BlogSkillId } from '@/lib/blog-automation/blog-skills';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Vercel Serverless Function 타임아웃 제한 해제 (최대 60초)
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 // 전역 최신 글 캐시 (크롬 확장 프로그램용)
 const globalForLatest = globalThis as unknown as { _latestBlogAutoPost?: any };
 

@@ -150,27 +150,50 @@ export default function BlogStudioPage() {
         caption: p.caption,
       }));
 
-      const res = await fetch('/api/blog-auto/writer/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          topic: topic.trim(),
-          skillId,
-          platform,
-          targetAudience: targetAudience.trim() || undefined,
-          copyFormula,
-          tone,
-          requiredKeywords: requiredKeywords.trim() || undefined,
-          customFields,
-          customInstructions: customInstructions.trim() || undefined,
-          images: imagesPayload,
-        }),
-      });
+      // 연결 끊김 방지: 최대 90초 타임아웃 및 일시 끊김 시 1회 자동 재시도
+      const requestPayload = {
+        topic: topic.trim(),
+        skillId,
+        platform,
+        targetAudience: targetAudience.trim() || undefined,
+        copyFormula,
+        tone,
+        requiredKeywords: requiredKeywords.trim() || undefined,
+        customFields,
+        customInstructions: customInstructions.trim() || undefined,
+        images: imagesPayload,
+      };
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || '블로그 글 생성에 실패했습니다.');
-      }
+      const doFetch = async (retryCount = 0): Promise<any> => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 90000); // 90초 타임아웃 제한 해제
+
+          const res = await fetch('/api/blog-auto/writer/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestPayload),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || '블로그 글 생성에 실패했습니다.');
+          }
+          return data;
+        } catch (fetchErr: any) {
+          if (retryCount < 1) {
+            console.warn('API connection interrupted, retrying once...', fetchErr);
+            toast.info('⚡ 네트워크 연결을 재시도하고 있습니다...');
+            await new Promise((r) => setTimeout(r, 1500));
+            return doFetch(retryCount + 1);
+          }
+          throw fetchErr;
+        }
+      };
+
+      const data = await doFetch();
 
       const postWithImages = {
         ...data.post,
