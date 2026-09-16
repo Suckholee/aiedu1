@@ -433,33 +433,33 @@ export function NaverSmartEditorStudio({
   return (
     <div className="flex-1 bg-[#f4f4f4] flex flex-col h-full overflow-hidden select-none font-sans relative">
       {/* ═════════════════════════════════════════════════════════════════════
-          1. 최상단 네이버 블로그 헤더 (이미지 2 상단 N blog + 저장 + 발행)
+          1. 최상단 네이버 블로그 헤더 (N blog + 저장 + 발행)
       ═════════════════════════════════════════════════════════════════════ */}
-      <header className="h-[52px] bg-white border-b border-[#e5e7eb] px-5 flex items-center justify-between shrink-0 z-30 shadow-2xs">
+      <header className="h-[52px] bg-white border-b border-[#e5e7eb] px-3 sm:px-5 flex items-center justify-between shrink-0 z-30 shadow-2xs gap-2 overflow-x-auto no-scrollbar">
         {/* 좌측: N blog 공식 로고 & 워크스페이스/프로필 스위처 */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 cursor-pointer select-none" onClick={onGoToDrive}>
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink">
+          <div className="flex items-center gap-1.5 cursor-pointer select-none shrink-0 whitespace-nowrap" onClick={onGoToDrive}>
             <div className="w-6 h-6 rounded bg-[#03c75a] flex items-center justify-center text-white font-black text-xs shadow-xs tracking-tighter">
               N
             </div>
             <span className="font-extrabold text-[#191919] text-base tracking-tight">blog</span>
-            <span className="ml-1 text-[11px] font-bold text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded bg-slate-50">
+            <span className="ml-1 text-[11px] font-bold text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded bg-slate-50 whitespace-nowrap">
               AI 스튜디오
             </span>
           </div>
 
-          <div className="h-4 w-px bg-slate-200 mx-1" />
+          <div className="h-4 w-px bg-slate-200 mx-0.5 shrink-0" />
 
           {/* 프로필 선택기 */}
           {allProfiles && allProfiles.length > 0 ? (
-            <div className="relative group">
+            <div className="relative group shrink min-w-0">
               <select
                 value={currentProfile?.id || ''}
                 onChange={(e) => {
                   const p = allProfiles.find((x) => x.id === e.target.value);
                   if (p && onSwitchProfile) onSwitchProfile(p);
                 }}
-                className="h-7 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md px-2 pr-6 appearance-none cursor-pointer focus:outline-hidden"
+                className="h-7 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md px-2 pr-6 appearance-none cursor-pointer focus:outline-hidden max-w-[180px] sm:max-w-[240px] truncate"
               >
                 {allProfiles.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -470,7 +470,7 @@ export function NaverSmartEditorStudio({
               <ChevronDown className="size-3 text-slate-400 absolute right-1.5 top-2 pointer-events-none" />
             </div>
           ) : (
-            <span className="text-xs font-medium text-slate-600 flex items-center gap-1">
+            <span className="text-xs font-medium text-slate-600 flex items-center gap-1 shrink-0 whitespace-nowrap">
               <span>🥐 사주블로그</span>
               <span className="text-slate-400">(담당: 이석호)</span>
             </span>
@@ -480,7 +480,7 @@ export function NaverSmartEditorStudio({
             <button
               type="button"
               onClick={onGoToDrive}
-              className="text-xs text-slate-500 hover:text-blue-600 flex items-center gap-1 transition-colors ml-1 font-medium"
+              className="text-xs text-slate-500 hover:text-blue-600 flex items-center gap-1 transition-colors ml-1 font-medium shrink-0 whitespace-nowrap"
               title="드라이브 허브로 이동"
             >
               <span>📂</span>
@@ -490,7 +490,7 @@ export function NaverSmartEditorStudio({
         </div>
 
         {/* 우측: AI 글 생성 버튼, 오토파일럿, 저장 카운터, 녹색 [발행 ▾] 버튼 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap">
           {/* AI 생성 버튼 */}
           <Button
             type="button"
@@ -498,7 +498,7 @@ export function NaverSmartEditorStudio({
             size="sm"
             disabled={isGenerating || !topic.trim()}
             onClick={onGenerate}
-            className="h-8 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all active:scale-95"
+            className="h-8 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all active:scale-95 shrink-0 whitespace-nowrap"
           >
             {isGenerating ? (
               <>
@@ -517,7 +517,7 @@ export function NaverSmartEditorStudio({
             <button
               type="button"
               onClick={onOpenAutoPilot}
-              className="h-8 px-2.5 rounded-md border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-xs font-bold text-purple-700 flex items-center gap-1 transition-all"
+              className="h-8 px-2.5 rounded-md border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-xs font-bold text-purple-700 flex items-center gap-1 transition-all shrink-0 whitespace-nowrap"
               title="오토파일럿 대량 자동 생성"
             >
               <Zap className="size-3 text-purple-600" />
@@ -530,7 +530,7 @@ export function NaverSmartEditorStudio({
             type="button"
             disabled={isSyncing}
             onClick={() => syncPostToExtensionAndServer(false)}
-            className="h-8 px-2.5 rounded-md border border-amber-200 bg-amber-50 hover:bg-amber-100 text-xs font-bold text-amber-800 flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs"
+            className="h-8 px-2.5 rounded-md border border-amber-200 bg-amber-50 hover:bg-amber-100 text-xs font-bold text-amber-800 flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs shrink-0 whitespace-nowrap"
             title="크롬 확장 프로그램과 서버로 현재 글을 즉시 동기화합니다"
           >
             <RefreshCw className={`size-3 text-amber-600 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -544,7 +544,7 @@ export function NaverSmartEditorStudio({
               if (onOpenHistory) onOpenHistory();
               else toast.success('💾 현재 작성 중인 글이 브라우저에 임시저장되었습니다.');
             }}
-            className="h-8 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-all shadow-2xs"
+            className="h-8 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-all shadow-2xs shrink-0 whitespace-nowrap"
             title="임시저장 및 보관함"
           >
             <span>저장</span>
@@ -557,7 +557,7 @@ export function NaverSmartEditorStudio({
             variant="default"
             size="sm"
             onClick={() => setPublishModalOpen(true)}
-            className="h-8 px-4 bg-[#03c75a] hover:bg-[#02b350] text-white font-black text-xs shadow-xs flex items-center gap-1.5 transition-all active:scale-95"
+            className="h-8 px-4 bg-[#03c75a] hover:bg-[#02b350] text-white font-black text-xs shadow-xs flex items-center gap-1.5 transition-all active:scale-95 shrink-0 whitespace-nowrap"
             title="네이버 블로그 발행 설정 및 Playwright 자동 작성 시작"
           >
             <span
@@ -574,14 +574,14 @@ export function NaverSmartEditorStudio({
       {/* ═════════════════════════════════════════════════════════════════════
           2. 스마트에디터 ONE 2단 툴바 (이미지 2 툴바 100% 반영)
       ═════════════════════════════════════════════════════════════════════ */}
-      <div className="bg-white border-b border-[#e5e7eb] px-5 py-1.5 shrink-0 select-none shadow-2xs z-20 space-y-1">
+      <div className="bg-white border-b border-[#e5e7eb] px-3 sm:px-5 py-1.5 shrink-0 select-none shadow-2xs z-20 space-y-1 overflow-x-auto no-scrollbar">
         {/* 툴바 1행: 사진, MYBOX, 동영상, 스티커, 인용구, 구분선, 링크, 파일, 일정, 표, 장소 | 내 글감, 라이브러리, [템플릿] */}
-        <div className="flex items-center justify-between text-xs text-slate-600">
-          <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center justify-between text-xs text-slate-600 gap-3 min-w-max">
+          <div className="flex items-center gap-3.5 py-0.5 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => toast.info('좌측 [사진 관리] 패널에서 사진을 업로드하거나 AI 생성할 수 있습니다.')}
-              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors"
+              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors shrink-0 whitespace-nowrap break-keep"
             >
               <Camera className="size-3.5 text-slate-500" />
               <span>사진</span>
@@ -591,13 +591,13 @@ export function NaverSmartEditorStudio({
                 </span>
               )}
             </button>
-            <span className="hover:text-[#03c75a] cursor-pointer">MYBOX</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">동영상</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">스티커</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">MYBOX</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">동영상</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">스티커</span>
             <button
               type="button"
               onClick={() => toast.info('네이버 공식 인용구 서식(따옴표, 말풍선, 버티컬 바)이 본문에 자동 적용됩니다.')}
-              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors"
+              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors shrink-0 whitespace-nowrap break-keep"
             >
               <Quote className="size-3.5 text-slate-500" />
               <span>인용구</span>
@@ -605,40 +605,40 @@ export function NaverSmartEditorStudio({
             <button
               type="button"
               onClick={() => toast.info('문단 사이마다 네이버 표준 구분선이 자동 삽입됩니다.')}
-              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors"
+              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors shrink-0 whitespace-nowrap break-keep"
             >
               <Minus className="size-3.5 text-slate-500" />
               <span>구분선</span>
             </button>
-            <span className="hover:text-[#03c75a] cursor-pointer">링크</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">파일</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">일정</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">소스코드</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">링크</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">파일</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">일정</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">소스코드</span>
             <button
               type="button"
-              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors"
+              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors shrink-0 whitespace-nowrap break-keep"
             >
               <Table className="size-3.5 text-slate-500" />
               <span>표</span>
             </button>
-            <span className="hover:text-[#03c75a] cursor-pointer">수식</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">수식</span>
             <button
               type="button"
-              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors"
+              className="flex items-center gap-1 hover:text-[#03c75a] font-medium transition-colors shrink-0 whitespace-nowrap break-keep"
             >
               <MapPin className="size-3.5 text-slate-500" />
               <span>장소</span>
             </button>
-            <span className="hover:text-[#03c75a] cursor-pointer">내돈내산</span>
-            <span className="hover:text-[#03c75a] cursor-pointer">글감</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">내돈내산</span>
+            <span className="hover:text-[#03c75a] cursor-pointer shrink-0 whitespace-nowrap break-keep">글감</span>
           </div>
 
           {/* 우측 도구: 내 글감, 라이브러리, [템플릿] 서랍 토글 */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="hover:text-[#03c75a] cursor-pointer text-[11px] text-slate-500 hidden md:inline">
+          <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+            <span className="hover:text-[#03c75a] cursor-pointer text-[11px] text-slate-500 hidden md:inline shrink-0 whitespace-nowrap break-keep">
               내 글감
             </span>
-            <span className="hover:text-[#03c75a] cursor-pointer text-[11px] text-slate-500 hidden md:inline">
+            <span className="hover:text-[#03c75a] cursor-pointer text-[11px] text-slate-500 hidden md:inline shrink-0 whitespace-nowrap break-keep">
               라이브러리
             </span>
 
@@ -646,36 +646,36 @@ export function NaverSmartEditorStudio({
             <button
               type="button"
               onClick={() => setTemplateDrawerOpen(!isTemplateDrawerOpen)}
-              className={`flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-1 rounded-md border transition-all ${
+              className={`flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-1 rounded-md border transition-all shrink-0 whitespace-nowrap ${
                 isTemplateDrawerOpen
                   ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
                   : 'bg-white text-slate-700 border-slate-200 hover:border-purple-300 hover:text-purple-600'
               }`}
               title="네이버 템플릿 설정 서랍을 열고 닫습니다"
             >
-              <LayoutTemplate className="size-3.5" />
-              <span>템플릿 ({currentSkill?.name || '15종'})</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <LayoutTemplate className="size-3.5 shrink-0" />
+              <span>템플릿 ({currentSkill?.id === 'one_to_one' ? '원투원' : currentSkill?.name || '5종'})</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
             </button>
           </div>
         </div>
 
         {/* 툴바 2행: 서식 컨트롤 (본문, 나눔고딕, 15, 볼드, 이탤릭, 정렬, 맞춤법) */}
-        <div className="flex items-center justify-between border-t border-slate-100 pt-1 text-[11px] text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700">본문 ▾</span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700">나눔고딕 ▾</span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700">15 ▾</span>
-            <div className="h-3 w-px bg-slate-200" />
-            <span className="font-bold text-slate-800 cursor-pointer">B</span>
-            <span className="italic text-slate-600 cursor-pointer">I</span>
-            <span className="underline text-slate-600 cursor-pointer">U</span>
-            <span className="line-through text-slate-600 cursor-pointer">T</span>
-            <div className="h-3 w-px bg-slate-200" />
-            <span className="text-[#03c75a] font-bold flex items-center gap-1 cursor-pointer">
+        <div className="flex items-center justify-between border-t border-slate-100 pt-1 text-[11px] text-slate-500 gap-2 min-w-max">
+          <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700 shrink-0 whitespace-nowrap">본문 ▾</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700 shrink-0 whitespace-nowrap">나눔고딕 ▾</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 font-medium text-slate-700 shrink-0 whitespace-nowrap">15 ▾</span>
+            <div className="h-3 w-px bg-slate-200 shrink-0" />
+            <span className="font-bold text-slate-800 cursor-pointer px-1 shrink-0">B</span>
+            <span className="italic text-slate-600 cursor-pointer px-1 shrink-0">I</span>
+            <span className="underline text-slate-600 cursor-pointer px-1 shrink-0">U</span>
+            <span className="line-through text-slate-600 cursor-pointer px-1 shrink-0">T</span>
+            <div className="h-3 w-px bg-slate-200 shrink-0" />
+            <span className="text-[#03c75a] font-bold flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap">
               <span>가운데 정렬</span>
             </span>
-            <span className="text-slate-400 hidden lg:inline">| 줄간격 180% | 맞춤법 검사</span>
+            <span className="text-slate-400 hidden lg:inline shrink-0 whitespace-nowrap">| 줄간격 180% | 맞춤법 검사</span>
           </div>
 
           <div className="flex items-center gap-2">
