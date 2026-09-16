@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { RoutineTask, AgentRole } from '@/types/routine-calendar';
 import {
   GoogleCalendarHeader,
@@ -11,6 +11,7 @@ import { GoogleCalendarGrid } from './GoogleCalendarGrid';
 import { GoogleCalendarEventModal } from './GoogleCalendarEventModal';
 import { GoogleCalendarCreateModal } from './GoogleCalendarCreateModal';
 import { MobileApprovalDeck } from './MobileApprovalDeck';
+import { X } from 'lucide-react';
 
 interface CalendarViewProps {
   tasks: RoutineTask[];
@@ -31,8 +32,6 @@ export function CalendarView({
   selectedDate,
   onSelectDate,
   onSelectTask,
-  selectedAgentFilter,
-  onSelectAgentFilter,
   onApprove,
   onRevise,
   onBatchApprove,
@@ -45,6 +44,13 @@ export function CalendarView({
   const [searchQuery, setSearchQuery] = useState('');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [eventModalTask, setEventModalTask] = useState<RoutineTask | null>(null);
+
+  // 모바일 화면에서는 사이드바 기본 닫힘 (화면 찌그러짐 방지)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, []);
 
   // 다중 캘린더 필터 체크리스트 (기본 전체 활성화)
   const [activeTeams, setActiveTeams] = useState<Set<AgentRole | 'pending_only'>>(
@@ -137,7 +143,7 @@ export function CalendarView({
   };
 
   return (
-    <div className="relative flex flex-col h-[820px] rounded-2xl border border-[#dadce0] bg-white shadow-md overflow-hidden">
+    <div className="relative flex flex-col h-[700px] sm:h-[780px] lg:h-[820px] rounded-2xl border border-[#dadce0] bg-white shadow-md overflow-hidden whitespace-nowrap break-keep">
       {/* ── 1. Google Calendar Top Header Bar ── */}
       <GoogleCalendarHeader
         currentDate={currentDate}
@@ -154,26 +160,69 @@ export function CalendarView({
       />
 
       {/* ── 2. Google Calendar Main Workspace (Sidebar + Grid) ── */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Google Calendar Sidebar (Collapsible) */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Desktop Left Sidebar (Visible on desktop when sidebarOpen is true) */}
         {sidebarOpen && (
-          <GoogleCalendarSidebar
-            currentDate={currentDate}
-            selectedDate={selectedDate}
-            onSelectDate={handleDateSelect}
-            activeTeams={activeTeams}
-            onToggleTeam={toggleTeam}
-            onOpenCreateModal={() => setCreateModalOpen(true)}
-            pendingCount={pendingTasks.length}
-            approvedCount={approvedTasks.length}
-            savedMinutes={totalSavedMinutes}
-          />
+          <div className="hidden lg:block shrink-0 h-full border-r border-[#dadce0]">
+            <GoogleCalendarSidebar
+              currentDate={currentDate}
+              selectedDate={selectedDate}
+              onSelectDate={handleDateSelect}
+              activeTeams={activeTeams}
+              onToggleTeam={toggleTeam}
+              onOpenCreateModal={() => setCreateModalOpen(true)}
+              pendingCount={pendingTasks.length}
+              approvedCount={approvedTasks.length}
+              savedMinutes={totalSavedMinutes}
+            />
+          </div>
         )}
 
-        {/* Calendar View Body */}
+        {/* Mobile Left Drawer (Below lg: slides out as overlay with dark backdrop so it never squeezes the calendar) */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <div className="relative z-50 h-full w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col">
+              <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                <span className="text-sm font-bold text-slate-800">Google 캘린더 메뉴</span>
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(false)}
+                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 transition"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <GoogleCalendarSidebar
+                  currentDate={currentDate}
+                  selectedDate={selectedDate}
+                  onSelectDate={(d) => {
+                    handleDateSelect(d);
+                    setSidebarOpen(false);
+                  }}
+                  activeTeams={activeTeams}
+                  onToggleTeam={toggleTeam}
+                  onOpenCreateModal={() => {
+                    setCreateModalOpen(true);
+                    setSidebarOpen(false);
+                  }}
+                  pendingCount={pendingTasks.length}
+                  approvedCount={approvedTasks.length}
+                  savedMinutes={totalSavedMinutes}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Calendar View Body (Gets 100% width on mobile) */}
         <main className="flex-1 overflow-hidden relative bg-white">
           {viewType === 'deck' ? (
-            <div className="h-full overflow-y-auto p-4 sm:p-6 bg-slate-50">
+            <div className="h-full overflow-y-auto p-3 sm:p-6 bg-slate-50">
               <MobileApprovalDeck
                 tasks={filteredTasks}
                 onApprove={onApprove}

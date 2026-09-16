@@ -218,33 +218,33 @@ export default function RoutineCalendarPage() {
       </div>
 
       {/* ── 2. 뷰 모드 탭 (Google 캘린더 vs 모바일 카드 덱 vs 4대 AI팀) ── */}
-      <div className="flex items-center gap-1 sm:gap-2 border-b border-slate-200">
+      <div className="flex items-center gap-1 sm:gap-2 border-b border-slate-200 overflow-x-auto whitespace-nowrap py-0.5 scrollbar-none">
         <button
           type="button"
           onClick={() => setActiveTab('calendar')}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'calendar'
               ? 'border-[#1a73e8] text-[#1a73e8]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <CalendarIcon className="size-4" />
-          <span>📅 Google 캘린더 (AI 루틴)</span>
+          <CalendarIcon className="size-4 shrink-0" />
+          <span className="whitespace-nowrap">Google 캘린더</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('deck')}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'deck'
               ? 'border-[#1a73e8] text-[#1a73e8]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Smartphone className="size-4" />
-          <span>📱 모바일 원터치 승인 덱</span>
+          <Smartphone className="size-4 shrink-0" />
+          <span className="whitespace-nowrap">모바일 1초 승인 덱</span>
           {pendingTasks.length > 0 && (
-            <span className="rounded-full bg-amber-100 text-amber-800 px-2 py-0.2 text-[10px] font-black">
+            <span className="rounded-full bg-amber-100 text-amber-800 px-2 py-0.2 text-[10px] font-black whitespace-nowrap shrink-0">
               {pendingTasks.length}
             </span>
           )}
@@ -253,14 +253,14 @@ export default function RoutineCalendarPage() {
         <button
           type="button"
           onClick={() => setActiveTab('teams')}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'teams'
               ? 'border-[#1a73e8] text-[#1a73e8]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Users className="size-4" />
-          <span>🤖 4대 AI 직원팀 현황</span>
+          <Users className="size-4 shrink-0" />
+          <span className="whitespace-nowrap">4대 AI 직원팀 현황</span>
         </button>
       </div>
 
