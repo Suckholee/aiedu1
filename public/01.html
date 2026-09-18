@@ -20,7 +20,7 @@ body{
 
 /* ── 인증 게이트 모달 ── */
 #gate{position:fixed;inset:0;background:var(--navy);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
-#gate .box{max-width:380px;width:100%;text-align:center;color:#fff;background:rgba(27,58,99,0.5);border:1px solid #2A4568;padding:32px 28px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+#gate .box{max-width:380px;width:100%;text-align:center;color:#fff;background:rgba(27,58,99,0.55);border:1px solid #2A4568;padding:32px 28px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
 #gate .logo{width:56px;height:56px;border-radius:14px;background:var(--gold);color:var(--navy);font-weight:900;font-size:26px;line-height:56px;margin:0 auto 16px;box-shadow:0 4px 12px rgba(200,164,77,0.3)}
 #gate h1{font-size:22px;margin-bottom:8px;font-weight:800}
 #gate p{color:#9FB0C6;font-size:13.5px;margin-bottom:20px;line-height:1.5}
@@ -36,8 +36,8 @@ body{
 #gate .auto-btn:hover{background:#1B3A63;color:#fff}
 
 /* ── 메인 헤더 ── */
-header{background:var(--navy);color:#fff;padding:34px 24px;border-bottom:3px solid var(--gold)}
-header .inner{max-width:1060px;margin:0 auto}
+header{background:var(--navy);color:#fff;padding:32px 24px;border-bottom:3px solid var(--gold)}
+header .inner{max-width:1080px;margin:0 auto}
 header .k{font-size:12.5px;letter-spacing:.16em;color:var(--gold);font-weight:800;text-transform:uppercase}
 header h1{font-size:28px;margin:10px 0 8px;letter-spacing:-.02em;line-height:1.35;font-weight:900}
 header p{color:#AEC0D6;font-size:15px;font-weight:500}
@@ -47,11 +47,14 @@ header p{color:#AEC0D6;font-size:15px;font-weight:500}
 .top-notice-pin .tag{background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:6px;font-weight:900;font-size:11.5px}
 .top-notice-pin strong{color:var(--gold2);font-size:15px;letter-spacing:.08em;margin-left:4px}
 
-/* ── 상단 툴바 ── */
-#bar{position:sticky;top:0;z-index:90;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 18px}
+/* ── 상단 툴바 (군더더기 없는 미니멀 바) ── */
+#bar{position:sticky;top:0;z-index:90;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 20px}
 #bar .now{font-size:13.5px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #bar .now span{color:var(--gold);font-weight:900;margin-right:8px}
 #bar .actions{display:flex;gap:8px;align-items:center}
+#bar .tbtn{background:#fff;border:1px solid var(--ln);color:var(--navy);padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+#bar .tbtn:hover{border-color:var(--gold);background:var(--ivory)}
+#bar .tbtn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 #bar .proj-btn{background:var(--navy);color:#fff;border:0;padding:6px 12px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #bar .proj-btn:hover{background:var(--navy2)}
 #bar .zoom{display:flex;gap:4px;align-items:center}
@@ -59,8 +62,21 @@ header p{color:#AEC0D6;font-size:15px;font-weight:500}
 #bar button.zbtn:hover{border-color:var(--gold);background:var(--ivory)}
 #bar .lvl{font-size:11.5px;color:var(--mut);min-width:34px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 
-/* ── 레이아웃 & 네비게이션 ── */
-.layout{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:212px 1fr;background:#fff;min-height:70vh;box-shadow:0 1px 12px rgba(0,0,0,0.04)}
+/* ── 미니멀 인라인 타이머 배너 (본문 폭 1px도 안 줄임) ── */
+#timerBanner{display:none;background:#FFF9EB;border-bottom:2px solid var(--gold);padding:10px 24px;align-items:center;justify-content:space-between;gap:16px;animation:slideDown .2s ease-out}
+#timerBanner.on{display:flex}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+#timerBanner .t-info{display:flex;align-items:center;gap:10px}
+#timerBanner .t-tag{background:var(--warn);color:#fff;padding:3px 8px;border-radius:5px;font-size:11.5px;font-weight:900}
+#timerBanner .t-txt{font-size:13.5px;font-weight:700;color:var(--navy)}
+#timerBanner .t-clock{font-size:26px;font-weight:900;color:var(--navy);letter-spacing:.05em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+#timerBanner .t-ctrls{display:flex;gap:6px}
+#timerBanner button{font:inherit;font-size:12px;font-weight:800;padding:6px 12px;border-radius:6px;border:1px solid var(--ln);background:#fff;cursor:pointer}
+#timerBanner button:hover{border-color:var(--navy);color:var(--navy)}
+#timerBanner button.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ── 레이아웃 (와이드 캔버스 보장) ── */
+.layout{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:212px 1fr;background:#fff;min-height:70vh;box-shadow:0 1px 12px rgba(0,0,0,0.04)}
 nav{border-right:1px solid var(--ln);padding:24px 14px;position:sticky;top:51px;align-self:start;max-height:calc(100vh - 51px);overflow-y:auto}
 nav a{display:block;font-size:13.5px;color:var(--mut);text-decoration:none;padding:7px 10px;border-radius:8px;font-weight:600;margin-bottom:3px;transition:all .15s}
 nav a:hover{background:var(--ivory);color:var(--navy)}
@@ -73,7 +89,7 @@ nav .allbtn{margin-top:16px;width:100%;font:inherit;font-size:12px;font-weight:8
 nav .allbtn:hover{border-color:var(--navy);color:var(--navy)}
 
 /* ── 본문 ── */
-main{padding:34px 34px 80px;min-width:0}
+main{padding:36px 36px 80px;min-width:0}
 #prog{height:3px;background:var(--ln);position:sticky;top:50px;z-index:89}
 #prog i{display:block;height:100%;background:var(--gold);width:0;transition:width .25s ease}
 
@@ -81,11 +97,37 @@ main section.pg{display:none;margin-bottom:20px}
 main section.pg.on{display:block;animation:fadeIn .2s ease-in-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-h2{font-size:25px;color:var(--navy);letter-spacing:-.02em;margin-bottom:6px;font-weight:900}
+h2{font-size:26px;color:var(--navy);letter-spacing:-.02em;margin-bottom:6px;font-weight:900}
 h2 .n{color:var(--gold);font-size:13.5px;font-weight:900;display:block;letter-spacing:.12em;margin-bottom:4px}
-h3{font-size:18px;color:var(--navy);margin:30px 0 10px;font-weight:800}
+h3{font-size:18.5px;color:var(--navy);margin:30px 0 10px;font-weight:800}
 p{font-size:15.5px;margin-bottom:12px;word-break:keep-all}
 .rule{width:44px;height:4px;background:var(--gold);border-radius:2px;margin:14px 0 24px}
+
+/* ── 실습 프롬프트 박스 (내 회사 데이터 자동 치환) ── */
+.prompt-box{border:1.5px solid var(--navy);border-radius:14px;overflow:hidden;margin:18px 0 24px;background:#fff}
+.prompt-box .p-top{background:var(--navy);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:800}
+.prompt-box .p-top .copy-btn{background:var(--gold);color:var(--navy);border:0;padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:900;cursor:pointer;transition:all .15s}
+.prompt-box .p-top .copy-btn:hover{background:var(--gold2)}
+.prompt-box .p-top .copy-btn.done{background:var(--ok);color:#fff}
+.prompt-box pre{margin:0;padding:18px;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;font-family:"D2Coding","Menlo","Consolas",monospace;color:#28303C;background:#fff}
+.prompt-box .token{color:var(--navy);font-weight:800;background:#EEF3FA;border-radius:4px;padding:1px 6px;border-bottom:2px solid #C4D7F0}
+
+/* ── 인라인 회사 맞춤 입력 카드 (공간 절약형) ── */
+.custom-inline-card{background:#F6F9FD;border:1px solid #D5E2F3;border-radius:12px;padding:14px 18px;margin:16px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.custom-inline-card .desc{font-size:13px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:6px}
+.custom-inline-card .fields{display:flex;gap:10px;flex:1;min-width:240px}
+.custom-inline-card input{flex:1;padding:8px 12px;border:1px solid #C4D7F0;border-radius:8px;font:inherit;font-size:13.5px;background:#fff;color:var(--ink)}
+.custom-inline-card input:focus{outline:0;border-color:var(--navy)}
+
+/* ── Before vs After 탭 (화면 좁아짐 방지형 탭 구조) ── */
+.ba-container{border:1px solid var(--ln);border-radius:14px;overflow:hidden;margin:20px 0}
+.ba-tabs{display:flex;background:var(--ivory);border-bottom:1px solid var(--ln)}
+.ba-tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:800;color:var(--mut);border:0;background:transparent;cursor:pointer;border-bottom:3px solid transparent}
+.ba-tab.active{color:var(--navy);background:#fff;border-bottom-color:var(--navy)}
+.ba-tab.before.active{border-bottom-color:var(--stop);color:var(--stop)}
+.ba-tab.after.active{border-bottom-color:var(--ok);color:var(--ok)}
+.ba-content{padding:20px;background:#fff;font-size:14.5px;line-height:1.8}
+.ba-content pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;font-size:14.5px}
 
 /* ── 공통 UI 컴포넌트 ── */
 .step{border:1px solid var(--ln);border-radius:14px;padding:20px;margin-bottom:14px;background:#FAFAF7}
@@ -106,9 +148,6 @@ thead th{background:var(--ivory);color:var(--navy);font-weight:900;font-size:13p
 .tblwrap{overflow-x:auto;border-radius:10px;border:1px solid var(--ln);margin:16px 0}
 .tblwrap table{margin:0}
 
-.todo{background:var(--navy);color:#fff;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:15px;font-weight:600;display:flex;gap:12px;align-items:baseline}
-.todo b{color:var(--gold2);font-size:12px;letter-spacing:.12em;flex-shrink:0}
-
 /* ── 1교시 대기 화면 전용 카드 ── */
 .welcome-hero{background:linear-gradient(135deg,var(--navy) 0%,#1B3A63 100%);color:#fff;border-radius:18px;padding:30px 28px;margin-bottom:24px;box-shadow:0 12px 30px rgba(15,35,64,0.15)}
 .welcome-hero .tag-row{display:flex;gap:8px;margin-bottom:14px;align-items:center}
@@ -120,7 +159,7 @@ thead th{background:var(--ivory);color:var(--navy);font-weight:900;font-size:13p
 .pin-display-box .code{font-size:38px;font-weight:900;color:var(--gold2);letter-spacing:.25em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 
 /* ── 하단 고정 페이저 ── */
-#pager{position:sticky;bottom:0;z-index:85;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:flex;align-items:center;gap:10px;padding:12px 20px;margin:0 -34px -80px}
+#pager{position:sticky;bottom:0;z-index:85;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:flex;align-items:center;gap:10px;padding:12px 20px;margin:0 -36px -80px}
 #pager button{font:inherit;font-size:14px;font-weight:800;padding:11px 18px;border-radius:10px;border:1px solid var(--ln);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;transition:all .15s}
 #pager button:hover:not(:disabled){border-color:var(--navy);background:var(--ivory)}
 #pager button.main{background:var(--navy);color:#fff;border-color:var(--navy);flex:1;max-width:280px}
@@ -130,7 +169,7 @@ thead th{background:var(--ivory);color:var(--navy);font-weight:900;font-size:13p
 #pager .key-hint{font-size:11.5px;color:var(--mut);margin-left:8px;font-weight:500}
 #pager .sp{flex:1}
 
-/* ── 빔프로젝터 대형 확대 모드 (z1, z2, z3) ── */
+/* ── 빔프로젝터 대형 확대 모드 (본문 1400px 시원하게 확장) ── */
 body.z1{font-size:17.5px}
 body.z2{font-size:20px}
 body.z3{font-size:23px}
@@ -138,7 +177,7 @@ body.z1 h2{font-size:28px}body.z2 h2{font-size:33px}body.z3 h2{font-size:38px}
 body.z1 p,body.z2 p,body.z3 p,body.z1 .step p,body.z2 .step p,body.z3 .step p,body.z1 table,body.z2 table,body.z3 table,body.z1 td,body.z2 td,body.z3 td,body.z1 th,body.z2 th,body.z3 th,body.z1 .cal,body.z2 .cal,body.z3 .cal,body.z1 h3,body.z2 h3,body.z3 h3,body.z1 .step .ti,body.z2 .step .ti,body.z3 .step .ti{font-size:1em}
 body.z2 nav,body.z3 nav{display:none}
 body.z2 .layout,body.z3 .layout{grid-template-columns:1fr;max-width:100%}
-body.z2 main,body.z3 main{padding:30px 48px 80px;max-width:1380px;margin:0 auto}
+body.z2 main,body.z3 main{padding:30px 48px 80px;max-width:1400px;margin:0 auto}
 body.z2 .welcome-hero h1,body.z3 .welcome-hero h1{font-size:1.4em}
 body.z2 header,body.z3 header{padding:22px 24px}
 body.z2 header h1,body.z3 header h1{font-size:1.25em}
@@ -199,12 +238,28 @@ body.allmode #pager,body.allmode #prog{display:none}
 <div id="bar">
   <div class="now"><span>지금</span><em id="nowSec" style="font-style:normal">00 · 대기 &amp; 사전 확인</em></div>
   <div class="actions">
+    <!-- 강사 운영용 미니멀 실습 타이머 버튼 -->
+    <button id="timerToggleBtn" class="tbtn" title="3분 실습 타이머 열기/닫기">⏱️ 3분 실습</button>
     <button id="projModeBtn" class="proj-btn" title="대형 화면 가독성 확대 모드">🖥️ 프로젝터 모드</button>
     <div class="zoom">
       <button id="zo" class="zbtn" title="글씨 작게">A−</button>
       <div class="lvl" id="zl">기본</div>
       <button id="zi" class="zbtn" title="글씨 크게">A+</button>
     </div>
+  </div>
+</div>
+
+<!-- 상단 미니멀 타이머 배너 (본문 폭 1px도 침범하지 않는 얇은 상단 띠) -->
+<div id="timerBanner">
+  <div class="t-info">
+    <span class="t-tag">실습 타이머</span>
+    <span class="t-txt">3분 동안 소리내어 말하기 실습</span>
+  </div>
+  <div class="t-clock" id="timerClock">03:00</div>
+  <div class="t-ctrls">
+    <button id="timerStartBtn" class="primary">시작</button>
+    <button id="timerResetBtn">초기화</button>
+    <button id="timerCloseBtn">닫기</button>
   </div>
 </div>
 
@@ -277,7 +332,7 @@ body.allmode #pager,body.allmode #prog{display:none}
   </div>
 </section>
 
-<!-- PAGE 2: 오늘 한 장 (로드맵 & 목표) -->
+<!-- PAGE 2: 오늘 한 장 (로드맵 & 실습 2대 목표) -->
 <section class="pg" id="p1" data-g="시작 전" data-t="00 · 오늘 한 장" data-live="1">
   <h2><span class="n">00</span>오늘 50분, 한 장으로</h2>
   <div class="rule"></div>
@@ -311,6 +366,36 @@ body.allmode #pager,body.allmode #prog{display:none}
     <p>방금 만든 방식을 클로드 안에 <strong>규칙으로 심어둡니다.</strong> 다음부터는 한마디면 같은 품질로 나옵니다.</p>
   </div>
 
+  <!-- 수강생용 콤팩트 회사명 맞춤 입력 (화면 폭 안 줄이는 1줄 인라인 카드) -->
+  <div class="custom-inline-card">
+    <div class="desc">
+      <span>✏️ 내 회사 맞춤 프롬프트 완성:</span>
+    </div>
+    <div class="fields">
+      <input type="text" id="bizType" placeholder="내 업종 (예: 세무/컨설팅/제조)" value="경영컨설팅">
+      <input type="text" id="clientName" placeholder="고객사명 (예: (주)한국유통)" value="(주)대한식품">
+    </div>
+  </div>
+
+  <!-- 원클릭 복사 실습 프롬프트 -->
+  <div class="prompt-box">
+    <div class="p-top">
+      <span>실습 프롬프트: 3분 음성을 정밀 보고서로 구조화</span>
+      <button class="copy-btn" id="copyPromptBtn">프롬프트 복사</button>
+    </div>
+    <pre id="promptTemplateText">당신은 중소기업 전문 <span class="token token-biz">경영컨설팅</span> 컨설턴트입니다.
+아래 제공된 [상담 녹취 요약 텍스트]를 분석하여, <span class="token token-client">(주)대한식품</span> 대표이사에게 즉시 발송 가능한 '1차 상담 진단 보고서'를 작성해 주세요.
+
+[요청 보고서 구조]
+1. 💡 상담 핵심 요약 (3줄 서머리)
+2. ⚠️ 발견된 주요 현안 및 진단 (Pain-Point 3가지)
+3. 🎯 추천 전략 및 단계별 실행 방안 (Pillar 1, 2, 3)
+4. 📋 후속 조치 및 요청자료 체크리스트 (표 형태 정리)
+
+[상담 녹취 텍스트]
+(여기에 3분간 말한 녹취록 또는 Alt 텍스트를 붙여넣으세요)</pre>
+  </div>
+
   <h3>셋 · 덤으로 가져가실 것</h3>
   <div class="tblwrap">
   <table>
@@ -321,18 +406,42 @@ body.allmode #pager,body.allmode #prog{display:none}
     </tbody>
   </table>
   </div>
-
-  <div class="cal stop">
-    <b>오늘 다 알려드리지 않습니다</b>
-    50분에 전부 담으면 <strong>아무것도 못 만들고 가십니다.</strong> 오늘은 <strong>하나만 제대로</strong> 만들어 가시는 것이 목표입니다.
-  </div>
 </section>
 
-<!-- PAGE 3: 실전 사례 4종 및 실물 증명 -->
+<!-- PAGE 3: 실전 사례 및 Before/After 체감 -->
 <section class="pg" id="p3" data-g="현장 실습" data-t="01 · 내가 AI로 하는 일" data-live="1">
   <h2><span class="n">01</span>강사는 이걸로 이런 걸 합니다</h2>
   <div class="rule"></div>
   <p>기능 설명을 먼저 들으면 안 와닿습니다. <strong>결과물을 먼저 보십시오.</strong> 그중에 &quot;나도 저건 필요한데&quot; 하는 것이 하나 있으면, 오늘 그걸 만들어 가시면 됩니다.</p>
+
+  <!-- Before vs After 탭 (화면 좁아짐 없이 탭 전환으로 시원하게 비교) -->
+  <h3>실제 음성이 어떻게 보고서로 바뀌는가 (체감 비교)</h3>
+  <div class="ba-container">
+    <div class="ba-tabs">
+      <button class="ba-tab before active" data-tab="before">1. 날것의 3분 음성 녹취 (Before)</button>
+      <button class="ba-tab after" data-tab="after">2. 10분 만에 나온 구조화 보고서 (After)</button>
+    </div>
+    <div class="ba-content" id="baBefore">
+      <pre style="color:#7D3B3B">"어... 대표님, 지난주에 말씀하셨던 그 신규 물류라인 증설 건 있잖아요. 대략 설비 견적 보니까 한 3억 5천 정도 들어갈 것 같은데, 지금 정부 지원 스마트공장 매칭 사업이 4월에 공고가 떠요. 자부담 40% 맞추면 저희가 1억 4천만 있으면 되거든요? 근데 문제는 지금 재고관리 ERP 데이터가 표준화가 안 돼 있어서 신청 전에 전산 코드 먼저 통일해야 될 것 같습니다..."</pre>
+    </div>
+    <div class="ba-content" id="baAfter" style="display:none">
+      <pre style="color:#1C4E34;font-weight:600">■ [상담 진단 브리핑: (주)대한식품 스마트 물류라인 증설 방안]
+
+1. 핵심 안건 요약
+- 신규 설비 도입 예산: 총 3.5억 원
+- 정책자금 매칭 기회: 4월 공고 예정인 스마트공장 보급사업 활용 시 자부담 40%(1.4억)로 추진 가능.
+
+2. 사전 필수 선행과제
+- 위험 요인: 현행 ERP 재고 코드 미표준화 상태
+- 즉각 조치: 지원사업 신청 전 품목/재고 데이터 규격 통일 필수 (담당: 전산팀)
+
+3. 다음 주 Action Item
+| 구분 | 과제 | 기한 | 담당 |
+|---|---|---|---|
+| 전산 | ERP 재고 코드 규격화 | 3/25 | 전산팀장 |
+| 서류 | 공장등록증 및 최근 3개년 재무제표 준비 | 3/27 | 경영지원 |</pre>
+    </div>
+  </div>
 
   <div class="cal tip">
     <b>하나를 만들면 거기서 여럿이 나옵니다</b>
@@ -342,24 +451,10 @@ body.allmode #pager,body.allmode #prog{display:none}
     <p style="margin:0 0 4px">· 26주 실행 트래커 — <strong>엑셀</strong>. 시트 열한 장에 주차 일정과 대시보드가 자동 계산됩니다.</p>
     <p style="margin:0 0 4px">· 참가자가 같이 채우는 <strong>구글 시트</strong>와 제출 <strong>폼</strong>.</p>
     <p style="margin:0">· 그리고 그 뒤 포럼에서 쓸 <strong>10분짜리 후속 강의안</strong>까지.</p>
-    <p style="margin:8px 0 0"><strong>워크숍은 하나인데 파일은 여섯 개입니다.</strong> 앞의 자료가 다음 자료의 재료가 되기 때문입니다.</p>
   </div>
 
-  <h3>화면으로 보여드릴 것 — 네 가지</h3>
-  <div class="tblwrap">
-  <table>
-    <thead><tr><th style="width:32%">무엇을</th><th>어디가 핵심인가</th></tr></thead>
-    <tbody>
-      <tr><td><strong>1 · 고객 상담 보고서</strong></td><td>상담을 녹음해 글로 바꾸고, 그걸로 <strong>현황 진단 · 전략 · 예산 보고서</strong>까지 나온 실제 건입니다. 오늘 여러분이 만드실 것의 완성형입니다.</td></tr>
-      <tr><td><strong>2 · 워크숍 자료 한 벌</strong></td><td>워크숍 하나를 준비하면서 <strong>대본 · 워크북 · PDF · 트래커 · 구글시트 · 후속 강의안</strong>이 나왔습니다.</td></tr>
-      <tr><td><strong>3 · 리더의 서재</strong></td><td>제가 만든 <strong>독서 기록 웹사이트</strong>입니다. 로그인해서 목표를 세우고 후기를 남기고 서로 봅니다.</td></tr>
-      <tr><td><strong>4 · bniwest.kr</strong></td><td>지역 모임 안내 사이트입니다. <strong>방문 신청을 받고, 관리자 페이지에서 신청자를 보고, 문자까지 보냅니다.</strong></td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <h3>실물 한 장 — 1번 상담 보고서의 첫 페이지</h3>
-  <p>말로 설명하는 것보다 한 장 보시는 게 빠릅니다. 아래는 <strong>상담을 녹음해 글로 바꾸고, 그걸로 만든 현황 보고서의 첫 장</strong>입니다. 고객사명과 대표자명, 실적 숫자는 가렸습니다. 원본은 12쪽이고, 이 한 장만 읽어도 무엇을 결정해야 하는지 알 수 있게 만든 것입니다.</p>
+  <h3>실물 한 장 — 실제 고객 상담 보고서 첫 페이지</h3>
+  <p>말로 설명하는 것보다 한 장 보시는 게 빠릅니다. 아래는 <strong>상담을 녹음해 글로 바꾸고, 그걸로 만든 현황 보고서의 첫 장</strong>입니다. 원본 12쪽 중 첫 장만 읽어도 무엇을 결정해야 하는지 알 수 있게 만든 것입니다.</p>
 
   <figure style="margin:16px 0;padding:0;text-align:center;background:#F2ECE1;border:1px solid var(--ln);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.06)">
     <img src="/consulting_sample.jpg" alt="고객 상담 보고서 실물 첫 페이지" style="max-width:100%;height:auto;display:block;margin:0 auto;border-radius:10px" onerror="this.onerror=null;this.src='consulting_sample.jpg';">
@@ -512,7 +607,7 @@ body.allmode #pager,body.allmode #prog{display:none}
   prevBtn.addEventListener('click', function(){ goToPage(curIndex - 1); });
   nextBtn.addEventListener('click', function(){ goToPage(curIndex + 1); });
 
-  // 키보드 방향키 넘김 지원
+  // 키보드 방향키 넘김 지원 (강사용 리모컨 완벽 대응)
   window.addEventListener('keydown', function(e){
     if (!gate.classList.contains('hidden')) return;
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -525,7 +620,7 @@ body.allmode #pager,body.allmode #prog{display:none}
     }
   });
 
-  // ── 3. 폰트 줌 및 프로젝터 모드 ──
+  // ── 3. 폰트 줌 및 프로젝터 와이드 모드 ──
   var zoomLevels = ['', 'z1', 'z2', 'z3'];
   var zoomLabels = ['기본', '1단계', '2단계 (프로젝터)', '3단계 (초대형)'];
   var currentZoomIdx = 0;
@@ -554,6 +649,124 @@ body.allmode #pager,body.allmode #prog{display:none}
       projModeBtn.textContent = '🖥️ 표준 모드 복귀';
     }
   });
+
+  // ── 4. 미니멀 3분 실습 타이머 (화면 가리지 않는 얇은 상단 띠) ──
+  var timerToggleBtn = document.getElementById('timerToggleBtn');
+  var timerBanner = document.getElementById('timerBanner');
+  var timerClock = document.getElementById('timerClock');
+  var timerStartBtn = document.getElementById('timerStartBtn');
+  var timerResetBtn = document.getElementById('timerResetBtn');
+  var timerCloseBtn = document.getElementById('timerCloseBtn');
+  
+  var timerDuration = 180; // 3분 = 180초
+  var timerLeft = 180;
+  var timerTimer = null;
+  var timerRunning = false;
+
+  function renderTimer() {
+    var m = Math.floor(timerLeft / 60);
+    var s = timerLeft % 60;
+    timerClock.textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+    if (timerLeft <= 30) {
+      timerClock.style.color = '#C0392B';
+    } else {
+      timerClock.style.color = '#0F2340';
+    }
+  }
+
+  function startTimer() {
+    if (timerRunning) {
+      clearInterval(timerTimer);
+      timerRunning = false;
+      timerStartBtn.textContent = '재개';
+      return;
+    }
+    timerRunning = true;
+    timerStartBtn.textContent = '일시정지';
+    timerTimer = setInterval(function(){
+      if (timerLeft > 0) {
+        timerLeft--;
+        renderTimer();
+      } else {
+        clearInterval(timerTimer);
+        timerRunning = false;
+        timerStartBtn.textContent = '시작';
+        alert('⏰ 3분 실습 시간이 종료되었습니다!');
+      }
+    }, 1000);
+  }
+
+  function resetTimer() {
+    clearInterval(timerTimer);
+    timerRunning = false;
+    timerLeft = timerDuration;
+    timerStartBtn.textContent = '시작';
+    renderTimer();
+  }
+
+  timerToggleBtn.addEventListener('click', function(){
+    timerBanner.classList.toggle('on');
+    timerToggleBtn.classList.toggle('active');
+  });
+  timerStartBtn.addEventListener('click', startTimer);
+  timerResetBtn.addEventListener('click', resetTimer);
+  timerCloseBtn.addEventListener('click', function(){
+    timerBanner.classList.remove('on');
+    timerToggleBtn.classList.remove('active');
+  });
+
+  // ── 5. 실습 프롬프트 회사명 실시간 자동 치환 ──
+  var bizTypeInput = document.getElementById('bizType');
+  var clientNameInput = document.getElementById('clientName');
+  var promptPre = document.getElementById('promptTemplateText');
+  var copyPromptBtn = document.getElementById('copyPromptBtn');
+
+  function updatePromptTokens() {
+    var biz = bizTypeInput.value.trim() || '경영컨설팅';
+    var client = clientNameInput.value.trim() || '(주)대한식품';
+    document.querySelectorAll('.token-biz').forEach(function(el){ el.textContent = biz; });
+    document.querySelectorAll('.token-client').forEach(function(el){ el.textContent = client; });
+  }
+
+  if (bizTypeInput && clientNameInput) {
+    bizTypeInput.addEventListener('input', updatePromptTokens);
+    clientNameInput.addEventListener('input', updatePromptTokens);
+  }
+
+  if (copyPromptBtn && promptPre) {
+    copyPromptBtn.addEventListener('click', function(){
+      var textToCopy = promptPre.innerText || promptPre.textContent;
+      navigator.clipboard.writeText(textToCopy).then(function(){
+        copyPromptBtn.textContent = '✓ 복사완료!';
+        copyPromptBtn.classList.add('done');
+        setTimeout(function(){
+          copyPromptBtn.textContent = '프롬프트 복사';
+          copyPromptBtn.classList.remove('done');
+        }, 2000);
+      });
+    });
+  }
+
+  // ── 6. Before vs After 탭 토글 ──
+  var tabBefore = document.querySelector('.ba-tab.before');
+  var tabAfter = document.querySelector('.ba-tab.after');
+  var contentBefore = document.getElementById('baBefore');
+  var contentAfter = document.getElementById('baAfter');
+
+  if (tabBefore && tabAfter) {
+    tabBefore.addEventListener('click', function(){
+      tabBefore.classList.add('active');
+      tabAfter.classList.remove('active');
+      contentBefore.style.display = 'block';
+      contentAfter.style.display = 'none';
+    });
+    tabAfter.addEventListener('click', function(){
+      tabAfter.classList.add('active');
+      tabBefore.classList.remove('active');
+      contentAfter.style.display = 'block';
+      contentBefore.style.display = 'none';
+    });
+  }
 
   updatePageDisplay();
 })();
