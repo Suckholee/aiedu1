@@ -158,6 +158,28 @@ thead th{background:var(--ivory);color:var(--navy);font-weight:900;font-size:13p
 .pin-display-box .lbl{font-size:14px;color:#9FB0C6;font-weight:700}
 .pin-display-box .code{font-size:38px;font-weight:900;color:var(--gold2);letter-spacing:.25em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 
+/* ── 강의 시각화 일러스트/이미지 전용 카드 ── */
+.lecture-fig{margin:22px 0 28px;border:1px solid var(--ln);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 8px 24px rgba(15,35,64,0.06);transition:transform .2s ease,box-shadow .2s ease}
+.lecture-fig:hover{box-shadow:0 12px 32px rgba(15,35,64,0.1)}
+.lecture-fig .fig-img-wrap{background:#0F1A2A;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.lecture-fig img{width:100%;height:auto;max-height:480px;object-fit:cover;display:block}
+.lecture-fig .fig-caption{padding:14px 20px;background:#FAFAF7;border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.lecture-fig .fig-caption .cap-txt{font-size:14px;font-weight:700;color:var(--navy)}
+.lecture-fig .fig-caption .cap-sub{font-size:12.5px;color:var(--mut);font-weight:500}
+.lecture-fig .fig-badge{background:var(--navy);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:12px;white-space:nowrap}
+
+/* 강사 소개 프로필 카드 */
+.instructor-profile-card{display:flex;gap:22px;align-items:center;background:#fff;border:1px solid var(--ln);border-radius:16px;padding:20px 24px;margin:20px 0;box-shadow:0 6px 18px rgba(15,35,64,0.04)}
+.instructor-profile-card .avatar-box{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid var(--gold);flex-shrink:0;background:#EDE8DF;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.instructor-profile-card .avatar-box img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.instructor-profile-card .profile-info h4{font-size:18px;font-weight:900;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.instructor-profile-card .profile-info h4 span{font-size:12px;color:var(--gold);background:var(--navy);padding:2px 8px;border-radius:12px;font-weight:700}
+.instructor-profile-card .profile-info p{font-size:13.5px;color:var(--mut);margin:0;line-height:1.6}
+@media(max-width:640px){
+  .instructor-profile-card{flex-direction:column;text-align:center}
+  .instructor-profile-card .profile-info h4{justify-content:center}
+}
+
 /* ── 하단 고정 페이저 ── */
 #pager{position:sticky;bottom:0;z-index:85;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:flex;align-items:center;gap:10px;padding:12px 20px;margin:0 -36px -80px}
 #pager button{font:inherit;font-size:14px;font-weight:800;padding:11px 18px;border-radius:10px;border:1px solid var(--ln);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;transition:all .15s}
@@ -326,16 +348,51 @@ body.allmode #pager,body.allmode #prog{display:none}
 
   <p>오늘 50분 동안 그 <strong>&quot;한 번&quot;</strong>을 같이 만들겠습니다. 제가 1년 걸려 찾은 순서를, 순서대로 드리겠습니다.</p>
 
-  <div class="cal tip">
-    <b>어니스톤 조영빈입니다. 반갑습니다.</b>
-    중소기업 경영컨설팅 · ISO 인증심사원 · KPC 인증코치 · 『사업학개론』 저자. 오늘은 <strong>강사가 아니라 같은 문제를 먼저 겪은 사람</strong>으로 앉아 있겠습니다.
+  <!-- 강사 소개 프로필 카드 -->
+  <div class="instructor-profile-card">
+    <div class="avatar-box">
+      <img src="/instructors/cho-youngbin.png" alt="조영빈 대표" onerror="this.src='instructors/cho-youngbin.png'">
+    </div>
+    <div class="profile-info">
+      <h4>조영빈 대표 <span>어니스톤 대표이사</span></h4>
+      <p>중소기업 경영컨설팅 700+회 · ISO 선임심사원 · KPC 인증코치 · 『사업학개론』 저자<br>
+      <strong>"강사가 아니라, 같은 문서 문제를 먼저 겪고 극복한 동료로 함께합니다."</strong></p>
+    </div>
   </div>
+
+  <!-- 비즈니스 미팅과 AI 변환 시각 자료 -->
+  <figure class="lecture-fig">
+    <div class="fig-img-wrap">
+      <img src="/images/business_meeting_voice_ai.jpg" alt="상담 현장 음성이 AI를 통해 즉시 비즈니스 서류로 구조화되는 모습" loading="lazy">
+    </div>
+    <div class="fig-caption">
+      <div>
+        <div class="cap-txt">💡 700개 중소기업 컨설팅 현장에서 검증된 음성 구조화 파이프라인</div>
+        <div class="cap-sub">상담 녹취가 실시간으로 액션 아이템, 체크리스트, 브리핑 요약본으로 재탄생합니다.</div>
+      </div>
+      <span class="fig-badge">1교시 핵심 원리</span>
+    </div>
+  </figure>
 </section>
 
 <!-- PAGE 2: 오늘 한 장 (로드맵 & 실습 2대 목표) -->
 <section class="pg" id="p1" data-g="시작 전" data-t="00 · 오늘 한 장" data-live="1">
   <h2><span class="n">00</span>오늘 50분, 한 장으로</h2>
   <div class="rule"></div>
+
+  <!-- 전체 AI 업무자동화 워크플로우 인포그래픽 -->
+  <figure class="lecture-fig">
+    <div class="fig-img-wrap">
+      <img src="/images/ai_consulting_workflow.jpg" alt="AI 비즈니스 자동화 워크플로우 다이어그램" loading="lazy">
+    </div>
+    <div class="fig-caption">
+      <div>
+        <div class="cap-txt">📊 오늘 완성할 1교시 파이프라인: 말(Voice) &rarr; Claude AI &rarr; 정밀 보고서</div>
+        <div class="cap-sub">소리내어 말한 내용이 진단 보고서, 대시보드 요약, 실행 체크리스트로 일괄 생성됩니다.</div>
+      </div>
+      <span class="fig-badge">오늘의 완성도</span>
+    </div>
+  </figure>
 
   <div class="cal tip">
     <b>오늘 쓰는 도구는 클로드(Claude)입니다</b>
@@ -365,6 +422,20 @@ body.allmode #pager,body.allmode #prog{display:none}
     <div class="h"><span class="b">둘</span><span class="ti">그 방식을 스킬로</span></div>
     <p>방금 만든 방식을 클로드 안에 <strong>규칙으로 심어둡니다.</strong> 다음부터는 한마디면 같은 품질로 나옵니다.</p>
   </div>
+
+  <!-- 맞춤형 AI 스킬 규칙 시각화 인포그래픽 -->
+  <figure class="lecture-fig">
+    <div class="fig-img-wrap">
+      <img src="/images/claude_skill_building.jpg" alt="내 업무 규칙을 AI 시스템에 이식하는 Custom Skill 메커니즘" loading="lazy">
+    </div>
+    <div class="fig-caption">
+      <div>
+        <div class="cap-txt">⚡ 두 번째 실습: 내 문서 작성 노하우를 '클로드 맞춤 규칙(Custom Skill)'으로 이식하기</div>
+        <div class="cap-sub">한 번 심어둔 규칙은 다음 상담부터 단 한마디 지시로 보고서·표·슬라이드를 오차 없이 추출합니다.</div>
+      </div>
+      <span class="fig-badge">Rule Engine</span>
+    </div>
+  </figure>
 
   <!-- 수강생용 콤팩트 회사명 맞춤 입력 (화면 폭 안 줄이는 1줄 인라인 카드) -->
   <div class="custom-inline-card">
