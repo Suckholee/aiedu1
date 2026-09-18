@@ -520,7 +520,7 @@ body.allmode #pager,body.allmode #prog{display:none}
 
 <script>
 (function(){
-  // ── 1. 인증번호 체크 로직 (0922) ──
+  // ── 1. DOM 요소 및 페이징 상태 초기화 ──
   var AUTH_CODE = '0922';
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
@@ -529,42 +529,6 @@ body.allmode #pager,body.allmode #prog{display:none}
   var errBox = document.getElementById('err');
   var quickEnterBtn = document.getElementById('quickEnterBtn');
 
-  function unlock() {
-    gate.classList.add('hidden');
-    app.classList.remove('hidden');
-    sessionStorage.setItem('aiedu_auth_passed_session02', '1');
-    updatePageDisplay();
-  }
-
-  // URL 파라미터 확인 (?pw=0922 or ?master=true)
-  var params = new URLSearchParams(window.location.search);
-  if (params.get('pw') === AUTH_CODE || params.get('master') === 'true' || sessionStorage.getItem('aiedu_auth_passed_session02') === '1' || sessionStorage.getItem('aiedu_auth_passed') === '1') {
-    unlock();
-  }
-
-  function handleAuth() {
-    var val = pwInput.value.trim();
-    if (val === AUTH_CODE) {
-      unlock();
-    } else {
-      errBox.textContent = '인증번호가 맞지 않습니다. (강의 화면을 확인해 주세요)';
-      pwInput.value = '';
-      pwInput.focus();
-    }
-  }
-
-  goBtn.addEventListener('click', handleAuth);
-  pwInput.addEventListener('keyup', function(e){
-    if (e.key === 'Enter') handleAuth();
-  });
-  if (quickEnterBtn) {
-    quickEnterBtn.addEventListener('click', function(){
-      pwInput.value = AUTH_CODE;
-      unlock();
-    });
-  }
-
-  // ── 2. 슬라이드 및 페이징 제어 ──
   var pages = Array.from(document.querySelectorAll('main section.pg'));
   var curIndex = 0;
   var prevBtn = document.getElementById('prevBtn');
@@ -643,6 +607,42 @@ body.allmode #pager,body.allmode #prog{display:none}
       curIndex = idx;
       updatePageDisplay();
     }
+  }
+
+  // ── 2. 인증 및 게이트 제어 ──
+  function unlock() {
+    gate.classList.add('hidden');
+    app.classList.remove('hidden');
+    sessionStorage.setItem('aiedu_auth_passed_session02', '1');
+    updatePageDisplay();
+  }
+
+  // URL 파라미터 확인 (?pw=0922 or ?master=true)
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('pw') === AUTH_CODE || params.get('master') === 'true' || sessionStorage.getItem('aiedu_auth_passed_session02') === '1' || sessionStorage.getItem('aiedu_auth_passed') === '1') {
+    unlock();
+  }
+
+  function handleAuth() {
+    var val = pwInput.value.trim();
+    if (val === AUTH_CODE) {
+      unlock();
+    } else {
+      errBox.textContent = '인증번호가 맞지 않습니다. (강의 화면을 확인해 주세요)';
+      pwInput.value = '';
+      pwInput.focus();
+    }
+  }
+
+  goBtn.addEventListener('click', handleAuth);
+  pwInput.addEventListener('keyup', function(e){
+    if (e.key === 'Enter') handleAuth();
+  });
+  if (quickEnterBtn) {
+    quickEnterBtn.addEventListener('click', function(){
+      pwInput.value = AUTH_CODE;
+      unlock();
+    });
   }
 
   prevBtn.addEventListener('click', function(){ goToPage(curIndex - 1); });
