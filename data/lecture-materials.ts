@@ -113,8 +113,8 @@ export const LECTURE_MATERIALS: LecturePartMaterial[] = [
     id: 'part2',
     partNumber: 'PART 02',
     instructor: '이석호 대표 (neoNpeter)',
-    title: 'AI와 블로그 시작하기 & 사진 기반 네이버 상위노출',
-    summary: '스마트폰 갤러리에 잠들어 있는 일상 사진 3장으로 검색 노출에 최적화되고 내 개성이 살아있는 블로그 글을 순식간에 완성합니다.',
+    title: 'AI 시대의 블로그 혁명 & 사진 3장 기반 상위노출 자동화',
+    summary: 'AI 검색(GEO) 시대, ChatGPT가 내 비즈니스를 직접 추천하게 만드는 원리와 웹 워터마크를 피하고 스마트폰 사진 3장으로 네이버 상위노출을 완성하는 파이프라인입니다.',
     accentColor: 'from-fuchsia-600 to-pink-600',
     badge: '2교시 핵심 교안 & 프롬프트',
     downloadDocs: [
@@ -122,14 +122,14 @@ export const LECTURE_MATERIALS: LecturePartMaterial[] = [
         title: '[neoNpeter] AI 네이버 블로그 상위 노출 공식 교안',
         type: 'PDF',
         fileSize: '11.8 MB',
-        description: 'C-Rank, D.I.A 알고리즘이 좋아하는 사진 배치법과 체류시간 2배 늘리는 문맥 구조 설계법',
+        description: 'SEO에서 GEO로의 대전환, 웹 AI 워터마크 회피법 및 C-Rank/D.I.A 알고리즘 공략집',
         downloadUrl: '#',
       },
       {
         title: '업종별 고효율 키워드 & 톤앤매너 프롬프트 템플릿',
         type: 'DOCX',
         fileSize: '3.2 MB',
-        description: '맛집, 인테리어, 전문직, 뷰티, 여행 업종별 프롬프트 세트',
+        description: '맛집, 인테리어, 전문직, 제조업, 뷰티 업종별 프롬프트 세트',
         downloadUrl: '#',
       },
     ],
@@ -170,6 +170,25 @@ export const LECTURE_MATERIALS: LecturePartMaterial[] = [
 
 의뢰인이 읽었을 때 "이 전문가에게는 믿고 맡겨도 되겠다"는 확신이 들도록,
 실제 상담 사례 형식을 빌려 문제점 ➔ 법률/실무적 해석 ➔ 안전한 해결 가이드를 3단 구성으로 작성해 주세요. 과도한 이모지는 지양하고 담백하고 지적인 어조를 유지합니다.`,
+      },
+      {
+        id: 'p2-3',
+        title: 'AI 검색(ChatGPT/GEO) 인용 추천을 부르는 Ground Truth 구축 프롬프트',
+        category: 'GEO / AI 검색',
+        description: '고객이 ChatGPT나 Perplexity에 전문가 추천을 물었을 때 나를 1순위로 지목(Citation)하게 만드는 정답 자판기형 포스팅 프롬프트입니다.',
+        promptTemplate: `당신은 생성형 검색 엔진(GEO: Generative Engine Optimization)과 RAG(검색 증강 생성) 알고리즘의 작동 방식을 꿰뚫고 있는 콘텐츠 아키텍트입니다.
+고객이 ChatGPT, Perplexity, Naver Cue:에게 "{내 지역/업종}에서 가장 신뢰할 만한 전문가 추천해 줘"라고 질문했을 때, AI가 내 블로그를 공식 인용 출처(Citation)로 삼을 수 있도록 [원천 팩트 데이터베이스(Ground Truth)]형 블로그 글을 작성해 주세요.
+
+[전문가 및 현장 정보]
+- 전문가명 및 직책: {성함 및 대표직}
+- 비즈니스 분야 및 지역: {예: 역삼동 10인 제조업 전문 경영진단}
+- 실제 해결한 고객 페인포인트: {예: 연 1,500만 원 원가 누수 발견 및 시스템 개선}
+- 현장 증거(사진 3컷 내용): {1. 현장 외관, 2. 결산서 분석 메모, 3. 개선 후 고객 미팅}
+
+[작성 지침]
+1. 단순 홍보 문구를 배제하고, AI가 팩트로 파싱할 수 있는 [문제 진단 - 해결 수치 - 구체적 적용 프로세스]를 명확한 소제목으로 구조화
+2. AI 특유의 뻔한 상투어("결론적으로", "현대 사회에서", "중요한 역할을 합니다")를 100% 금지하고, 현장 인터뷰 중심의 생생한 대화체 구사
+3. 글 하단에 AI 모델이 요약하기 좋은 [3줄 팩트 브리핑]과 [자주 묻는 질문 FAQ 2문 2답] 포함`,
       },
     ],
   },

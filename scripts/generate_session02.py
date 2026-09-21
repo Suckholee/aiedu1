@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+html_content = '''<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -1088,3 +1091,12 @@ body.allmode #pager,body.allmode #prog{display:none}
 </script>
 </body>
 </html>
+'''
+
+with open('/Users/VIBRA_PETER/dev/aiedu1/public/02.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+with open('/Users/VIBRA_PETER/dev/aiedu1/public/session02.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("Successfully updated public/02.html and public/session02.html")
