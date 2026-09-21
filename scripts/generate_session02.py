@@ -8,14 +8,14 @@ html_content = '''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="어니스톤 AI 업무자동화 원데이 클래스 · 2교시 수강생 교재 및 강의 메인 스크린">
-<title>2교시 · AI 시대의 블로그와 티스토리 스마트 옮겨쓰기 실습 | neoNpeter 이석호 대표</title>
+<title>2교시 · AI 시대의 블로그 혁명 & 티스토리 스마트 옮겨쓰기 | neoNpeter 이석호 대표</title>
 <style>
 :root{
   --green:#03C75A;--green2:#029D46;--navy:#0C1E38;--navy2:#162E52;
   --gold:#C8A44D;--gold2:#E3C67B;--ivory:#F8F7F2;--ink:#1C1C1C;
   --mut:#586071;--ln:#E4DDD0;--ok:#1D7347;--warn:#8D5B18;--stop:#933636;
   --tistory:#EB5326;--tistory-sub:#FF6F42;
-  --card-bg:#FFFFFF;--card-border:#E5E7EB;--card-shadow:rgba(12,30,56,0.06);
+  --card-bg:#FFFFFF;--card-border:#E2E6EC;--card-shadow:0 4px 14px rgba(12,30,56,0.05);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -41,10 +41,10 @@ body{
 #gate .auto-btn{background:transparent;border:1px solid #365C8C;color:#A9BDD4;padding:6px 12px;border-radius:6px;font-size:11.5px;margin-top:8px;cursor:pointer}
 #gate .auto-btn:hover{background:#1B3A63;color:#fff}
 
-/* ── 메인 앱 컨테이너 (PPT 풀스크린 프레임) ── */
+/* ── 메인 프레젠테이션 컨테이너 ── */
 #app{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:#0B1728}
 
-/* ── PPT 상단 슬라이드 마스터 바 ── */
+/* ── PPT 상단 마스터 바 ── */
 #bar{
   height:44px;flex-shrink:0;z-index:90;
   background:#0C1E38;border-bottom:1px solid rgba(255,255,255,0.1);
@@ -77,7 +77,7 @@ body{
 #bar button.zbtn:hover{background:rgba(255,255,255,0.2);border-color:var(--green)}
 #bar .lvl{font-size:11px;color:#A9BDD4;min-width:28px;text-align:center;font-weight:700}
 
-/* ── 미니멀 인라인 타이머 배너 ── */
+/* ── 인라인 타이머 배너 ── */
 #timerBanner{display:none;background:#132A4A;border-bottom:2px solid var(--tistory);padding:6px 20px;align-items:center;justify-content:space-between;gap:16px;color:#fff}
 #timerBanner.on{display:flex}
 #timerBanner .t-info{display:flex;align-items:center;gap:8px}
@@ -96,7 +96,7 @@ body{
   background:#0B1728;overflow:hidden;
 }
 
-/* 슬라이드 썸네일 목차 (PPT 좌측 슬라이드 목록 스타일) */
+/* 좌측 슬라이드 썸네일 목차 */
 nav{
   background:#0E1B2E;border-right:1px solid rgba(255,255,255,0.08);
   padding:14px 10px;overflow-y:auto;
@@ -116,157 +116,139 @@ nav a.tistory-tab.cur:before{content:"🔥 ";color:var(--tistory)}
 nav .allbtn{margin-top:14px;width:100%;font:inherit;font-size:11.5px;font-weight:800;padding:7px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#8E9CAE;cursor:pointer}
 nav .allbtn:hover{background:rgba(255,255,255,0.08);color:#fff}
 
-/* 슬라이드 본체 캔버스 */
+/* 슬라이드 메인 캔버스: 꽉 차는 밀도감 있는 구조 */
 main{
-  background:#F8F7F2;flex:1;height:100%;
-  padding:18px 28px;overflow:hidden;
-  display:flex;flex-direction:column;justify-content:center;
+  background:#F5F6F8;flex:1;height:100%;
+  padding:16px 24px;overflow-y:auto;
+  display:flex;flex-direction:column;
 }
 #prog{height:3px;background:rgba(0,0,0,0.06);width:100%}
 #prog i{display:block;height:100%;background:var(--green);width:0;transition:width .2s ease}
 
-main section.pg{display:none;height:100%;width:100%;max-width:1440px;margin:0 auto;flex-direction:column;justify-content:center}
+main section.pg{display:none;width:100%;max-width:1440px;margin:0 auto;flex-direction:column;gap:12px}
 main section.pg.on{display:flex;animation:fadeIn .18s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:scale(0.995)}to{opacity:1;transform:scale(1)}}
 
-/* 슬라이드 내부 타이포그래피 */
-.slide-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;border-bottom:2px solid var(--green);padding-bottom:6px;flex-shrink:0}
+/* 슬라이드 헤더 */
+.slide-header{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--green);padding-bottom:6px;flex-shrink:0}
 .slide-header.tistory-hd{border-bottom-color:var(--tistory)}
-h2{font-size:23px;color:var(--navy);letter-spacing:-.02em;font-weight:900;display:flex;align-items:baseline;gap:8px;margin:0}
-h2 .n{color:var(--green);font-size:15px;font-weight:900;letter-spacing:.08em}
+h2{font-size:22px;color:var(--navy);letter-spacing:-.02em;font-weight:900;display:flex;align-items:baseline;gap:8px;margin:0}
+h2 .n{color:var(--green);font-size:14px;font-weight:900;letter-spacing:.08em}
 h2 .n.tis{color:var(--tistory)}
 .slide-subtitle{font-size:13px;color:var(--mut);font-weight:600}
-h3{font-size:15px;color:var(--navy);margin:8px 0 5px;font-weight:800}
-p{font-size:13.5px;margin-bottom:6px;word-break:keep-all;line-height:1.55}
 
-/* 2열 슬라이드 레이아웃 그리드 */
+/* ── 상단 하이라이트 배너 (공백 제거 & 핵심 메시지) ── */
+.headline-banner{
+  background:#0C1E38;color:#fff;border-radius:10px;padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.headline-banner .h-left{display:flex;align-items:center;gap:10px}
+.headline-banner .h-tag{background:var(--green);color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.headline-banner .h-tag.tis{background:var(--tistory)}
+.headline-banner .h-txt{font-size:13.5px;font-weight:800;letter-spacing:-.01em}
+.headline-banner .h-sub{font-size:12px;color:#A9BDD4}
+
+/* ── 고밀도 2열 그리드 ── */
 .slide-grid-2{
-  display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;
-  flex:1;min-height:0;overflow:hidden;
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;
 }
-.slide-col{
-  display:flex;flex-direction:column;justify-content:center;min-height:0;overflow:hidden;gap:8px;
+.slide-grid-3{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
 }
 
-/* ── 2교시 대기 화면 전용 카드 ── */
-.welcome-hero{
-  background:linear-gradient(135deg,var(--navy) 0%,#162E52 100%);color:#fff;
-  border-radius:14px;padding:20px 24px;
-  box-shadow:0 8px 24px rgba(12,30,56,0.12);
+/* ── 고밀도 정보 카드 (내용이 알차게 차오르는 스타일) ── */
+.content-card{
+  background:#fff;border:1px solid var(--card-border);border-radius:10px;
+  padding:14px 16px;box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:10px;
 }
-.welcome-hero .tag-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-.welcome-hero .tag-pill{background:var(--green);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:900}
-.welcome-hero .tag-tistory{background:var(--tistory);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:900}
-.welcome-hero h1{font-size:23px;line-height:1.3;font-weight:900;margin-bottom:6px}
-.welcome-hero p.sub{font-size:13.5px;color:#A9BDD4;line-height:1.5}
-.pin-display-box{
-  background:#11233E;border:2px dashed var(--green);border-radius:10px;
-  padding:10px 18px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-}
-.pin-display-box .lbl{font-size:12px;color:#859BB5;font-weight:700}
-.pin-display-box .code{font-size:28px;font-weight:900;color:#62E59E;letter-spacing:.2em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.content-card.highlight{border-left:4px solid var(--green)}
+.content-card.highlight-tis{border-left:4px solid var(--tistory)}
+.content-card.highlight-navy{border-left:4px solid var(--navy)}
+.content-card.danger-card{border-left:4px solid var(--stop);background:#FFFDFD}
 
-/* ── 실습 프롬프트 박스 (티스토리 핏) ── */
-.prompt-box{border:1.5px solid var(--navy);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column;flex:1;min-height:0}
-.prompt-box.tistory-border{border-color:var(--tistory)}
-.prompt-box .p-top{background:var(--navy);color:#fff;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:800;flex-shrink:0}
-.prompt-box.tistory-border .p-top{background:var(--tistory)}
-.prompt-box .p-top .copy-btn{background:var(--green);color:#fff;border:0;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:900;cursor:pointer;transition:all .15s}
-.prompt-box.tistory-border .p-top .copy-btn{background:#fff;color:var(--tistory)}
-.prompt-box .p-top .copy-btn:hover{opacity:.9}
-.prompt-box .p-top .copy-btn.done{background:var(--ok)!important;color:#fff!important}
-.prompt-box pre{margin:0;padding:12px 14px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:"D2Coding","Menlo","Consolas",monospace;color:#28303C;background:#fff;overflow-y:auto;flex:1}
-.prompt-box .token{color:var(--navy);font-weight:800;background:#E7F8EE;border-radius:4px;padding:1px 5px;border-bottom:2px solid #A1E6BE}
-.prompt-box .token-tis{color:var(--tistory);font-weight:800;background:#FFF0EC;border-radius:4px;padding:1px 5px;border-bottom:2px solid #FFBEA8}
+.card-title-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:6px;border-bottom:1px solid #EEF1F5}
+.card-title{font-size:14px;font-weight:900;color:var(--navy);display:flex;align-items:center;gap:6px}
+.card-badge{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;color:#fff;background:var(--navy)}
+.card-badge.green{background:var(--green)}
+.card-badge.orange{background:var(--tistory)}
+.card-badge.red{background:var(--stop)}
 
-/* ── 인라인 맞춤 입력 카드 ── */
-.custom-inline-card{background:#F0FAF4;border:1px solid #BEE7D1;border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0}
-.custom-inline-card.tistory-card{background:#FFF6F4;border-color:#FCD2C7}
-.custom-inline-card .desc{font-size:12px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:5px}
-.custom-inline-card.tistory-card .desc{color:var(--tistory)}
-.custom-inline-card .fields{display:flex;gap:8px;flex:1}
-.custom-inline-card input{flex:1;padding:6px 10px;border:1px solid #A6DEC0;border-radius:6px;font:inherit;font-size:12px;background:#fff;color:var(--ink)}
-.custom-inline-card.tistory-card input{border-color:#FDB8A6}
-.custom-inline-card input:focus{outline:0;border-color:var(--green)}
-.custom-inline-card.tistory-card input:focus{border-color:var(--tistory)}
+/* ── 고밀도 비교 표 (Dense Comparison Table) ── */
+.dense-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid var(--card-border)}
+.dense-table th{background:#0C1E38;color:#fff;padding:8px 10px;text-align:left;font-weight:800;font-size:12px}
+.dense-table td{padding:8px 10px;border-top:1px solid #EEF1F5;vertical-align:top;line-height:1.5}
+.dense-table tr:nth-child(even){background:#F9FBFC}
+.dense-table .bad{color:#A82828;font-weight:700}
+.dense-table .good{color:#13693B;font-weight:800}
 
-/* ── Before vs After 탭 ── */
-.ba-container{border:1px solid var(--ln);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0}
-.ba-tabs{display:flex;background:var(--ivory);border-bottom:1px solid var(--ln);flex-shrink:0}
-.ba-tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:800;color:var(--mut);border:0;background:transparent;cursor:pointer;border-bottom:3px solid transparent}
-.ba-tab.active{color:var(--navy);background:#fff;border-bottom-color:var(--navy)}
-.ba-tab.before.active{border-bottom-color:var(--stop);color:var(--stop)}
-.ba-tab.after.active{border-bottom-color:var(--tistory);color:var(--tistory)}
-.ba-content{padding:12px 14px;background:#fff;font-size:12.5px;line-height:1.6;overflow-y:auto;flex:1}
-.ba-content pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;font-size:12px}
+/* ── 리스트 & 불렛 ── */
+.dense-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px;font-size:12.5px;line-height:1.55}
+.dense-list li{display:flex;align-items:flex-start;gap:6px}
+.dense-list li .ico{font-size:12px;line-height:1.4;flex-shrink:0}
+.dense-list li strong{color:var(--navy)}
 
-/* ── 공통 UI 컴포넌트 ── */
-.step{border:1px solid var(--ln);border-radius:10px;padding:10px 14px;background:#fff}
-.step .h{display:flex;gap:8px;align-items:baseline;margin-bottom:3px}
-.step .b{background:var(--navy);color:#fff;font-size:10.5px;font-weight:900;padding:1px 7px;border-radius:12px;white-space:nowrap}
-.step .ti{font-size:13.5px;font-weight:900;color:var(--navy)}
-.step p{font-size:12px;color:var(--mut);margin:0}
-
-.cal{border-radius:10px;padding:10px 14px;font-size:12.5px;line-height:1.55}
+/* ── 콜아웃 박스 (공백 없는 꽉 찬 구조) ── */
+.cal{border-radius:8px;padding:10px 14px;font-size:12.5px;line-height:1.55}
 .cal.warn{background:#FFF8E8;border:1px solid #EBD9A8;color:var(--warn)}
 .cal.tip{background:#EEF8F2;border:1px solid #C4E8D3;color:var(--ok)}
 .cal.stop{background:#FDF0EE;border:1px solid #F0CFC8;color:var(--stop)}
 .cal.tistory{background:#FFF3F0;border:1px solid #FDC3B5;color:#B33814}
 .cal b{display:block;margin-bottom:3px;font-size:13.5px}
 
-/* 강사 소개 프로필 카드 (슬림 핏) */
-.instructor-profile-card{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:10px 14px;box-shadow:0 4px 12px rgba(12,30,56,0.03);flex-shrink:0}
-.instructor-profile-card .avatar-box{width:60px;height:60px;border-radius:50%;overflow:hidden;border:2.5px solid var(--green);flex-shrink:0;background:#EDE8DF}
-.instructor-profile-card .avatar-box img{width:100%;height:100%;object-fit:cover;object-position:center top}
-.instructor-profile-card .profile-info h4{font-size:14px;font-weight:900;color:var(--navy);margin:0 0 2px;display:flex;align-items:center;gap:6px}
-.instructor-profile-card .profile-info h4 span{font-size:10.5px;color:#fff;background:var(--navy);padding:1px 6px;border-radius:6px;font-weight:700}
-.instructor-profile-card .profile-info p{font-size:11.5px;color:var(--mut);margin:0;line-height:1.45}
+/* ── 하단 요약/인사이트 3단 바 ── */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi-box{background:#fff;border:1px solid var(--card-border);border-radius:8px;padding:10px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.02)}
+.kpi-box .k-lbl{font-size:11px;color:var(--mut);font-weight:700;margin-bottom:2px}
+.kpi-box .k-val{font-size:15px;font-weight:900;color:var(--navy)}
+.kpi-box .k-sub{font-size:11px;color:#708096;margin-top:2px;line-height:1.4}
 
-/* ── 강의 시각화 일러스트/이미지 전용 카드 ── */
-.lecture-fig{border:1px solid var(--ln);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(12,30,56,0.04);display:flex;flex-direction:column;flex:1;min-height:0}
-.lecture-fig .fig-img-wrap{background:#0C1E38;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex:1;min-height:0}
-.lecture-fig img{width:100%;height:100%;max-height:36vh;object-fit:contain;display:block}
-.lecture-fig .fig-caption{padding:7px 12px;background:#FAFAF7;border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
-.lecture-fig .fig-caption .cap-txt{font-size:12px;font-weight:700;color:var(--navy)}
-.lecture-fig .fig-caption .cap-sub{font-size:11px;color:var(--mut);font-weight:500}
-.lecture-fig .fig-badge{background:var(--green);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;white-space:nowrap}
-
-/* ── 비교 카드 & 대화 시뮬레이션 ── */
-.compare-box{border-radius:12px;border:1px solid var(--card-border);background:#fff;padding:14px;box-shadow:0 4px 12px var(--card-shadow);display:flex;flex-direction:column;flex:1;min-height:0}
-.compare-box.danger{border-color:#F7CACA;background:#FFFBFB}
-.compare-box.success{border-color:#A8E8C0;background:#F7FDF9}
-.compare-box.tistory-box{border-color:#FDC3B5;background:#FFF8F6}
-.compare-box .c-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--ln)}
-.compare-box .c-title{font-size:13.5px;font-weight:900;display:flex;align-items:center;gap:6px}
-.compare-box.danger .c-title{color:var(--stop)}
-.compare-box.success .c-title{color:var(--ok)}
-.compare-box.tistory-box .c-title{color:var(--tistory)}
-.compare-box .c-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;color:#fff}
-.compare-box.danger .c-badge{background:var(--stop)}
-.compare-box.success .c-badge{background:var(--ok)}
-.compare-box.tistory-box .c-badge{background:var(--tistory)}
-.compare-box ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.5}
-.compare-box ul li{display:flex;align-items:flex-start;gap:6px}
-.compare-box ul li strong{color:var(--navy)}
-
-/* ChatGPT 대화 시뮬레이터 카드 */
-.chat-sim{background:#111B27;border-radius:12px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow-y:auto}
-.chat-sim .user-bubble{background:#23354C;color:#E1E9F4;padding:8px 12px;border-radius:10px 10px 2px 10px;align-self:flex-end;max-width:85%;font-size:11.5px;font-weight:600}
-.chat-sim .ai-bubble{background:#1A293E;border:1px solid #2B466B;color:#D3E0F0;padding:10px 12px;border-radius:10px 10px 10px 2px;align-self:flex-start;max-width:92%;font-size:11.5px;line-height:1.55}
+/* ── ChatGPT 대화 시뮬레이션 카드 ── */
+.chat-sim{background:#111B27;border-radius:10px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:8px}
+.chat-sim .user-bubble{background:#23354C;color:#E1E9F4;padding:7px 11px;border-radius:10px 10px 2px 10px;align-self:flex-end;max-width:90%;font-size:11.5px;font-weight:600}
+.chat-sim .ai-bubble{background:#1A293E;border:1px solid #2B466B;color:#D3E0F0;padding:9px 12px;border-radius:10px 10px 10px 2px;align-self:flex-start;max-width:95%;font-size:11.5px;line-height:1.55}
 .chat-sim .ai-bubble.ghost{border-color:#5A2B2B;background:#241919;color:#F0D0D0}
 .chat-sim .ai-bubble.authority{border-color:#1E5E3A;background:#10281C;color:#D8F5E4}
-.chat-sim .ai-bubble .cite-tag{display:inline-block;background:rgba(3,199,90,0.2);color:#55E095;border:1px solid #03C75A;padding:1px 5px;border-radius:4px;font-size:10px;margin-top:4px;font-weight:700}
-.chat-sim .ai-bubble .ghost-warn{display:inline-block;background:rgba(217,83,79,0.2);color:#FFA4A2;border:1px solid #D9534F;padding:1px 5px;border-radius:4px;font-size:10px;margin-top:4px;font-weight:700}
+.chat-sim .cite-tag{display:inline-block;background:rgba(3,199,90,0.2);color:#55E095;border:1px solid #03C75A;padding:1px 5px;border-radius:4px;font-size:10px;margin-top:4px;font-weight:700}
+.chat-sim .ghost-warn{display:inline-block;background:rgba(217,83,79,0.2);color:#FFA4A2;border:1px solid #D9534F;padding:1px 5px;border-radius:4px;font-size:10px;margin-top:4px;font-weight:700}
 
-/* 사진 3장 워크플로우 카드 */
-.photo-tri-card{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1;min-height:0}
-.photo-tri-item{background:#fff;border:1.5px solid var(--ln);border-radius:10px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 3px 8px rgba(0,0,0,0.02)}
-.photo-tri-item .step-num{font-size:11px;font-weight:900;color:#fff;background:var(--navy);padding:2px 7px;border-radius:6px;display:inline-block;margin-bottom:4px;align-self:flex-start}
-.photo-tri-item .photo-title{font-size:12.5px;font-weight:800;color:var(--navy);margin-bottom:3px}
-.photo-tri-item .photo-desc{font-size:11px;color:var(--mut);line-height:1.45;flex:1}
-.photo-tri-item .photo-meta{background:#F4F2EB;padding:4px 6px;border-radius:5px;font-size:10px;color:#4B5563;font-weight:700;margin-top:6px}
+/* ── 프롬프트 박스 ── */
+.prompt-box{border:1.5px solid var(--navy);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.prompt-box.tistory-border{border-color:var(--tistory)}
+.prompt-box .p-top{background:var(--navy);color:#fff;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:800;flex-shrink:0}
+.prompt-box.tistory-border .p-top{background:var(--tistory)}
+.prompt-box .p-top .copy-btn{background:#fff;color:var(--navy);border:0;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:900;cursor:pointer;transition:all .15s}
+.prompt-box.tistory-border .p-top .copy-btn{color:var(--tistory)}
+.prompt-box .p-top .copy-btn:hover{opacity:.9}
+.prompt-box .p-top .copy-btn.done{background:var(--ok)!important;color:#fff!important}
+.prompt-box pre{margin:0;padding:12px 14px;font-size:11.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:"D2Coding","Menlo","Consolas",monospace;color:#28303C;background:#fff;max-height:220px;overflow-y:auto}
+.prompt-box .token{color:var(--navy);font-weight:800;background:#E7F8EE;border-radius:4px;padding:1px 5px;border-bottom:2px solid #A1E6BE}
 
-/* ── PPT 하단 프레젠테이션 네비게이터 ── */
+/* ── 인라인 키워드 입력 카드 ── */
+.custom-inline-card{background:#FFF6F4;border:1px solid #FCD2C7;border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.custom-inline-card .desc{font-size:11.5px;font-weight:800;color:var(--tistory);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.custom-inline-card .fields{display:flex;gap:8px;flex:1}
+.custom-inline-card input{flex:1;padding:5px 9px;border:1px solid #FDB8A6;border-radius:6px;font:inherit;font-size:11.5px;background:#fff;color:var(--ink)}
+.custom-inline-card input:focus{outline:0;border-color:var(--tistory)}
+
+/* ── Before vs After 탭 ── */
+.ba-container{border:1px solid var(--ln);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.ba-tabs{display:flex;background:var(--ivory);border-bottom:1px solid var(--ln);flex-shrink:0}
+.ba-tab{flex:1;padding:8px;text-align:center;font-size:11.5px;font-weight:800;color:var(--mut);border:0;background:transparent;cursor:pointer;border-bottom:3px solid transparent}
+.ba-tab.active{color:var(--navy);background:#fff;border-bottom-color:var(--navy)}
+.ba-tab.before.active{border-bottom-color:var(--stop);color:var(--stop)}
+.ba-tab.after.active{border-bottom-color:var(--tistory);color:var(--tistory)}
+.ba-content{padding:10px 12px;background:#fff;font-size:12px;line-height:1.6;max-height:240px;overflow-y:auto}
+.ba-content pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;font-size:11.5px}
+
+/* 강사 소개 프로필 */
+.instructor-profile-card{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--ln);border-radius:10px;padding:10px 14px;box-shadow:0 4px 12px rgba(12,30,56,0.03)}
+.instructor-profile-card .avatar-box{width:56px;height:56px;border-radius:50%;overflow:hidden;border:2px solid var(--green);flex-shrink:0;background:#EDE8DF}
+.instructor-profile-card .avatar-box img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.instructor-profile-card .profile-info h4{font-size:13.5px;font-weight:900;color:var(--navy);margin:0 0 2px;display:flex;align-items:center;gap:6px}
+.instructor-profile-card .profile-info h4 span{font-size:10px;color:#fff;background:var(--navy);padding:1px 5px;border-radius:4px;font-weight:700}
+.instructor-profile-card .profile-info p{font-size:11px;color:var(--mut);margin:0;line-height:1.4}
+
+/* ── PPT 하단 네비게이터 ── */
 #pager{
   height:48px;flex-shrink:0;z-index:95;
   background:#0C1E38;border-top:1px solid rgba(255,255,255,0.1);
@@ -291,25 +273,25 @@ body.z3 main{font-size:1.25em}
 body.z2 nav,body.z3 nav{display:none}
 body.z2 .layout,body.z3 .layout{grid-template-columns:1fr}
 
-/* ── 전체보기 모드 (스크롤 활성화) ── */
+/* ── 전체보기 모드 ── */
 body.allmode, body.allmode #app{height:auto;overflow:auto}
 body.allmode .layout{grid-template-columns:1fr;overflow:visible;height:auto}
-body.allmode main{overflow:visible;height:auto;padding:36px}
-body.allmode main section.pg{display:block;margin-bottom:48px;border-bottom:2px solid var(--ln);padding-bottom:32px;height:auto}
+body.allmode main{overflow:visible;height:auto;padding:30px}
+body.allmode main section.pg{display:block;margin-bottom:44px;border-bottom:2px solid var(--ln);padding-bottom:30px;height:auto}
 body.allmode #pager,body.allmode #prog{display:none}
 
 .hidden{display:none!important}
 @media(max-width:820px){
   .layout{grid-template-columns:1fr}
   nav{display:none}
-  .slide-grid-2{grid-template-columns:1fr;overflow-y:auto}
-  main section.pg{overflow-y:auto}
+  .slide-grid-2, .slide-grid-3, .kpi-row{grid-template-columns:1fr}
+  main{overflow-y:auto}
 }
 </style>
 </head>
 <body>
 
-<!-- ── 1. 인증번호 입력 게이트 (인증번호: 0922) ── -->
+<!-- ── 1. 인증번호 입력 게이트 (0922) ── -->
 <div id="gate">
   <div class="box">
     <div class="logo">N</div>
@@ -330,7 +312,7 @@ body.allmode #pager,body.allmode #prog{display:none}
 <!-- ── 2. 메인 프레젠테이션 앱 ── -->
 <div id="app" class="hidden">
 
-<!-- 슬라이드 탑 컨트롤 바 -->
+<!-- 마스터 탑 바 -->
 <div id="bar">
   <div class="brand-badge">
     <span class="session-tag">2교시</span>
@@ -371,48 +353,102 @@ body.allmode #pager,body.allmode #prog{display:none}
 
 <main>
 
-<!-- SLIDE 0: 대기 & 사전 확인 -->
+<!-- SLIDE 0: 대기 & 30초 실습 준비물 체크 -->
 <section class="pg on" id="p_wait" data-g="시작 전" data-t="00 · 대기 &amp; 준비물 확인" data-live="1">
   <div class="slide-header">
     <h2><span class="n">00</span>2교시 시작 전 대기 &amp; 30초 실습 준비물 체크</h2>
-    <span class="slide-subtitle">스마트폰 사진 3장 &amp; 티스토리 글쓰기 창을 준비해 주세요</span>
+    <span class="slide-subtitle">스마트폰 사진 3장 &amp; 티스토리 에디터를 준비해 주세요</span>
+  </div>
+
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">2교시 미션</span>
+      <span class="h-txt">일상 사진 3장으로 네이버 상위노출 글 완성 ➔ 3분 만에 티스토리(구글 SEO)로 완벽 옮겨쓰기</span>
+    </div>
+    <span class="h-sub">강사: neoNpeter 이석호 대표</span>
   </div>
 
   <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 대기 카드 & PIN -->
-    <div class="slide-col">
-      <div class="welcome-hero">
-        <div class="tag-row">
-          <span class="tag-pill">2교시 오픈 대기</span>
-          <span class="tag-tistory">티스토리 실습 포함</span>
-          <span style="font-size:12px;color:#A9BDD4;font-weight:600">강사: neoNpeter 이석호 대표</span>
+    <!-- 좌측: 강사 소개 & 접속 PIN 전광판 -->
+    <div class="content-card highlight-navy">
+      <div class="card-title-row">
+        <span class="card-title">👨‍🏫 강의 안내 및 인증코드</span>
+        <span class="card-badge">Live Ready</span>
+      </div>
+      
+      <div class="instructor-profile-card">
+        <div class="avatar-box">
+          <img src="/instructors/lee-seokho.jpg" alt="이석호 대표" onerror="this.src='instructors/lee-seokho.jpg'">
         </div>
-        <h1>AI 네이버 블로그 마케팅 자동화<br>&amp; 티스토리 스마트 옮겨쓰기 실습</h1>
-        <p class="sub">수강생 여러분 환영합니다. 정시 시작 전 아래 접속 번호와 티스토리 계정을 준비해 주세요.</p>
-        
-        <div class="pin-display-box">
-          <div>
-            <div class="lbl">2교시 교재 접속 인증번호</div>
-            <div style="font-size:11.5px;color:#859BB5;margin-top:2px">모바일/노트북 화면에서 입력</div>
-          </div>
-          <div class="code">0922</div>
+        <div class="profile-info">
+          <h4>이석호 대표 <span>neoNpeter 대표 / AI 마케팅 디렉터</span></h4>
+          <p>AI 기반 콘텐츠 마케팅 자동화 디렉터 · BNI 비즈니스 네트워킹 전문 작가 · 블로그/숏폼 통합 퍼널 설계자</p>
         </div>
+      </div>
+
+      <div style="background:#11233E;border:2px dashed var(--green);border-radius:8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11.5px;color:#859BB5;font-weight:700">2교시 교재 접속 인증번호</div>
+          <div style="font-size:11px;color:#A9BDD4;margin-top:1px">노트북/모바일 브라우저에서 입력</div>
+        </div>
+        <div style="font-size:26px;font-weight:900;color:#62E59E;letter-spacing:.2em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">0922</div>
       </div>
     </div>
 
-    <!-- 우측 컬럼: 30초 체크리스트 -->
-    <div class="slide-col">
-      <div class="cal stop">
-        <b>지금 브라우저와 폰을 열고 확인해 주세요</b>
-        <p style="margin:0 0 5px">① <strong>내 비즈니스 사진 3장</strong> — 매장/사무실 외관 1장, 제품 또는 서류 1장, 고객 만남/현장 1장</p>
-        <p style="margin:0 0 5px">② <strong>티스토리(Tistory) 계정 로그인</strong> — 카카오 계정으로 티스토리 새 글쓰기 창 열기</p>
-        <p style="margin:0">③ <strong>클로드(Claude) 또는 GPT 창 켜기</strong> — 1교시에서 쓰던 AI 창을 그대로 활용</p>
+    <!-- 우측: 30초 준비물 체크리스트 3종 -->
+    <div class="content-card highlight">
+      <div class="card-title-row">
+        <span class="card-title">✅ 현장 30초 실습 준비물</span>
+        <span class="card-badge green">필수 3가지</span>
       </div>
 
-      <div class="cal tistory">
-        <b>💡 왜 오늘 실습은 '티스토리 옮겨쓰기'인가요?</b>
-        네이버에 쓴 글을 티스토리에 그대로 복사하면 <strong>유사문서 페널티</strong>를 먹습니다. 오늘 배울 AI 재구조화 프롬프트로 <strong>"구글 SEO와 AI 검색(SearchGPT/Perplexity)에 최적화된 독창적 문서"</strong>로 3분 만에 옮겨쓰는 실습을 진행합니다!
+      <ul class="dense-list">
+        <li>
+          <span class="ico">📸</span>
+          <div>
+            <strong>1. 스마트폰 사진 3장 확인</strong>
+            <p style="font-size:11.5px;color:var(--mut);margin:0">외관 1장, 제품/서류 1장, 고객 미팅/현장 1장 (샘플 시나리오도 제공)</p>
+          </div>
+        </li>
+        <li>
+          <span class="ico">🔥</span>
+          <div>
+            <strong>2. 티스토리(Tistory) 로그인 &amp; 새 글쓰기 창 열기</strong>
+            <p style="font-size:11.5px;color:var(--mut);margin:0">카카오 계정으로 10초 만에 로그인 가능. 오늘 실습에서 옮겨쓸 타깃 플랫폼</p>
+          </div>
+        </li>
+        <li>
+          <span class="ico">🤖</span>
+          <div>
+            <strong>3. 클로드(Claude) 또는 GPT 창 준비</strong>
+            <p style="font-size:11.5px;color:var(--mut);margin:0">1교시에서 사용하던 대화창을 그대로 켜두시면 됩니다</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="cal tistory" style="margin-top:4px">
+        <b>💡 왜 네이버에 이어 티스토리까지 옮겨쓰나요?</b>
+        네이버는 한국 로컬 검색을 잡고, 티스토리는 <strong>구글 검색 &amp; AI 검색(SearchGPT/Perplexity)</strong>을 독점합니다. 글 하나로 2대 영토를 동시 지배하는 원소스 멀티유즈(OSMU) 파이프라인입니다.
       </div>
+    </div>
+  </div>
+
+  <!-- 하단 3대 학습 목표 -->
+  <div class="kpi-row">
+    <div class="kpi-box">
+      <div class="k-lbl">목표 1 · AI 검색 혁명 이해</div>
+      <div class="k-val">SEO ➔ GEO 대전환</div>
+      <div class="k-sub">링크 클릭의 시대에서 AI가 단 1개의 정답을 추천하는 시대로의 변화</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-lbl">목표 2 · 워터마크 원천 차단</div>
+      <div class="k-val">웹 복붙 vs API 생성</div>
+      <div class="k-sub">보이지 않는 AI 지문을 피하고 포털 저품질을 막는 클린 토큰 테크닉</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-lbl">목표 3 · 현장 실습 완성</div>
+      <div class="k-val">티스토리 3분 옮겨쓰기</div>
+      <div class="k-sub">유사문서 100% 회피하며 구글 상위노출 마크다운 구조로 원클릭 재가공</div>
     </div>
   </div>
 </section>
@@ -424,48 +460,88 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="slide-subtitle">단순 링크 10개 나열의 시대는 끝났습니다. 이제 AI가 '직접 추천하는 단 1개의 정답'이 되어야 합니다.</span>
   </div>
 
-  <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 패러다임 전환 비교 카드 -->
-    <div class="slide-col">
-      <div class="step" style="border-left:4px solid var(--navy)">
-        <div class="h">
-          <span class="b" style="background:#556987">과거의 검색</span>
-          <span class="ti">SEO (검색엔진 최적화) · 링크 클릭의 시대</span>
-        </div>
-        <p>소비자가 키워드를 치면 포털이 파란색 링크 10개를 나열. 고객이 일일이 들어가 광고 글을 거르며 피로감을 느끼던 방식.</p>
-      </div>
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">패러다임 대전환</span>
+      <span class="h-txt">포털 검색 순위 1위보다 중요한 것은, AI가 정답을 말할 때 '나를 공식 출처(Citation)로 지목하는가'입니다</span>
+    </div>
+    <span class="h-sub">SearchGPT · Perplexity · Cue: 동시 공략</span>
+  </div>
 
-      <div class="step" style="border-left:4px solid var(--green)">
-        <div class="h">
-          <span class="b" style="background:var(--green)">현재 &amp; 미래</span>
-          <span class="ti">GEO (생성형 엔진 최적화) · 정답 인용의 시대</span>
-        </div>
-        <p>ChatGPT, Perplexity, 네이버 Cue:, 구글 AI가 질문에 대해 <strong>단 하나의 완결된 정답</strong>을 브리핑하고 유일한 출처(Citation)로 연결.</p>
-      </div>
-
-      <div class="cal warn" style="margin-top:2px">
-        <b>포털과 AI가 가장 목말라하는 것은 '현장의 진짜 데이터'입니다</b>
-        인터넷 백과사전 지식은 AI가 이미 다 알고 있습니다. AI가 절실히 찾는 것은 <strong>"오늘 사업장에서 고객과 실제로 부딪히며 해결한 1차 경험 데이터"</strong>이며, 이를 담을 수 있는 유일한 그릇이 네이버 &amp; 티스토리 블로그입니다.
-      </div>
+  <!-- 핵심 비교 매트릭스 테이블 (공백 완전 제거) -->
+  <div class="content-card highlight">
+    <div class="card-title-row">
+      <span class="card-title">📊 기존 포털 검색(SEO) vs 차세대 생성형 AI 검색(GEO) 비교 매트릭스</span>
+      <span class="card-badge green">핵심 인사이트</span>
     </div>
 
-    <!-- 우측 컬럼: 핵심 데이터 & 결론 카드 -->
-    <div class="slide-col">
-      <div class="compare-box success">
-        <div class="c-head">
-          <span class="c-title">🏆 AI 검색 인용(Citation) 알고리즘의 법칙</span>
-          <span class="c-badge">핵심 인사이트</span>
-        </div>
-        <ul>
-          <li>• <strong>공식 출처 인용률 82% 집중:</strong> AI는 검증되지 않은 웹페이지 대신 포털 공식 블로그의 누적 콘텐츠를 우선 참조합니다.</li>
-          <li>• <strong>구글 &amp; ChatGPT의 티스토리 인덱싱:</strong> 구글과 Perplexity는 웹 표준 구조(HTML/마크다운)를 갖춘 티스토리를 가장 빠르게 크롤링합니다.</li>
-          <li>• <strong>경험성(Experience) 점수 독점:</strong> 책상머리 이론글은 0점, <strong>직접 찍은 사진 3장 + 현장 일화</strong>는 만점 처리됩니다.</li>
-        </ul>
-      </div>
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th style="width:16%">비교 기준</th>
+          <th style="width:42%">과거 &amp; 현재 포털 검색 (SEO)</th>
+          <th style="width:42%">현재 &amp; 미래 생성형 AI 검색 (GEO)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>결과 제공 방식</strong></td>
+          <td>키워드 입력 시 <strong>파란색 링크 10개 나열</strong> (웹문서 목록)</td>
+          <td class="good">AI가 수많은 데이터를 종합해 <strong>단 하나의 완결된 정답 브리핑</strong></td>
+        </tr>
+        <tr>
+          <td><strong>소비자 탐색 행동</strong></td>
+          <td>링크를 일일이 클릭하며 홍보성 광고 글을 거르는 <strong>극심한 피로도</strong></td>
+          <td class="good">AI가 추천한 <strong>단 1곳의 전문가/매장으로 즉시 직행 (원스톱 결정)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>핵심 평가 알고리즘</strong></td>
+          <td>키워드 반복 횟수, 백링크 수, 단순 체류시간</td>
+          <td class="good"><strong>1차 경험성(Experience)</strong> 및 검증된 팩트 데이터(Ground Truth)</td>
+        </tr>
+        <tr>
+          <td><strong>인용 점유율</strong></td>
+          <td>1페이지 밖으로 밀려나면 트래픽 0% 전락</td>
+          <td class="good"><strong>신뢰도 높은 블로그 인용률 82% 집중</strong> (AI의 공식 레퍼런스 채택)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-      <div class="cal stop" style="margin-top:2px">
-        <b>결론: 블로그를 하지 않는 기업은 '디지털 유령'이 됩니다</b>
-        아무리 뛰어난 제품과 서비스를 가졌더라도, AI의 검색 인덱스에 내 현장 데이터가 없다면 차세대 고객 유입 통로는 영구 차단됩니다.
+  <!-- 하단 2열 상세 카드 -->
+  <div class="slide-grid-2">
+    <div class="content-card highlight-navy">
+      <div class="card-title-row">
+        <span class="card-title">💡 포털과 AI가 갈구하는 것은 '현장 1차 데이터'</span>
+        <span class="card-badge">데이터 법칙</span>
+      </div>
+      <ul class="dense-list">
+        <li>
+          <span class="ico">🔍</span>
+          <div><strong>인터넷 백과사전 지식은 AI가 이미 다 압니다:</strong> 책상머리 이론이나 짜깁기 글은 AI에게 가치가 0점입니다.</div>
+        </li>
+        <li>
+          <span class="ico">📸</span>
+          <div><strong>AI가 목말라하는 것은 '현장 팩트':</strong> 오늘 내 사업장에서 손님과 나눈 대화, 직접 찍은 사진 3장, 결산서 분석 메모입니다.</div>
+        </li>
+        <li>
+          <span class="ico">🏆</span>
+          <div><strong>이를 담을 수 있는 유일한 그릇:</strong> 네이버 블로그와 티스토리가 AI 검색 시대의 가장 강력한 지식 창고가 됩니다.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content-card danger-card">
+      <div class="card-title-row">
+        <span class="card-title">⚠️ 블로그가 없으면 '디지털 유령'이 됩니다</span>
+        <span class="card-badge red">생존 경고</span>
+      </div>
+      <p style="font-size:12.5px;color:#7A2626;margin:0;line-height:1.6">
+        오프라인에서 20년 동안 아무리 뛰어난 기술과 고객 만족도를 쌓았더라도, <strong>웹 상에 구조화된 현장 데이터가 없으면 AI는 대표님의 존재를 모릅니다.</strong><br>
+        고객이 AI에게 <em>"우리 동네에서 제일 잘하는 전문가 추천해 줘"</em>라고 물었을 때, 대표님은 영원히 호명되지 못합니다.
+      </p>
+      <div class="cal stop" style="margin:4px 0 0">
+        <b>결론: 블로그는 단순 일기가 아니라 AI를 위한 내 사업 데이터베이스입니다</b>
       </div>
     </div>
   </div>
@@ -478,96 +554,166 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="slide-subtitle">오프라인 20년 내공의 대표님이 AI 앞에서는 왜 '존재하지 않는 사람'일까요?</span>
   </div>
 
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">실제 AI 검색 대화</span>
+      <span class="h-txt">실제 고객이 "전문가 추천해 줘"라고 질문했을 때, 두 대표님의 운명은 극명하게 갈립니다</span>
+    </div>
+    <span class="h-sub">RAG (검색 증강 생성) 작동 원리</span>
+  </div>
+
   <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 읽지 못하는 사람 (디지털 유령) -->
-    <div class="slide-col">
-      <div class="compare-box danger">
-        <div class="c-head">
-          <span class="c-title">❌ ChatGPT가 읽지 못하는 나 (디지털 유령)</span>
-          <span class="c-badge">데이터 부재</span>
-        </div>
-        <p style="font-size:12px;color:#803030;margin-bottom:8px">오프라인 경력은 화려하지만 온라인에 구조화된 현장 데이터가 없는 상태</p>
+    <!-- 좌측: 읽지 못하는 사람 (디지털 유령) -->
+    <div class="content-card danger-card">
+      <div class="card-title-row">
+        <span class="card-title">❌ 데이터 없는 대표님 (디지털 유령 - Ghost)</span>
+        <span class="card-badge red">영업 기회 0%</span>
       </div>
+      <p style="font-size:12px;color:#803030;margin:0">오프라인 경력은 20년이지만 온라인에 1차 현장 기록이 전혀 없는 상태</p>
 
       <div class="chat-sim">
         <div class="user-bubble">"역삼동에서 10인 제조업 원가 절감 컨설팅 제일 잘하는 전문가 추천해 줘."</div>
         <div class="ai-bubble ghost">
-          "역삼동 인근에는 삼일, 삼정 등 대형 회계법인과 여러 경영지도사 사무소가 있습니다. 구체적인 후기는 포털 검색을 통해 직접 확인해 보시는 것을 권장합니다..."
-          <br><span class="ghost-warn">⚠️ 경고: 내 회사가 전혀 호명되지 못함 (디지털 유령)</span>
+          "역삼동 인근에는 삼일, 삼정 등 대형 회계법인과 다수의 경영지원센터가 등록되어 있습니다. 개별 전문가에 대한 상세 정보는 포털 검색이나 지인 추천을 통해 직접 확인하시기 바랍니다..."
+          <br><span class="ghost-warn">⚠️ 경고: 내 회사 이름이 아예 존재하지 않음 (디지털 유령)</span>
         </div>
+      </div>
+
+      <div class="cal stop" style="margin:0">
+        <b>결과: 신규 고객 유입 통로 영구 차단</b>
+        오프라인 내공과 무관하게, 차세대 AI 검색을 이용하는 잠재 고객에게는 완전히 보이지 않는 존재가 됩니다.
       </div>
     </div>
 
-    <!-- 우측 컬럼: 읽고 추천하는 사람 (공식 권위자) -->
-    <div class="slide-col">
-      <div class="compare-box success">
-        <div class="c-head">
-          <span class="c-title">✅ ChatGPT가 읽고 추천하는 나 (공식 레퍼런스)</span>
-          <span class="c-badge">24시간 AI 영업사원</span>
-        </div>
-        <p style="font-size:12px;color:#18693E;margin-bottom:8px">사진 3장과 함께 실제 고객 문제 해결 사례가 블로그에 축적된 상태</p>
+    <!-- 우측: 읽고 추천하는 사람 (공식 레퍼런스) -->
+    <div class="content-card highlight">
+      <div class="card-title-row">
+        <span class="card-title">✅ 블로그가 있는 대표님 (공식 레퍼런스 - Authority)</span>
+        <span class="card-badge green">24시간 AI 영업사원</span>
       </div>
+      <p style="font-size:12px;color:#18693E;margin:0">현장 사진 3장과 실제 문제 해결 일지가 블로그에 차곡차곡 축적된 상태</p>
 
       <div class="chat-sim">
         <div class="user-bubble">"역삼동에서 10인 제조업 원가 절감 컨설팅 제일 잘하는 전문가 추천해 줘."</div>
         <div class="ai-bubble authority">
-          "<strong>역삼동의 neoNpeter 이석호 대표</strong>를 추천합니다. 정밀 부품 제조업 결산서와 작업 일지를 직접 분석해 월 1,500만 원의 원가 누수를 잡은 실제 사례 700여 건을 상세히 공개하고 있습니다."
-          <br><span class="cite-tag">🔗 출처: 네이버 &amp; 티스토리 블로그 [제조업 원가진단 현장 일지] 인용</span>
+          "<strong>역삼동의 neoNpeter 이석호 대표</strong>를 추천합니다. 정밀 가공 제조업체의 장부와 공장 코드를 직접 대조해 월 1,500만 원의 원가 누수를 찾아낸 실무 사례 700여 건을 보유하고 있습니다."
+          <br><span class="cite-tag">🔗 공식 출처: 네이버 &amp; 티스토리 블로그 [제조업 현장진단 일지] 인용</span>
         </div>
       </div>
+
+      <div class="cal tip" style="margin:0">
+        <b>결과: 24시간 일하는 무료 영업사원 확보</b>
+        AI가 신뢰할 만한 팩트 출처로 내 블로그를 인용하며, 의뢰할 준비가 끝난 VIP 고객을 내 사업장으로 직배송합니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-box">
+      <div class="k-lbl">비즈니스 영향 1</div>
+      <div class="k-val">상담 성사율 5배 상승</div>
+      <div class="k-sub">AI의 추천을 받고 온 고객은 이미 신뢰가 형성되어 가격 흥정을 하지 않습니다</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-lbl">비즈니스 영향 2</div>
+      <div class="k-val">광고비 0원 자동화</div>
+      <div class="k-sub">매달 수백만 원씩 나가는 키워드 입찰 광고 없이도 상위 정답을 독점합니다</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-lbl">비즈니스 영향 3</div>
+      <div class="k-val">영구적 지식 자산화</div>
+      <div class="k-sub">한 번 올려둔 현장 포스팅은 1년, 3년 뒤에도 AI 검색 엔진의 답변 근거로 활용됩니다</div>
     </div>
   </div>
 </section>
 
-<!-- SLIDE 3: 블로그의 본질 - AI의 정답 자판기 -->
+<!-- SLIDE 3: 블로그의 본질: AI의 '정답 자판기' (Ground Truth) -->
 <section class="pg" id="p2" data-g="블로그의 본질" data-t="03 · AI의 정답 자판기 (Ground Truth)" data-live="1">
   <div class="slide-header">
     <h2><span class="n">03</span>AI 시대 블로그의 진짜 역할: '정답 자판기' (Ground Truth)</h2>
     <span class="slide-subtitle">블로그는 사람에게 보여주는 전단지가 아니라, AI 에이전트들이 나를 학습하는 데이터베이스입니다.</span>
   </div>
 
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">핵심 메커니즘</span>
+      <span class="h-txt">AI가 거짓말(환각)을 피하기 위해 가장 먼저 뒤지는 1순위 데이터가 바로 '검증된 블로그 팩트'입니다</span>
+    </div>
+    <span class="h-sub">RAG (Retrieval-Augmented Generation)</span>
+  </div>
+
   <div class="slide-grid-2">
-    <!-- 좌측 컬럼: Ground Truth의 개념 & RAG 원리 -->
-    <div class="slide-col">
-      <div class="step" style="border-left:4px solid var(--navy)">
-        <div class="h">
-          <span class="b">개념 1</span>
-          <span class="ti">Ground Truth (원천 진실 데이터베이스)</span>
-        </div>
-        <p>AI 모델은 환각(거짓말)을 피하기 위해 신뢰할 수 있는 팩트 데이터(Ground Truth)를 끊임없이 검색합니다. 블로그는 작성자 신원과 사진 메타데이터가 확인된 최고의 원천 데이터입니다.</p>
+    <!-- 좌측: Ground Truth의 개념 및 작동 흐름 -->
+    <div class="content-card highlight-navy">
+      <div class="card-title-row">
+        <span class="card-title">⚙️ Ground Truth (원천 진실) 구축 흐름</span>
+        <span class="card-badge">인과 구조</span>
       </div>
 
-      <div class="step" style="border-left:4px solid var(--green)">
-        <div class="h">
-          <span class="b" style="background:var(--green)">개념 2</span>
-          <span class="ti">RAG (검색 증강 생성)의 1순위 먹잇감</span>
-        </div>
-        <p>고객이 AI에게 질문할 때, AI는 실시간으로 검색 엔진을 뒤져 '가장 최근에 올라온 구체적 후기'를 RAG 방식으로 인출해 답변에 합성합니다.</p>
-      </div>
+      <table class="dense-table">
+        <tbody>
+          <tr>
+            <td style="width:28%"><strong>1단계: 현장 발생</strong></td>
+            <td>실제 고객 방문, 제품 테스트, 서류 검토 등 살아있는 현장 사건</td>
+          </tr>
+          <tr>
+            <td><strong>2단계: 블로그 기록</strong></td>
+            <td>스마트폰 사진 3장 + 문제 해결 과정 텍스트 포스팅 (타임스탬프 공인)</td>
+          </tr>
+          <tr>
+            <td><strong>3단계: AI 크롤링</strong></td>
+            <td>포털 봇 및 LLM 크롤러가 작성자 신원과 사진 메타데이터를 팩트로 색인</td>
+          </tr>
+          <tr>
+            <td><strong>4단계: 정답 인용</strong></td>
+            <td>고객의 질의에 대해 AI가 내 블로그를 <strong>'Ground Truth'</strong>로 채택해 답변에 인용</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div class="cal tip" style="margin-top:2px">
-        <b>💡 블로그 글 작성의 프레임 전환</b>
-        "오늘 누구한테 글을 보여줄까?"가 아니라, <strong>"오늘 내 글을 AI가 읽었을 때 나를 어떤 분야의 최고 전문가로 인덱싱할 것인가?"</strong>를 기준으로 작성해야 합니다.
+      <div class="cal tip" style="margin:0">
+        <b>💡 블로그 글을 쓸 때의 관점 전환</b>
+        "오늘 이 글을 어떤 사람에게 보여줄까?"가 아니라, <strong>"오늘 올린 이 글을 AI가 읽고 나를 어떤 분야의 1등 전문가로 정의할 것인가?"</strong>를 기준으로 써야 합니다.
       </div>
     </div>
 
-    <!-- 우측 컬럼: 네이버 D.I.A & 구글 SEO 평가 기준 -->
-    <div class="slide-col">
-      <div class="compare-box" style="border-color:#32537C">
-        <div class="c-head" style="background:#F0F4FA;padding:8px 10px;margin:-14px -14px 10px -14px;border-radius:10px 10px 0 0">
-          <span class="c-title" style="color:var(--navy)">⚙️ 검색 &amp; AI 엔진의 3대 핵심 평가 기준</span>
-          <span class="c-badge" style="background:var(--navy)">상위노출 엔진</span>
-        </div>
-        <ul>
-          <li>• <strong>경험성 (Experience):</strong> 직접 방문하고 만져본 사람만이 쓸 수 있는 디테일한 묘사 (스톡 이미지 사용 시 즉각 감점).</li>
-          <li>• <strong>독창성 (Originality):</strong> 웹 상의 기존 문서와 복사-짜깁기되지 않은 독자적 맥락과 고유 단어 조합 (유사문서 100% 필터링).</li>
-          <li>• <strong>구조화 (Structured Data):</strong> H2, H3 소제목과 요약 글머리표로 AI 봇이 핵심을 긁어가기 쉬운 깔끔한 서식.</li>
-        </ul>
+    <!-- 우측: 네이버 D.I.A+ & 구글이 평가하는 4대 지표 -->
+    <div class="content-card highlight">
+      <div class="card-title-row">
+        <span class="card-title">🏆 검색 로봇이 만점을 주는 4대 평가 기준</span>
+        <span class="card-badge green">알고리즘 통과</span>
       </div>
 
-      <div class="cal warn" style="margin-top:2px">
+      <ul class="dense-list">
+        <li>
+          <span class="ico">📍</span>
+          <div>
+            <strong>1. 경험성 (Experience):</strong> 직접 방문하고 만져본 사람만이 쓸 수 있는 고유한 감각적 묘사 (스톡 이미지 사용 시 즉시 감점)
+          </div>
+        </li>
+        <li>
+          <span class="ico">✍️</span>
+          <div>
+            <strong>2. 독창성 (Originality):</strong> 웹 상의 기존 문서와 짜깁기되지 않은 독자적 문장 구조 (유사문서 100% 필터링)
+          </div>
+        </li>
+        <li>
+          <span class="ico">⏱️</span>
+          <div>
+            <strong>3. 체류시간 (Engagement):</strong> 모바일 화면에서 독자가 최소 2분 이상 스크롤을 내리게 만드는 대화형 스토리텔링
+          </div>
+        </li>
+        <li>
+          <span class="ico">📐</span>
+          <div>
+            <strong>4. 구조화 (Structured):</strong> H2, H3 소제목과 핵심 요약 박스로 검색 로봇이 핵심을 0.1초 만에 긁어가도록 배려
+          </div>
+        </li>
+      </ul>
+
+      <div class="cal warn" style="margin:0">
         <b>인터넷 짜깁기 글은 네이버와 구글 모두에게 버림받습니다</b>
-        뻔한 지식 글 100개보다, 내 현장 사진 3장과 고민이 녹아있는 솔직한 상담 일지 1개가 100배 더 강력합니다.
+        남의 글을 베낀 100개 포스팅보다, 내 현장 사진 3장이 들어간 솔직한 상담 일지 1개가 100배 더 강력합니다.
       </div>
     </div>
   </div>
@@ -580,47 +726,73 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="slide-subtitle">웹 브라우저에서 복사한 AI 글은 왜 블로그에서 저품질로 누락될까요? 전문가는 왜 API를 쓸까요?</span>
   </div>
 
-  <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 웹 UI 복붙의 위험성 -->
-    <div class="slide-col">
-      <div class="compare-box danger">
-        <div class="c-head">
-          <span class="c-title">⚠️ 웹 UI (ChatGPT/Claude 사이트) 복붙의 위험</span>
-          <span class="c-badge">저품질 직행</span>
-        </div>
-        <ul>
-          <li>• <strong>보이지 않는 워터마크 &amp; 지문:</strong> 빅테크 웹은 AI 텍스트 식별을 위해 특수 제로 너비 공백(Zero-width Space) 및 통계적 토큰 지문을 삽입합니다.</li>
-          <li>• <strong>기계적 상투어 패턴:</strong> "결론적으로", "현대 사회에서", "중요한 역할을 합니다" 등 포털 스팸 필터가 0.1초 만에 감지하는 클리셰 남발.</li>
-          <li>• <strong>포털 검색 어뷰징 제재:</strong> 웹 UI 복붙 글을 올리면 검색 봇이 AI 생성물로 즉시 낙인찍어 노출에서 제외합니다.</li>
-        </ul>
-      </div>
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">기술적 진실</span>
+      <span class="h-txt">편하다고 웹 화면에서 긁어다 붙이면 블로그가 사망합니다. AI 탐지기와 포털 스팸 필터의 원리를 알아야 합니다.</span>
+    </div>
+    <span class="h-sub">Zero-width Space · Raw Logits</span>
+  </div>
 
-      <div class="cal stop" style="margin-top:2px">
-        <b>"편하다고 웹창에서 긁어다 붙이면 블로그가 사망합니다"</b>
-        네이버와 구글 검색 알고리즘은 매일 수억 건의 문서를 검사하며, 웹 AI 복붙 특유의 통계적 패턴을 가장 먼저 잡아냅니다.
-      </div>
+  <!-- 기술 비교 매트릭스 (공백 제로) -->
+  <div class="content-card highlight-navy">
+    <div class="card-title-row">
+      <span class="card-title">🔬 웹 UI(사이트) 복붙 vs 전용 API 파이프라인 정밀 비교</span>
+      <span class="card-badge">기술 분석</span>
     </div>
 
-    <!-- 우측 컬럼: 전용 API 무결점 파이프라인의 우위 -->
-    <div class="slide-col">
-      <div class="compare-box success">
-        <div class="c-head">
-          <span class="c-title">🚀 직접 API (전용 파이프라인) 생성의 압도적 우위</span>
-          <span class="c-badge">100% 클린 토큰</span>
-        </div>
-        <ul>
-          <li>• <strong>완전 무결점 클린 텍스트 (Raw Logits):</strong> 웹 UI 브라우저 래핑 및 트래킹 워터마크가 완전히 배제된 순수 원시 토큰 생성.</li>
-          <li>• <strong>파라미터 정밀 제어로 인간화:</strong><br>
-            - <code style="background:#DEF7EC;padding:1px 4px;border-radius:3px">temperature 0.75</code>: 기계적 어휘 탈피, 생생한 구어체 유도<br>
-            - <code style="background:#DEF7EC;padding:1px 4px;border-radius:3px">presence_penalty</code>: AI 특유의 뻔한 동어반복 100% 원천 차단</li>
-          <li>• <strong>영구 시스템 프롬프트:</strong> 내 회사 프로필 + 사진 3장 메타데이터를 시스템 레벨에서 영구 결합하여 100% 자연스러운 글 탄생.</li>
-        </ul>
-      </div>
+    <table class="dense-table">
+      <thead>
+        <tr>
+          <th style="width:18%">비교 항목</th>
+          <th style="width:41%">웹 UI (ChatGPT / Claude 웹사이트) 복붙</th>
+          <th style="width:41%">직접 API (전용 파이프라인) 생성</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>워터마크 &amp; 지문</strong></td>
+          <td class="bad">• <strong>제로 너비 공백(Zero-width Space)</strong> 삽입<br>• 특수 유니코드 및 통계적 n-gram 지문 잔류</td>
+          <td class="good">• <strong>완전 무결점 클린 텍스트 (Raw Logits)</strong><br>• 숨겨진 브라우저 세션 워터마크 0% 원천 차단</td>
+        </tr>
+        <tr>
+          <td><strong>문체 &amp; 상투어</strong></td>
+          <td class="bad">• 뻔한 AI 상투어 ("결론적으로", "중요한 역할")<br>• 포털 스팸 필터가 0.1초 만에 기계 글로 감지</td>
+          <td class="good">• <code style="background:#DEF7EC;padding:1px 4px;border-radius:3px">temperature 0.75</code> 제어로 생생한 구어체<br>• <code style="background:#DEF7EC;padding:1px 4px;border-radius:3px">penalty</code> 파라미터로 동어반복 원천 차단</td>
+        </tr>
+        <tr>
+          <td><strong>비즈니스 맥락</strong></td>
+          <td class="bad">• 단편적 대화창에서 내 회사 맥락이 매번 리셋<br>• 매번 프롬프트를 다시 치고 복사해야 하는 번거로움</td>
+          <td class="good">• 내 사업장 프로필 + 사진 3장 메타데이터를<br><strong>시스템 프롬프트 레벨에서 영구 결합</strong></td>
+        </tr>
+        <tr>
+          <td><strong>포털 봇 판정 결과</strong></td>
+          <td class="bad">❌ <strong>AI 생성물 어뷰징 판정 ➔ 저품질 강등 &amp; 누락</strong></td>
+          <td class="good">🏆 <strong>"진짜 사람이 쓴 진정성 있는 글"로 완벽 인식</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-      <div class="cal tip" style="margin-top:2px">
-        <b>결과: 검색 로봇이 "진짜 사람이 쓴 글"로 완벽하게 인식합니다</b>
-        API로 생성된 글은 어투가 자연스럽고 고유 현장 데이터가 결합되어 상위노출 지표를 완벽히 통과합니다.
+  <div class="slide-grid-2">
+    <div class="content-card danger-card">
+      <div class="card-title-row">
+        <span class="card-title">⚠️ 웹 UI 복붙 글이 걸려드는 원리</span>
+        <span class="card-badge red">필터 작동</span>
       </div>
+      <p style="font-size:12px;color:#782828;margin:0;line-height:1.55">
+        네이버 검색 봇은 매일 수억 건의 글을 검사합니다. 특히 웹 AI 글 특유의 <strong>토큰 분포 확률(Perplexity &amp; Burstiness)</strong>이 일정하게 나오는 글은 즉시 어뷰징 문서로 분류됩니다.
+      </p>
+    </div>
+
+    <div class="content-card highlight">
+      <div class="card-title-row">
+        <span class="card-title">🚀 API 기반 생성 파이프라인의 핵심 가치</span>
+        <span class="card-badge green">생산성 극대화</span>
+      </div>
+      <p style="font-size:12px;color:#18693E;margin:0;line-height:1.55">
+        사진 3장만 업로드하면 제목, 본문, 인용구, 태그까지 <strong>단 30초 만에 100% 휴먼 감성 완제품</strong>으로 추출되어 네이버와 티스토리에 안전하게 발행됩니다.
+      </p>
     </div>
   </div>
 </section>
@@ -632,69 +804,82 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="slide-subtitle">외관 ➔ 핵심 디테일 ➔ 미팅/결과 3컷으로 완성하는 완벽한 인간형 스토리텔링 공식</span>
   </div>
 
-  <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 사진 3장 앵글 공식 카드 3종 -->
-    <div class="slide-col">
-      <div class="photo-tri-card">
-        <div class="photo-tri-item">
-          <div>
-            <span class="step-num">CUT 1 · 외관/도입</span>
-            <div class="photo-title">방문 &amp; 첫인상</div>
-            <div class="photo-desc">사무실/매장 외관, 로비, 그날의 날씨와 분위기. 고객이 문을 열 때의 기대감 형성.</div>
-          </div>
-          <div class="photo-meta">🎯 효과: 호기심 자극 &amp; 체류시간 확보</div>
-        </div>
+  <div class="headline-banner">
+    <div class="h-left">
+      <span class="h-tag">촬영 &amp; 배치 공식</span>
+      <span class="h-txt">사진 3장의 구체적 상황 설명이 주입되면, AI의 기계적 상투어는 100% 파괴되고 진정성이 살아납니다</span>
+    </div>
+    <span class="h-sub">스마트폰 갤러리 활용</span>
+  </div>
 
-        <div class="photo-tri-item">
-          <div>
-            <span class="step-num" style="background:var(--green)">CUT 2 · 핵심 디테일</span>
-            <div class="photo-title">문제 진단 &amp; 증거</div>
-            <div class="photo-desc">테이블 위 결산서, 제품 단면, 시공 도면, 메모. 전문가만 보여줄 수 있는 결정적 한 컷.</div>
-          </div>
-          <div class="photo-meta">🎯 효과: 압도적 전문성과 신뢰 입증</div>
-        </div>
-
-        <div class="photo-tri-item">
-          <div>
-            <span class="step-num" style="background:#B45309">CUT 3 · 고객 미팅/결과</span>
-            <div class="photo-title">공감 &amp; 안도의 미소</div>
-            <div class="photo-desc">문제가 해결된 후 고객과 나눈 악수, 밝아진 표정, 따뜻한 커피 한 잔의 여운.</div>
-          </div>
-          <div class="photo-meta">🎯 효과: 감정적 카타르시스 &amp; 문의 전환</div>
-        </div>
+  <!-- 3컷 황금 공식 카드 3종 -->
+  <div class="slide-grid-3">
+    <div class="content-card highlight-navy">
+      <div class="card-title-row">
+        <span class="card-title">📸 CUT 1 · 외관 &amp; 첫인상</span>
+        <span class="card-badge">도입부 몰입</span>
       </div>
-
-      <div class="cal tip" style="margin-top:2px">
-        <b>사진 3장의 구체적 상황 설명이 AI의 상투어를 완벽히 파괴합니다</b>
-        AI에게 "블로그 글 써줘"라고 하면 로봇 글이 나오지만, <strong>"사진 1의 로비 분위기와 사진 2의 서류 메모를 엮어줘"</strong>라고 하면 100% 인간의 글이 탄생합니다.
+      <p style="font-size:12px;color:var(--mut);margin:0;line-height:1.5">
+        <strong>촬영 대상:</strong> 매장/사무실 외관, 로비 전경, 그날의 날씨와 거리 풍경.<br>
+        <strong>글 작성 효과:</strong> 독자가 문을 열고 들어오는 듯한 현장감 형성. 호기심을 유발해 첫 40초 체류시간 확보.
+      </p>
+      <div style="background:#F0F4FA;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;color:var(--navy)">
+        🎯 핵심: 고객의 페인포인트에 깊이 공감하는 도입부
       </div>
     </div>
 
-    <!-- 우측 컬럼: 강사 소개 및 워크플로우 -->
-    <div class="slide-col">
-      <div class="instructor-profile-card">
-        <div class="avatar-box">
-          <img src="/instructors/lee-seokho.jpg" alt="이석호 대표" onerror="this.src='instructors/lee-seokho.jpg'">
-        </div>
-        <div class="profile-info">
-          <h4>이석호 대표 <span>neoNpeter 대표 / AI 마케팅 디렉터</span></h4>
-          <p>AI 기반 콘텐츠 마케팅 자동화 디렉터 · BNI 비즈니스 네트워킹 전문 작가 · 블로그/숏폼 통합 퍼널 설계자<br>
-          <strong>"단순한 글짓기 기술이 아닌, 매일의 일상이 매출로 연결되는 자동화 루틴을 선물해 드립니다."</strong></p>
-        </div>
+    <div class="content-card highlight">
+      <div class="card-title-row">
+        <span class="card-title">🔬 CUT 2 · 핵심 디테일</span>
+        <span class="card-badge green">전문성 입증</span>
       </div>
+      <p style="font-size:12px;color:var(--mut);margin:0;line-height:1.5">
+        <strong>촬영 대상:</strong> 테이블 위 결산서, 제품 단면, 시공 도면, 진단 메모.<br>
+        <strong>글 작성 효과:</strong> 진짜 전문가만 보여줄 수 있는 디테일한 근거 제시. 독자에게 "이 사람은 진짜다"라는 신뢰 폭발.
+      </p>
+      <div style="background:#EEF8F2;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;color:var(--ok)">
+        🎯 핵심: 구체적 수치와 문제 해결 프로세스 제시
+      </div>
+    </div>
 
-      <figure class="lecture-fig">
-        <div class="fig-img-wrap">
-          <img src="/images/blog_automation_workflow.jpg" alt="사진 3장 기반 블로그 자동화 워크플로우" loading="lazy">
-        </div>
-        <div class="fig-caption">
-          <div>
-            <div class="cap-txt">⚡ 스마트폰 촬영 3컷 ➔ 프롬프트 입력 ➔ 블로그 원클릭 발행</div>
-            <div class="cap-sub">매일 10분 투자로 24시간 일하는 AI 영업사원 블로그 구축</div>
-          </div>
-          <span class="fig-badge">Auto Pipeline</span>
-        </div>
-      </figure>
+    <div class="content-card highlight-tis">
+      <div class="card-title-row">
+        <span class="card-title">🤝 CUT 3 · 고객 미팅 &amp; 결과</span>
+        <span class="card-badge orange">전환율 폭발</span>
+      </div>
+      <p style="font-size:12px;color:var(--mut);margin:0;line-height:1.5">
+        <strong>촬영 대상:</strong> 문제가 해결된 후 나눈 악수, 밝아진 대표님의 미소, 커피 한 잔.<br>
+        <strong>글 작성 효과:</strong> 감정적 안도감과 카타르시스 선사. "나도 저렇게 해결받고 싶다"는 강력한 문의 욕구 자극.
+      </p>
+      <div style="background:#FFF3F0;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;color:var(--tistory)">
+        🎯 핵심: 자연스러운 상담 신청 링크(CTA) 배치
+      </div>
+    </div>
+  </div>
+
+  <!-- 4단계 실행 워크플로우 -->
+  <div class="content-card highlight">
+    <div class="card-title-row">
+      <span class="card-title">⚡ 10분 완성 4단계 자동화 워크플로우</span>
+      <span class="card-badge green">Daily Routine</span>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-box">
+        <div class="k-lbl">STEP 1 (1분)</div>
+        <div class="k-val">사진 3장 스마트폰 촬영</div>
+        <div class="k-sub">외관 ➔ 서류/디테일 ➔ 미팅 결과를 일상에서 자연스럽게 촬영</div>
+      </div>
+      <div class="kpi-box">
+        <div class="k-lbl">STEP 2 (1분)</div>
+        <div class="k-val">사진 상황 3줄 메모 입력</div>
+        <div class="k-sub">AI 프롬프트 창에 각 사진의 상황을 한 줄씩 편하게 적어 넣기</div>
+      </div>
+      <div class="kpi-box">
+        <div class="k-lbl">STEP 3 (2분)</div>
+        <div class="k-val">네이버 &amp; 티스토리 동시 발행</div>
+        <div class="k-sub">생성된 글을 복사해 네이버에 발행하고, 티스토리로 3분 재가공</div>
+      </div>
     </div>
   </div>
 </section>
@@ -706,13 +891,26 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="slide-subtitle">단순 복붙은 유사문서 폭탄! AI 재구조화로 구글 SEO &amp; AI 검색(GEO)을 동시에 잡는 멀티채널 공식</span>
   </div>
 
+  <div class="headline-banner" style="background:#1F130F;border-left:4px solid var(--tistory)">
+    <div class="h-left">
+      <span class="h-tag tis">실습 미션</span>
+      <span class="h-txt">네이버에 올린 글(또는 오늘 메모)을 유사문서 페널티 0%로 티스토리 전용 마크다운 글로 재가공하여 발행합니다</span>
+    </div>
+    <span class="h-sub">구글 SEO &amp; SearchGPT 동시 공략</span>
+  </div>
+
   <div class="slide-grid-2">
-    <!-- 좌측 컬럼: 단순 복붙의 함정 vs 티스토리 스마트 옮겨쓰기 -->
-    <div class="slide-col">
+    <!-- 좌측: 단순 복붙의 함정 vs AI 스마트 옮겨쓰기 실물 비교 -->
+    <div class="content-card highlight-tis">
+      <div class="card-title-row">
+        <span class="card-title">🔍 단순 복붙(Before) vs AI 재구조화(After) 비교</span>
+        <span class="card-badge orange">실물 확인</span>
+      </div>
+
       <div class="ba-container">
         <div class="ba-tabs">
           <button class="ba-tab before active" data-tab="before">❌ 단순 복붙 (Before: 저품질 위험)</button>
-          <button class="ba-tab after" data-tab="after">🔥 AI 티스토리 옮겨쓰기 (After: 구글/GEO 완벽)</button>
+          <button class="ba-tab after" data-tab="after">🔥 AI 티스토리 옮겨쓰기 (After: 구글 SEO 완벽)</button>
         </div>
         <div class="ba-content" id="baBefore">
           <pre style="color:#7D3B3B"><b>[위험] 네이버 글을 티스토리에 그대로 복사했을 때:</b>
@@ -746,29 +944,32 @@ body.allmode #pager,body.allmode #prog{display:none}
         </div>
       </div>
 
-      <div class="cal tistory">
-        <b>💡 티스토리 스마트 옮겨쓰기의 3대 핵심 규칙</b>
-        <p style="margin:0 0 3px">① <strong>소제목 H2/H3 구조화:</strong> 구글 로봇이 목차를 인식할 수 있게 문단별 핵심 제목 부여</p>
-        <p style="margin:0 0 3px">② <strong>3줄 팩트 요약 박스:</strong> 글 맨 위에 요약 박스를 두어 SearchGPT/Perplexity가 정답으로 인용하게 유도</p>
-        <p style="margin:0">③ <strong>문장 어투 패러프레이징:</strong> 원문의 핵심 팩트는 유지하되 문맥을 변주하여 유사문서 100% 회피</p>
+      <div class="cal tistory" style="margin:0">
+        <b>💡 티스토리 옮겨쓰기 3대 핵심 규칙</b>
+        ① <strong>소제목 H2/H3 구조화</strong> | ② <strong>서두 3줄 팩트 요약 박스</strong> | ③ <strong>문장 어투 패러프레이징</strong>
       </div>
     </div>
 
-    <!-- 우측 컬럼: 맞춤 키워드 입력 & 티스토리 옮겨쓰기 전용 프롬프트 -->
-    <div class="slide-col">
-      <div class="custom-inline-card tistory-card">
+    <!-- 우측: 실습 프롬프트 & 맞춤 키워드 입력기 -->
+    <div class="content-card highlight-tis">
+      <div class="card-title-row">
+        <span class="card-title">⚡ 티스토리 3분 스마트 옮겨쓰기 마스터 프롬프트</span>
+        <span class="card-badge orange">실습 도구</span>
+      </div>
+
+      <div class="custom-inline-card">
         <div class="desc">
-          <span>🔥 내 비즈니스 입력:</span>
+          <span>🔥 내 비즈니스:</span>
         </div>
         <div class="fields">
-          <input type="text" id="blogTopic" placeholder="내 업종/주제 (예: 역삼동 세무사 / 제조업 경영진단)" value="중소기업 경영컨설팅">
-          <input type="text" id="blogTarget" placeholder="타깃 독자 / 목표 (예: 구글 SEO & 티스토리)" value="성장기 중소기업 대표">
+          <input type="text" id="blogTopic" placeholder="내 주제 (예: 중소기업 경영컨설팅)" value="중소기업 경영컨설팅">
+          <input type="text" id="blogTarget" placeholder="타깃 독자 (예: 성장기 중소기업 대표)" value="성장기 중소기업 대표">
         </div>
       </div>
 
       <div class="prompt-box tistory-border">
         <div class="p-top">
-          <span>티스토리 3분 스마트 옮겨쓰기 마스터 프롬프트</span>
+          <span>티스토리 최적화 재가공 프롬프트</span>
           <button class="copy-btn" id="copyPromptBtn">프롬프트 복사</button>
         </div>
         <pre id="promptTemplateText">당신은 구글 SEO와 티스토리(Tistory) 플랫폼 알고리즘, 그리고 최신 AI 검색(SearchGPT/Perplexity) 인용 원리에 정통한 멀티채널 테크니컬 에디터입니다.
@@ -809,7 +1010,7 @@ body.allmode #pager,body.allmode #prog{display:none}
 
 </div>
 
-<!-- ── 4. 스크립트: 인증, 페이저, 타이머, 실시간 치환 ── -->
+<!-- ── 4. 스크립트 ── -->
 <script>
 (function(){
   var AUTH_CODE = '0922';
@@ -1123,4 +1324,4 @@ with open('/Users/VIBRA_PETER/dev/aiedu1/public/02.html', 'w', encoding='utf-8')
 with open('/Users/VIBRA_PETER/dev/aiedu1/public/session02.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("Successfully updated public/02.html and public/session02.html with Tistory exercise")
+print("Successfully updated public/02.html and public/session02.html with dense, non-empty design")
