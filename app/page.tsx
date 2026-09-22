@@ -342,20 +342,20 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 {
-                  name: '박재범 대표',
-                  role: 'Part 1 · 클로드 업무자동화',
-                  desc: '프롬프트 엔지니어링 & 사내 문서 1분 자동화 전문',
+                  name: '조영빈 대표',
+                  role: 'Part 1 · 어니스톤',
+                  desc: '말로 한 상담이 보고서가 되기까지 & 클로드 스킬 자동화',
                   color: 'text-purple-600 bg-purple-50',
                 },
                 {
-                  name: '조영빈 대표',
-                  role: 'Part 2 · 네이버 블로그 스튜디오',
-                  desc: 'C-Rank & D.I.A 알고리즘 상위 노출 및 콘텐츠 마케팅',
+                  name: '이석호 대표',
+                  role: 'Part 2 · neoNpeter',
+                  desc: 'AI 블로그 & 티스토리 스마트 옮겨쓰기 & SEO/GEO 공략',
                   color: 'text-emerald-600 bg-emerald-50',
                 },
                 {
-                  name: '이석호 대표',
-                  role: 'Part 3 · VisKits 숏폼 자동화',
+                  name: '박재범 대표',
+                  role: 'Part 3 · neoNpeter',
                   desc: '대한민국 대표 AI 숏폼 솔루션 VisKits 기반 영상 파이프라인',
                   color: 'text-rose-600 bg-rose-50',
                 },
