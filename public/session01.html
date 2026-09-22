@@ -127,9 +127,10 @@ body.allmode main section.pg{display:block;margin-bottom:52px;border-bottom:1px 
 #prog{height:3px;background:var(--ln);position:sticky;top:47px;z-index:19}
 #prog i{display:block;height:100%;background:var(--gold);width:0;transition:width .2s}
 body.allmode #pager,body.allmode #prog{display:none}
-nav a.cur{background:var(--navy);color:#fff;font-weight:800}
 nav a.live{font-weight:800;color:var(--navy)}
 nav a.live:before{content:"\25CF ";color:var(--gold);font-size:10px;vertical-align:2px}
+nav a.cur, nav a.cur.live, nav a.live.cur{background:var(--navy) !important;color:#ffffff !important;font-weight:800}
+nav a.cur:hover, nav a.cur.live:hover, nav a.live.cur:hover{background:var(--navy) !important;color:#ffffff !important}
 nav a.live.cur:before{color:var(--gold2)}
 nav .allbtn{margin-top:18px;width:100%;font:inherit;font-size:12.5px;font-weight:700;padding:9px;border-radius:8px;border:1px solid var(--ln);background:#fff;color:var(--mut);cursor:pointer}
 #tocBtn{display:none;white-space:nowrap;font:inherit;font-size:13px;font-weight:800;padding:8px 13px;border-radius:8px;border:1px solid var(--ln);background:#fff;color:var(--navy);cursor:pointer;flex-shrink:0}
