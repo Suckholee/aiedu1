@@ -33,11 +33,11 @@ const LAB_CARDS: LabCardProps[] = [
     iconColor: 'text-[#6355f6]',
     title: '업무 자동화 실습실',
     href: '/tools/work-automation',
-    description: '반복 업무를 자동화하고 생산성을 극대화하세요!',
-    tags: ['문서사진 양식복원', '기획·보고서', '회의록', 'Claude Pro'],
+    description: '말한 녹취록을 비즈니스 서류로 만들고 스킬로 자동화하세요!',
+    tags: ['3분 녹취록 문서화', '스킬(/skill) 굳히기', '워드·엑셀 출력', 'Claude Pro'],
     buttonColor: 'bg-[#6355f6] hover:bg-[#5041e8] text-white',
     buttonText: '실습실 입장',
-    badgeText: 'Part 1 · 박재범',
+    badgeText: 'Part 1 · 조영빈',
     badgeBg: 'bg-purple-100 text-purple-700',
   },
   {
@@ -50,7 +50,7 @@ const LAB_CARDS: LabCardProps[] = [
     tags: ['콘텐츠 생성', 'SEO 최적화', '이미지 생성', '스마트에디터'],
     buttonColor: 'bg-[#22c55e] hover:bg-[#16a34a] text-white',
     buttonText: '실습실 입장',
-    badgeText: 'Part 2 · 조영빈',
+    badgeText: 'Part 2 · 이석호',
     badgeBg: 'bg-emerald-100 text-emerald-700',
   },
   {
@@ -63,7 +63,7 @@ const LAB_CARDS: LabCardProps[] = [
     tags: ['숏폼 제작', '영상 편집', '트렌드 분석', 'VisKits'],
     buttonColor: 'bg-[#e11d48] hover:bg-[#be123c] text-white',
     buttonText: '실습실 입장',
-    badgeText: 'Part 3 · 이석호',
+    badgeText: 'Part 3 · 박재범',
     badgeBg: 'bg-rose-100 text-rose-700',
     featuredNote: (
       <div className="mt-3 flex items-center justify-between rounded-xl border border-rose-200/80 bg-rose-50/70 px-3 py-1.5 text-xs text-rose-700">

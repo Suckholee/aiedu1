@@ -47,14 +47,26 @@ import { saveDrivePhotos } from '@/lib/blog-automation/photo-drive-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-type DocType = 'proposal' | 'meeting' | 'bizplan' | 'summary';
+type DocType = 'record' | 'skill' | 'proposal' | 'meeting' | 'bizplan';
 
 const DOC_PRESETS = [
+  {
+    id: 'record',
+    title: '★ 3분 녹취록 ➔ 비즈니스 서류화',
+    desc: '혼자 말한 음성 녹취록이나 메모를 지정 양식의 정갈한 서류로 즉시 생성',
+    icon: FileText,
+  },
+  {
+    id: 'skill',
+    title: '★ 나만의 자동화 스킬(/skill)화',
+    desc: '완성된 문서 양식과 규칙을 클로드 스킬(/skill)로 영구 저장',
+    icon: Sparkles,
+  },
   {
     id: 'proposal',
     title: '신규 프로젝트 기획안 초안',
     desc: '키워드 몇 개로 임원 보고 수준의 목차와 세부 실행안 생성',
-    icon: FileText,
+    icon: FileCheck2,
   },
   {
     id: 'meeting',
@@ -277,7 +289,28 @@ export default function WorkAutomationPage() {
 
   // ── 표준 프롬프트 빌더 ──
   const buildClaudePrompt = () => {
-    if (selectedType === 'proposal') {
+    if (selectedType === 'record') {
+      return `아래는 제가 방금 혼자 말한 것을 글로 옮긴 것입니다. 질문을 읽으면서 답한 거라 질문과 답이 섞여 있을 수 있습니다. 질문은 무시하고 제 답만 골라 쓰세요.
+
+이것을 바탕으로 문서를 하나 만들어 주세요.
+
+- 양식: ${topic || '고객 상담 보고서 (또는 원하는 문서 양식)'}
+- 목적: ${targetAudience || '고객사 발송용 / 대표 보고용'}
+- 꼭 지킬 것: ${keyPoints || '제가 말한 사실과 숫자만 작성하고 지어내지 말 것'}
+- 모르는 것은 비워두거나 [확인 필요]로 표시하세요.
+- 말투는 정중하고 단정한 비즈니스 문체로 해 주세요.
+- 바로 고객이나 상사에게 보낼 수 있게, 다듬어진 상태로 출력해 주세요.
+
+[녹취록 원문]
+{여기에 음성 인식 텍스트나 메모를 붙여넣으세요}`;
+    } else if (selectedType === 'skill') {
+      return `방금 만들어 주신 서류, 이 방식이 마음에 듭니다. 앞으로도 같은 방식으로 만들 수 있게 스킬로 만들어 주세요.
+
+- 방금 쓰신 구성과 순서, 말투를 그대로 규칙으로 넣어 주세요.
+- 제가 지키라고 했던 조건(지어내지 말 것, 모르는 건 비워둘 것 등)도 빠짐없이 넣어 주세요.
+- 스킬 이름은 영어 소문자로 짧게 정해 주세요. (예: /${topic || 'report'})
+- 다음부터 제가 녹취록이나 메모를 던지면, 다른 설명 없이 바로 이 양식의 서류로 나오게 해 주세요.`;
+    } else if (selectedType === 'proposal') {
       return `당신은 15년 차 수석 비즈니스 기획 전문가입니다.
 다음 정보를 바탕으로 즉시 실행 가능한 정밀 [신규 기획안 초안]을 작성해 주세요.
 
@@ -339,31 +372,42 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-black text-purple-700">
-              Part 1 · 박재범 대표
+              Part 1 · 조영빈 대표 (어니스톤)
             </span>
             <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
               AI 비즈니스 문서 자동화
             </span>
           </div>
           <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-            Claude 업무자동화 스튜디오
+            말로 한 상담이 보고서가 되기까지
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
-            업무 문서 사진을 찍어 <strong>편집 가능한 사내 서식으로 즉시 복원</strong>하거나,
-            3분 만에 경영진 보고용 표준 기획서·회의록 프롬프트를 생성하세요.
+            현장에서 말로 나눈 3분 녹음·메모를 Claude로 <strong>완성형 비즈니스 문서(상담보고서·견적서)</strong>로 바꾸고,<br className="hidden sm:inline" />
+            나만의 스킬(Skill)로 굳혀 반복 업무를 10분으로 줄이는 1교시 실습 공간입니다.
           </p>
         </div>
 
-        {/* External Link to Claude */}
-        <a
-          href="https://claude.ai/new"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
-        >
-          <span>Claude.ai 새 창 열기</span>
-          <ExternalLink className="size-3.5" />
-        </a>
+        {/* Buttons: 1교시 교재 보기 & Claude.ai 새 창 열기 */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <a
+            href="/01.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-purple-300 bg-purple-50 px-4 py-2.5 text-xs font-bold text-purple-700 shadow-xs hover:bg-purple-100 transition shrink-0"
+          >
+            <span>📖 1교시 공식 교재 열기</span>
+            <ExternalLink className="size-3.5" />
+          </a>
+          <a
+            href="https://claude.ai/new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
+          >
+            <span>Claude.ai 새 창 열기</span>
+            <ExternalLink className="size-3.5" />
+          </a>
+        </div>
       </div>
 
       {/* ── Top Mode Switcher (Tab 1: 사진 기반 양식 복원기 vs Tab 2: 표준 프롬프트 생성기) ── */}

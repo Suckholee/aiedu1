@@ -117,13 +117,25 @@ export default function MaterialsPage() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => toast.info('강의 당일 수강생 인증 후 정식 다운로드 링크가 오픈됩니다.')}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white transition hover:bg-white/20"
-                      >
-                        <Download className="size-3.5" />
-                        <span className="hidden sm:inline">다운로드</span>
-                      </button>
+                      {doc.downloadUrl && doc.downloadUrl !== '#' ? (
+                        <a
+                          href={doc.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-violet-500 shadow-sm"
+                        >
+                          <ExternalLink className="size-3.5" />
+                          <span>교재 열기</span>
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => toast.info('강의 당일 수강생 인증 후 정식 다운로드 링크가 오픈됩니다.')}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white transition hover:bg-white/20"
+                        >
+                          <Download className="size-3.5" />
+                          <span className="hidden sm:inline">다운로드</span>
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -121,11 +121,11 @@ export const LECTURE_MATERIALS: LecturePartMaterial[] = [
     badge: '2교시 핵심 교안 & 프롬프트',
     downloadDocs: [
       {
-        title: '[neoNpeter] AI 네이버 블로그 상위 노출 공식 교안',
+        title: '[neoNpeter] AI 네이버 블로그 상위 노출 공식 교안 (02.html 온라인 피칭덱)',
         type: 'PDF',
-        fileSize: '11.8 MB',
+        fileSize: '온라인 전용',
         description: 'SEO에서 GEO로의 대전환, 웹 AI 워터마크 회피법 및 C-Rank/D.I.A 알고리즘 공략집',
-        downloadUrl: '#',
+        downloadUrl: '/02.html',
       },
       {
         title: '업종별 고효율 키워드 & 톤앤매너 프롬프트 템플릿',

@@ -166,10 +166,10 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-purple-600 bg-purple-50 rounded px-1.5 py-0.5">
-                        Part 1 · 박재범
+                        Part 1 · 조영빈
                       </span>
                       <h4 className="mt-1 text-xs sm:text-sm font-bold text-slate-900 line-clamp-1">
-                        Claude 업무 효율 200%
+                        상담이 보고서가 되기까지
                       </h4>
                     </div>
                   </div>
@@ -183,12 +183,22 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  href="/tools/work-automation"
-                  className="mt-4 block text-center rounded-lg bg-slate-50 py-2 text-xs font-bold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
-                >
-                  실습 이어하기 →
-                </Link>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <a
+                    href="/01.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-center rounded-lg border border-purple-200 bg-purple-50/60 py-2 text-xs font-bold text-purple-700 hover:bg-purple-100 transition"
+                  >
+                    교재 보기 📖
+                  </a>
+                  <Link
+                    href="/tools/work-automation"
+                    className="block text-center rounded-lg bg-slate-100 py-2 text-xs font-bold text-slate-700 hover:bg-purple-600 hover:text-white transition"
+                  >
+                    실습실 →
+                  </Link>
+                </div>
               </div>
 
               {/* Course 2 */}
@@ -200,10 +210,10 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 rounded px-1.5 py-0.5">
-                        Part 2 · 조영빈
+                        Part 2 · 이석호
                       </span>
                       <h4 className="mt-1 text-xs sm:text-sm font-bold text-slate-900 line-clamp-1">
-                        AI 블로그로 월 100만원
+                        AI 블로그 &amp; 티스토리 스마트 옮겨쓰기
                       </h4>
                     </div>
                   </div>
@@ -217,12 +227,22 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  href="/tools/blog"
-                  className="mt-4 block text-center rounded-lg bg-slate-50 py-2 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition"
-                >
-                  실습 이어하기 →
-                </Link>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <a
+                    href="/02.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-center rounded-lg border border-emerald-200 bg-emerald-50/60 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition"
+                  >
+                    교재 보기 📖
+                  </a>
+                  <Link
+                    href="/tools/blog"
+                    className="block text-center rounded-lg bg-slate-100 py-2 text-xs font-bold text-slate-700 hover:bg-emerald-600 hover:text-white transition"
+                  >
+                    실습실 →
+                  </Link>
+                </div>
               </div>
 
               {/* Course 3 */}
@@ -234,7 +254,7 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-rose-600 bg-rose-50 rounded px-1.5 py-0.5">
-                        Part 3 · 이석호
+                        Part 3 · 박재범
                       </span>
                       <h4 className="mt-1 text-xs sm:text-sm font-bold text-slate-900 line-clamp-1">
                         VisKits 숏폼 마스터

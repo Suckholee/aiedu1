@@ -26,9 +26,9 @@ const curriculum = [
     icon: FileText,
     number: '01',
     instructor: '조영빈 대표',
-    title: '클로드를 통한 업무 자동화',
-    description: '막막했던 보고서와 기획안을 Claude와 함께 구조화하고, 필요한 내용을 빠르게 정리합니다.',
-    points: ['업무별 AI 도구 & 클로드 활용법', '기획서·보고서 초안 만들기', '자료 요약과 분석의 흐름'],
+    title: '말로 한 상담이 보고서가 되기까지 (Claude 업무자동화)',
+    description: '현장에서 말로 나눈 3분 녹음·메모를 Claude로 완성형 비즈니스 문서로 바꾸고, 나만의 스킬(Skill)로 굳혀 반복 업무를 10분으로 줄입니다.',
+    points: ['3분 음성 녹취록 → 정갈한 비즈니스 문서화', 'Claude 나만의 자동화 스킬(/skill) 굳히기', '워드(.docx) & 엑셀(.xlsx) 파일 원클릭 추출'],
   },
   {
     icon: MessageCircle,
