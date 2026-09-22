@@ -321,7 +321,7 @@ export default function HomePage() {
             <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-indigo-100/80">
               {[
                 { label: '일시', value: '9월 22일 (화)', sub: '17:00 ~ 20:00 (3시간)' },
-                { label: '장소', value: '서초구 오프라인', sub: '강의장 개별 안내' },
+                { label: '장소', value: '가호 스튜디오', sub: '서초중앙로22길 109 1층' },
                 { label: '수강료', value: '150,000원', sub: '얼리버드 특별가' },
                 { label: '특전 혜택', value: '20만원 상당', sub: 'VisKits 1개월+블로그' },
               ].map((item) => (

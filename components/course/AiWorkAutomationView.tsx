@@ -138,7 +138,7 @@ export function AiWorkAutomationView({ variant = 'default' }: AiWorkAutomationVi
               ['얼리버드', '9.7(월) ~ 9.14(월)'],
               ['수강료', '150,000원'],
               ['일시', '9월 22일 (화)'],
-              ['시간/장소', '17–20시 · 서초구'],
+              ['시간/장소', '17–20시 · 가호스튜디오'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-2xl border border-white/15 bg-white/10 p-3 sm:px-3 sm:py-4 backdrop-blur-sm break-keep">
                 <p className="text-[11px] sm:text-xs text-violet-200">{label}</p>
