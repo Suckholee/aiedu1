@@ -27,6 +27,7 @@ import {
   Eye,
   Columns2,
   Maximize2,
+  Minimize2,
   FileDown,
   Download,
 } from 'lucide-react';
@@ -86,8 +87,9 @@ export default function WorkAutomationPage() {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 상위 모드 탭: 'template-gen' (표준 프롬프트 생성기) vs 'photo-extract' (사진 기반 양식 복원기)
-  const [mainMode, setMainMode] = useState<'template-gen' | 'photo-extract'>('photo-extract');
+  // 상위 모드 탭: 'textbook' (1교시 공식 실습 교재) vs 'photo-extract' (사진 기반 양식 복원기) vs 'template-gen' (표준 프롬프트 생성기)
+  const [mainMode, setMainMode] = useState<'textbook' | 'photo-extract' | 'template-gen'>('textbook');
+  const [isTextbookFullscreen, setIsTextbookFullscreen] = useState(false);
 
   // ── 1. 표준 프롬프트 생성기 상태 ──
   const [selectedType, setSelectedType] = useState<DocType>('proposal');
@@ -389,20 +391,35 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
 
         {/* Buttons: 1교시 교재 보기 & Claude.ai 새 창 열기 */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setMainMode('textbook')}
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-bold shadow-xs transition shrink-0 ${
+              mainMode === 'textbook'
+                ? 'border-purple-600 bg-purple-600 text-white'
+                : 'border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100'
+            }`}
+          >
+            <span>📖 1교시 공식 교재</span>
+            <span className="rounded-full bg-purple-200/60 px-1.5 py-0.5 text-[10px] font-extrabold text-purple-900">
+              비번: 0922
+            </span>
+          </button>
           <a
             href="/01.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-purple-300 bg-purple-50 px-4 py-2.5 text-xs font-bold text-purple-700 shadow-xs hover:bg-purple-100 transition shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition shrink-0"
+            title="새 탭에서 크게 보기"
           >
-            <span>📖 1교시 공식 교재 열기</span>
+            <span>새 창 열기</span>
             <ExternalLink className="size-3.5" />
           </a>
           <a
             href="https://claude.ai/new"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition shrink-0"
           >
             <span>Claude.ai 새 창 열기</span>
             <ExternalLink className="size-3.5" />
@@ -410,30 +427,46 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
         </div>
       </div>
 
-      {/* ── Top Mode Switcher (Tab 1: 사진 기반 양식 복원기 vs Tab 2: 표준 프롬프트 생성기) ── */}
-      <div className="flex border-b border-slate-200">
+      {/* ── Top Mode Switcher (Tab 1: 1교시 공식 교재 vs Tab 2: 사진 기반 양식 복원기 vs Tab 3: 표준 프롬프트 생성기) ── */}
+      <div className="flex border-b border-slate-200 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setMainMode('textbook')}
+          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition shrink-0 ${
+            mainMode === 'textbook'
+              ? 'border-purple-600 text-purple-700 bg-purple-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <BookOpen className="size-4 text-purple-600" />
+          <span>📖 1교시 공식 실습 교재 (웹북)</span>
+          <span className="rounded-full bg-purple-100 text-purple-700 px-2 py-0.5 text-[10px] font-extrabold">
+            비밀번호 0922
+          </span>
+        </button>
+
         <button
           type="button"
           onClick={() => setMainMode('photo-extract')}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition ${
+          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition shrink-0 ${
             mainMode === 'photo-extract'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
           <Camera className="size-4" />
           <span>📷 내 업무 문서 사진 ➔ AI 양식 복원기</span>
           <span className="rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 px-1.5 py-0.2 text-[10px] font-black">
-            NEW
+            실습 도구
           </span>
         </button>
 
         <button
           type="button"
           onClick={() => setMainMode('template-gen')}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition ${
+          className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs sm:text-sm font-bold transition shrink-0 ${
             mainMode === 'template-gen'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -441,6 +474,89 @@ ${keyPoints || '논의된 주요 사항 및 의견 교환 내용'}
           <span>✨ 표준 비즈니스 프롬프트 생성기</span>
         </button>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODE 0: 1교시 공식 실습 교재 (기본 모드 - 비밀번호 0922 게이트)
+          ══════════════════════════════════════════════════════════════ */}
+      {mainMode === 'textbook' && (
+        <div
+          className={
+            isTextbookFullscreen
+              ? 'fixed inset-0 z-50 flex flex-col bg-white'
+              : 'space-y-4'
+          }
+        >
+          {/* 교재 상단 안내 & 툴바 */}
+          <div
+            className={`flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 shadow-xs ${
+              isTextbookFullscreen
+                ? 'border-b border-slate-200 bg-slate-900 text-white'
+                : 'rounded-2xl border border-purple-200/80 bg-linear-to-r from-purple-50/80 via-white to-slate-50'
+            }`}
+          >
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <span className="flex size-2 rounded-full bg-purple-600 animate-pulse" />
+              <span className={`text-xs sm:text-sm font-bold ${isTextbookFullscreen ? 'text-white' : 'text-slate-900'}`}>
+                1교시 · 말로 한 상담이 보고서가 되기까지 (어니스톤 조영빈 대표)
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-0.5 text-[11px] font-extrabold text-purple-800 border border-purple-200">
+                <Lock className="size-3" />
+                인증 비밀번호: <code className="font-mono text-xs text-purple-950 font-black">0922</code>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsTextbookFullscreen(!isTextbookFullscreen)}
+                className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+                  isTextbookFullscreen
+                    ? 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {isTextbookFullscreen ? (
+                  <>
+                    <Minimize2 className="size-3.5" />
+                    <span>전체화면 종료</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="size-3.5" />
+                    <span>화면 크게 보기</span>
+                  </>
+                )}
+              </button>
+
+              <a
+                href="/01.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-purple-300 bg-purple-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-purple-700 transition"
+              >
+                <span>새 창 전체화면</span>
+                <ExternalLink className="size-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* 교재 본문 iframe 임베드 */}
+          <div
+            className={`overflow-hidden border border-slate-200 shadow-sm ${
+              isTextbookFullscreen
+                ? 'flex-1 w-full bg-[#F7F4EC]'
+                : 'rounded-2xl min-h-[780px] h-[calc(100vh-250px)] bg-[#F7F4EC]'
+            }`}
+          >
+            <iframe
+              src="/01.html"
+              title="1교시 공식 실습 교재"
+              className="w-full h-full border-0"
+              allow="clipboard-write; clipboard-read"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           MODE 1: 내 업무 문서 사진 ➔ AI 양식 복원기 (User Requested!)
