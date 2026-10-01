@@ -115,7 +115,7 @@ export const LECTURE_MATERIALS: LecturePartMaterial[] = [
     id: 'part2',
     partNumber: 'PART 02',
     instructor: '이석호 대표 (neoNpeter)',
-    title: 'AI 시대의 블로그 혁명 & 사진 3장 기반 상위노출 자동화',
+    title: '크롬으로 블로그 자동화하기',
     summary: 'AI 검색(GEO) 시대, ChatGPT가 내 비즈니스를 직접 추천하게 만드는 원리와 웹 워터마크를 피하고 스마트폰 사진 3장으로 네이버 상위노출을 완성하는 파이프라인입니다.',
     accentColor: 'from-fuchsia-600 to-pink-600',
     badge: '2교시 핵심 교안 & 프롬프트',

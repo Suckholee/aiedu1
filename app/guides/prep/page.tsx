@@ -179,7 +179,7 @@ export default function PrepGuidePage() {
           </div>
 
           <p className="mt-4 text-xs sm:text-sm text-violet-200/80 leading-relaxed">
-            2교시(AI 블로그) 및 3교시(AI 숏폼)에서 내 비즈니스에 맞는 실습 결과물을 만들기 위해,<br className="hidden sm:inline" />
+            2교시(크롬으로 블로그 자동화하기) 및 3교시(AI 숏폼)에서 내 비즈니스에 맞는 실습 결과물을 만들기 위해,<br className="hidden sm:inline" />
             <strong>내 매장, 제품, 작업실, 일상 풍경 사진 3~5장</strong>을 노트북에 옮겨두거나 카카오톡 '나와의 채팅'에 준비해 두시면 바로 실습하실 수 있습니다.
           </p>
         </div>

@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10월 9일 AI 실무 업무자동화 마스터 클래스 — 위든타워 캠퍼스</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-dark: #3730A3;
+      --secondary: #9333EA;
+      --accent: #F43F5E;
+      --accent-gold: #F59E0B;
+      --bg-dark: #0B0F19;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --card-bg: #FFFFFF;
+      --border-color: #E2E8F0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background: #E2E8F0;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 포스터 전체 프레임 (고해상도 인쇄 & 모바일 웹 최적화) */
+    .poster-container {
+      width: 900px;
+      background: #FFFFFF;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.2), 0 4px 20px rgba(15, 23, 42, 0.08);
+      position: relative;
+    }
+
+    /* 1. 상단 히어로 배너 */
+    .hero-banner {
+      background: linear-gradient(135deg, #0A0A1E 0%, #1E1B4B 45%, #2E1065 100%);
+      padding: 46px 48px 38px;
+      position: relative;
+      overflow: hidden;
+      color: #FFFFFF;
+    }
+
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -80px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: 5%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.45) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #F8FAFC;
+      backdrop-filter: blur(8px);
+    }
+
+    .date-badge {
+      background: linear-gradient(90deg, #F43F5E, #FB7185);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 7px 18px;
+      border-radius: 100px;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: -1.2px;
+      margin-bottom: 12px;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(90deg, #A78BFA, #F472B6, #FDE047);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 16.5px;
+      font-weight: 400;
+      color: #CBD5E1;
+      line-height: 1.6;
+      max-width: 680px;
+    }
+
+    /* 포스터 본문 */
+    .poster-body {
+      padding: 36px 44px 44px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: #EEF2FF;
+      padding: 4px 9px;
+      border-radius: 6px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.5px;
+    }
+
+    /* 2. 수업 내용 3대 파트 카드 */
+    .curriculum-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 34px;
+    }
+
+    .curr-card {
+      background: #FFFFFF;
+      border: 1.5px solid #F1F5F9;
+      border-radius: 18px;
+      padding: 20px 18px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .curr-card.p1 { border-top: 4px solid #6366F1; background: linear-gradient(180deg, #FAFAFE 0%, #FFFFFF 100%); }
+    .curr-card.p2 { border-top: 4px solid #EC4899; background: linear-gradient(180deg, #FDF7FA 0%, #FFFFFF 100%); }
+    .curr-card.p3 { border-top: 4px solid #8B5CF6; background: linear-gradient(180deg, #FAF7FD 0%, #FFFFFF 100%); }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .part-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748B;
+      letter-spacing: 0.8px;
+    }
+
+    .instructor-chip {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 100px;
+    }
+
+    .p1 .instructor-chip { background: #EEF2FF; color: #4338CA; }
+    .p2 .instructor-chip { background: #FDF2F8; color: #BE185D; }
+    .p3 .instructor-chip { background: #F5F3FF; color: #6D28D9; }
+
+    .curr-heading {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #0F172A;
+      margin-bottom: 12px;
+      min-height: 44px;
+    }
+
+    .curr-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .curr-list li {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.45;
+      padding-left: 14px;
+      position: relative;
+      font-weight: 500;
+    }
+
+    .curr-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10B981;
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    /* 3. 공간 사진 쇼케이스 (위든타워 실습실 & 라운지 5컷 갤러리) */
+    .venue-section {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 22px 24px;
+      margin-bottom: 34px;
+    }
+
+    .venue-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .venue-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1E293B;
+    }
+
+    .venue-title span {
+      color: var(--primary);
+    }
+
+    .venue-badge-pill {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4338CA;
+      background: #EEF2FF;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+
+    /* 3열 갤러리 레이아웃 */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr;
+      gap: 12px;
+      height: 250px;
+      margin-bottom: 14px;
+    }
+
+    .photo-box {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      background: #000;
+    }
+
+    .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .photo-caption {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(6px);
+      color: #FFFFFF;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gallery-sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      height: 140px;
+    }
+
+    .venue-spec-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .spec-item {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 9px 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .spec-item .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10B981;
+      flex-shrink: 0;
+    }
+
+    /* 4. 간략 약도 및 위치 안내 (지도 + 텍스트) */
+    .location-box {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 18px;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    /* 약도 그래픽 (SVG 다이어그램) */
+    .map-graphic-wrap {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 220px;
+    }
+
+    .map-graphic-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .location-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .loc-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .loc-addr {
+      font-size: 13.5px;
+      color: #4F46E5;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .loc-guide-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .loc-guide-list li {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+      display: flex;
+      gap: 6px;
+    }
+
+    .loc-tag {
+      background: #F1F5F9;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      height: fit-content;
+    }
+
+    /* 5. 하단 수강료 및 신청 패널 */
+    .footer-panel {
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      border-radius: 22px;
+      padding: 24px 28px;
+      color: #FFFFFF;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 11px 14px;
+    }
+
+    .summary-card .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #A5B4FC;
+      margin-bottom: 3px;
+    }
+
+    .summary-card .val {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .summary-card .val.gold {
+      color: #FDE047;
+      font-size: 18px;
+    }
+
+    .qr-apply-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      color: #0F172A;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .qr-apply-card .title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #1E293B;
+      margin-bottom: 8px;
+    }
+
+    .qr-img {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 8px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-img svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .apply-link-btn {
+      display: block;
+      background: linear-gradient(90deg, #4F46E5, #7C3AED);
+      color: #FFFFFF;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 8px 0;
+      border-radius: 8px;
+      letter-spacing: -0.2px;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    }
+
+    .benefit-strip {
+      background: linear-gradient(90deg, #FDF4FF, #F5F3FF);
+      border: 1px dashed #D8B4FE;
+      border-radius: 12px;
+      padding: 11px 16px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .benefit-strip span {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #7E22CE;
+    }
+
+    .benefit-strip .tag {
+      background: #9333EA;
+      color: #FFFFFF;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+
+    .poster-foot-brand {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #94A3B8;
+    }
+
+    @media print {
+      body { background: none; padding: 0; }
+      .poster-container { box-shadow: none; border-radius: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="poster-container">
+
+    <!-- 1. 헤더 배너 -->
+    <header class="hero-banner">
+      <div class="hero-content">
+        <div class="badge-bar">
+          <div class="brand-pill">
+            ⚡ HONESTONE × neoNpeter 1DAY MASTERCLASS
+          </div>
+          <div class="date-badge">
+            🗓 10월 9일 (한글날) 14:00~17:00
+          </div>
+        </div>
+
+        <h1 class="hero-title">
+          배우는 즉시 내 업무에 쓰는<br>
+          <span class="highlight">AI 실무 업무자동화</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          3인의 실무 대표 강사진과 함께 말로 보고서를 뽑아내고, 스마트폰 사진으로 블로그와 30초 숏폼을 완성하는 3시간 집중 실습 클래스
+        </p>
+      </div>
+    </header>
+
+    <!-- 포스터 본문 -->
+    <main class="poster-body">
+
+      <!-- 2. 수업 내용 (3교시 실무 커리큘럼) -->
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">CURRICULUM</span>
+          <h2 class="section-title">3시간 완성 실전 수업 내용</h2>
+        </div>
+      </div>
+
+      <div class="curriculum-grid">
+        <!-- 1교시 -->
+        <div class="curr-card p1">
+          <div>
+            <div class="card-top">
+              <span class="part-label">PART 01</span>
+              <span class="instructor-chip">조영빈 대표</span>
+            </div>
+            <h3 class="curr-heading">Claude 업무자동화 &<br>완성형 비즈니스 문서</h3>
+            <ul class="curr-list">
+              <li>3분 음성 녹취·메모 ➔ 완성형 보고서/견적서</li>
+              <li>Claude 나만의 자동화 스킬(/skill) 굳히기</li>
+              <li>워드(.docx) & 엑셀(.xlsx) 파일 원클릭 추출</li>
+              <li>지어내지 않는 실무 문서 규칙 프롬프트 탑재</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 2교시 -->
+        <div class="curr-card p2">
+          <div>
+            <div class="card-top">
+              <span class="part-label">PART 02</span>
+              <span class="instructor-chip">이석호 대표</span>
+            </div>
+            <h3 class="curr-heading">스마트폰 사진 3장으로<br>네이버 블로그 상위노출</h3>
+            <ul class="curr-list">
+              <li>웹 AI 워터마크 완벽 회피 & D.I.A 알고리즘 공략</li>
+              <li>AI 검색(GEO) 시대, ChatGPT 공식 인용 포스팅</li>
+              <li>현장 사진 3장 ➔ 스마트에디터 완벽 연동</li>
+              <li>구글 SEO & 티스토리 3분 스마트 옮겨쓰기</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3교시 -->
+        <div class="curr-card p3">
+          <div>
+            <div class="card-top">
+              <span class="part-label">PART 03</span>
+              <span class="instructor-chip">박재범 대표</span>
+            </div>
+            <h3 class="curr-heading">VisKits 영상 자동화 &<br>30초 홍보 숏폼 장착</h3>
+            <ul class="curr-list">
+              <li>3초 만에 스크롤 멈추는 4대 후킹 대본 공식</li>
+              <li>사진과 대본만으로 고효율 9:16 쇼츠 제작</li>
+              <li>블로그 글 1편 ➔ 숏폼 3편 시리즈로 쪼개기</li>
+              <li>VisKits(viskits.ai) 1개월 무료 라이선스 실습</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 공간 사진 쇼케이스 (위든타워 실습실 & 라운지 5컷 갤러리) -->
+      <section class="venue-section">
+        <div class="venue-header-bar">
+          <div>
+            <div class="section-tag" style="margin-bottom: 5px;">VENUE GALLERY</div>
+            <h3 class="venue-title">
+              최첨단 PC 실습실 & 프리미엄 라운지 <span>· 위든타워</span>
+            </h3>
+          </div>
+          <div class="venue-badge-pill">
+            🏢 neoNpeter(네오앤피터) 본사 소재지
+          </div>
+        </div>
+
+        <!-- 상단 메인 3열 사진 -->
+        <div class="gallery-grid">
+          <div class="photo-box">
+            <img src="../images/venue/weeden_lab_03.jpg" alt="위든타워 최첨단 PC 실습실 전경">
+            <div class="photo-caption">🖥️ 1인 1PC 완비 메인 실습실 전경</div>
+          </div>
+          <div class="photo-box">
+            <img src="../images/venue/sogang_campus_entrance.jpg" alt="서강 디지털 혁신 캠퍼스 로비">
+            <div class="photo-caption">🏛️ 서강 디지털 혁신 캠퍼스 로비</div>
+          </div>
+          <div class="photo-box">
+            <img src="../images/venue/weeden_lounge.jpg" alt="위든타워 프리미엄 네트워킹 라운지">
+            <div class="photo-caption">☕ 쾌적한 네트워킹 라운지</div>
+          </div>
+        </div>
+
+        <!-- 하단 2열 보조 사진 -->
+        <div class="gallery-sub-grid">
+          <div class="photo-box">
+            <img src="../images/venue/weeden_lab_01.jpg" alt="개인 모니터와 쾌적한 실습 환경">
+            <div class="photo-caption">💻 개인 모니터 & 쾌적한 데스크 공간</div>
+          </div>
+          <div class="photo-box">
+            <img src="../images/venue/weeden_lab_02.jpg" alt="강사용 전자교탁 및 대형 스크린">
+            <div class="photo-caption">🎯 강사용 대형 스크린 & 밀착 코칭 좌석</div>
+          </div>
+        </div>
+
+        <!-- 스펙 3개 -->
+        <div class="venue-spec-bar">
+          <div class="spec-item">
+            <span class="dot"></span>
+            <span>최신형 모니터 및 기가 인터넷 완비</span>
+          </div>
+          <div class="spec-item">
+            <span class="dot"></span>
+            <span>소수 정예 3인 대표 1:1 현장 코칭</span>
+          </div>
+          <div class="spec-item">
+            <span class="dot"></span>
+            <span>강의 전후 자유로운 라운지 네트워킹</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 간략 약도 및 찾아오시는 길 -->
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-tag">LOCATION &amp; MAP</span>
+          <h2 class="section-title">오시는 길 &amp; 간략 약도</h2>
+        </div>
+      </div>
+
+      <div class="location-box">
+        <!-- 미니 약도 그래픽 (SVG Diagram) -->
+        <div class="map-graphic-wrap">
+          <svg viewBox="0 0 380 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 배경 지도 그리드 -->
+            <rect width="380" height="220" fill="#F8FAFC"/>
+            
+            <!-- 도로망 -->
+            <!-- 경부고속도로 (세로선) -->
+            <line x1="60" y1="0" x2="60" y2="220" stroke="#CBD5E1" stroke-width="14"/>
+            <text x="60" y="30" font-size="9" font-weight="700" fill="#64748B" text-anchor="middle">경부고속도로</text>
+            
+            <!-- 대왕판교로 (세로선) -->
+            <line x1="300" y1="0" x2="300" y2="220" stroke="#CBD5E1" stroke-width="12"/>
+            <text x="300" y="30" font-size="9" font-weight="700" fill="#64748B" text-anchor="middle">대왕판교로</text>
+
+            <!-- 금토천교 / 금토로 (가로 도로) -->
+            <line x1="0" y1="120" x2="380" y2="120" stroke="#94A3B8" stroke-width="18"/>
+            <text x="180" y="114" font-size="10" font-weight="800" fill="#475569" text-anchor="middle">금토로 (판교 제2테크노밸리)</text>
+
+            <!-- 금토IC 인터체인지 -->
+            <circle cx="60" cy="120" r="16" fill="#64748B"/>
+            <text x="60" y="123" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle">금토IC</text>
+
+            <!-- 판교역 (우측 하단) -->
+            <rect x="255" y="170" width="90" height="34" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+            <text x="300" y="186" font-size="11" font-weight="800" fill="#4338CA" text-anchor="middle">신분당선 판교역</text>
+            <text x="300" y="198" font-size="9" font-weight="600" fill="#6366F1" text-anchor="middle">(버스 10분)</text>
+
+            <!-- 버스 이동 경로 점선 화살표 -->
+            <path d="M 280 165 C 260 130, 220 130, 200 130" stroke="#6366F1" stroke-width="3" stroke-dasharray="4 4" fill="none"/>
+
+            <!-- 위든타워 목적지 핀 & 박스 -->
+            <g transform="translate(140, 45)">
+              <!-- 건물 박스 -->
+              <rect x="0" y="0" width="125" height="52" rx="10" fill="#4F46E5" filter="drop-shadow(0 4px 10px rgba(79, 70, 229, 0.4))"/>
+              <text x="62" y="21" font-size="12" font-weight="900" fill="#FDE047" text-anchor="middle">★ 위든타워 (3층)</text>
+              <text x="62" y="38" font-size="9.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">서강 디지털 캠퍼스</text>
+              
+              <!-- 핀 꼭짓점 -->
+              <polygon points="62,64 54,52 70,52" fill="#4F46E5"/>
+              <circle cx="62" cy="72" r="5" fill="#F43F5E"/>
+            </g>
+
+            <!-- 방위 표시 -->
+            <g transform="translate(345, 15)">
+              <circle cx="15" cy="15" r="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+              <text x="15" y="14" font-size="9" font-weight="900" fill="#0F172A" text-anchor="middle">N</text>
+              <polygon points="15,4 12,12 18,12" fill="#F43F5E"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 오시는 길 상세 텍스트 안내 -->
+        <div class="location-details">
+          <div>
+            <h3 class="loc-title">서강 디지털 혁신 캠퍼스 (위든타워 3층)</h3>
+            <div class="loc-addr">
+              📍 경기도 성남시 수정구 금토로80번길 56, 위든타워
+            </div>
+            
+            <ul class="loc-guide-list">
+              <li>
+                <span class="loc-tag">대중교통</span>
+                <span>신분당선 <strong>판교역</strong> 1번 출구 ➔ 버스(310, 360, 370번 등) 환승 후 '금토동' 또는 '위든타워' 하차 (약 10분)</span>
+              </li>
+              <li>
+                <span class="loc-tag">자가용</span>
+                <span>경부고속도로 <strong>금토IC</strong> 진출 ➔ 판교 제2테크노밸리 방면 3분 소요</span>
+              </li>
+              <li>
+                <span class="loc-tag">주차안내</span>
+                <span>위든타워 건물 내 지하 주차장 완비 (수강생 무료 주차 지원)</span>
+              </li>
+            </ul>
+          </div>
+
+          <div style="font-size: 11.5px; color: #64748B; margin-top: 8px;">
+            ※ 상세 호실 및 출입 비밀번호는 신청 완료 후 개별 문자로 상세히 안내해 드립니다.
+          </div>
+        </div>
+      </div>
+      <!-- 5. 하단 결제 정보 및 신청 QR -->
+      <div class="footer-panel" style="margin-top: 14px;">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="label">강의 일시</div>
+            <div class="val">10월 9일 (한글날) 14:00~17:00</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">수강료 (부가세 포함)</div>
+            <div class="val gold">150,000원</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">입금 계좌</div>
+            <div class="val">농협 302-2154-5774-81 (이석호)</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">필수 준비물</div>
+            <div class="val">개인 노트북 · Claude Pro 구독</div>
+          </div>
+        </div>
+
+        <!-- 신청 QR & 버튼 -->
+        <div class="qr-apply-card">
+          <div class="title">구글폼 수강 신청하기</div>
+          <div class="qr-img">
+            <!-- QR code for https://forms.gle/kMJt1XLa51HY67bp6 -->
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="100" height="100" fill="#FFFFFF"/>
+              <!-- Corner TL -->
+              <rect x="10" y="10" width="26" height="26" rx="4" fill="#0F172A"/>
+              <rect x="14" y="14" width="18" height="18" rx="2" fill="#FFFFFF"/>
+              <rect x="18" y="18" width="10" height="10" rx="1" fill="#4F46E5"/>
+              <!-- Corner TR -->
+              <rect x="64" y="10" width="26" height="26" rx="4" fill="#0F172A"/>
+              <rect x="68" y="14" width="18" height="18" rx="2" fill="#FFFFFF"/>
+              <rect x="72" y="18" width="10" height="10" rx="1" fill="#4F46E5"/>
+              <!-- Corner BL -->
+              <rect x="10" y="64" width="26" height="26" rx="4" fill="#0F172A"/>
+              <rect x="14" y="68" width="18" height="18" rx="2" fill="#FFFFFF"/>
+              <rect x="18" y="72" width="10" height="10" rx="1" fill="#4F46E5"/>
+              <!-- Data patterns -->
+              <rect x="42" y="12" width="6" height="6" rx="1" fill="#0F172A"/>
+              <rect x="52" y="12" width="6" height="12" rx="1" fill="#0F172A"/>
+              <rect x="42" y="24" width="16" height="6" rx="1" fill="#4F46E5"/>
+              <rect x="12" y="42" width="6" height="16" rx="1" fill="#0F172A"/>
+              <rect x="24" y="42" width="12" height="6" rx="1" fill="#0F172A"/>
+              <rect x="24" y="52" width="6" height="6" rx="1" fill="#4F46E5"/>
+              <rect x="42" y="42" width="16" height="16" rx="2" fill="#0F172A"/>
+              <rect x="46" y="46" width="8" height="8" rx="1" fill="#9333EA"/>
+              <rect x="64" y="42" width="6" height="16" rx="1" fill="#0F172A"/>
+              <rect x="76" y="42" width="12" height="6" rx="1" fill="#4F46E5"/>
+              <rect x="82" y="52" width="6" height="6" rx="1" fill="#0F172A"/>
+              <rect x="42" y="64" width="16" height="6" rx="1" fill="#4F46E5"/>
+              <rect x="42" y="76" width="6" height="12" rx="1" fill="#0F172A"/>
+              <rect x="52" y="82" width="6" height="6" rx="1" fill="#0F172A"/>
+              <rect x="64" y="64" width="6" height="6" rx="1" fill="#0F172A"/>
+              <rect x="76" y="64" width="12" height="12" rx="1" fill="#0F172A"/>
+              <rect x="64" y="76" width="6" height="12" rx="1" fill="#4F46E5"/>
+              <rect x="76" y="82" width="12" height="6" rx="1" fill="#0F172A"/>
+            </svg>
+          </div>
+          <a href="https://forms.gle/kMJt1XLa51HY67bp6" target="_blank" class="apply-link-btn">
+            신청서 바로가기 →
+          </a>
+        </div>
+      </div>
+
+      <div class="poster-foot-brand">
+        HONESTONE & neoNpeter · 서강 디지털 혁신 캠퍼스 (위든타워 3층)
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
