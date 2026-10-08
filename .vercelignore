@@ -1,0 +1,9 @@
+.local-data
+.env*
+tmp
+output
+잡지
+magazines
+public/downloads
+.chrome-data
+참고자료

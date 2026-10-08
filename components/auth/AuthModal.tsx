@@ -42,12 +42,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       await signInWithGoogle();
       onOpenChange(false);
     } catch (e: any) {
-      setLoginError(
-        e.code === 'auth/unauthorized-domain'
-          ? '현재 도메인(aiedu1.vercel.app)이 Firebase 승인 도메인에 등록 진행 중입니다. 아래 지메일 간편 입력을 통해 즉시 시작하세요!'
-          : e.message || '구글 로그인 중 오류가 발생했습니다.'
-      );
-      setShowManualForm(true);
+      const code = (e as { code?: string }).code;
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
+      const hostname = window.location.hostname;
+      setLoginError(code === 'auth/unauthorized-domain'
+        ? `현재 접속 주소(${hostname})가 Firebase 로그인 허용 도메인에 등록되어 있지 않습니다. 로컬에서는 http://localhost:3000으로 접속해 주세요.`
+        : code === 'auth/popup-blocked'
+          ? '브라우저에서 로그인 팝업을 차단했습니다. 팝업을 허용한 뒤 다시 시도해 주세요.'
+          : 'Google 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+
     }
   };
 
@@ -147,10 +150,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 onClick={() => setShowManualForm(true)}
                 className="text-xs text-slate-400 hover:text-slate-700 underline"
               >
-                지메일(Gmail) 주소 직접 입력으로 로그인하기 &darr;
+                로그인 없이 로컬 실습으로 시작하기 &darr;
               </button>
             ) : (
-              <form onSubmit={handleQuickSubmit} className="space-y-3 pt-2 text-left">
+              <form onSubmit={handleQuickSubmit} className="space-y-3 pt-2 text-left"><p className="text-xs text-slate-500">로컬 실습 프로필입니다. Google 계정 인증과 클라우드 저장은 제공하지 않습니다.</p>
                 <div className="grid grid-cols-1 gap-2.5">
                   <div>
                     <label className="text-xs font-bold text-slate-700 mb-1 block">
@@ -182,7 +185,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   type="submit"
                   className="w-full h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
                 >
-                  지메일로 즉시 시작하기
+                  로컬 실습으로 시작하기
                 </Button>
               </form>
             )}

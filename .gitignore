@@ -34,3 +34,6 @@ yarn-error.log*
 next-env.d.ts
 .chrome-data
 참고자료/
+
+# local platform state
+/.local-data/

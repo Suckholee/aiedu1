@@ -1,8 +1,9 @@
 'use client';
 
+import { usePlatform } from '@/contexts/PlatformContext';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import {
   Star,
   ChevronRight,
@@ -21,21 +22,27 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { COURSES } from '@/data/courses';
+
 import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { toast } from 'sonner';
 
 export default function CourseDetailPage() {
+  const { data, ready } = usePlatform();
+  const COURSES = data.courses.filter(c => c.published);
+  const router = useRouter();
   const params = useParams();
   const courseId = params?.id as string;
-  const course = COURSES.find((c) => c.id === courseId) || COURSES[0];
+  const course = COURSES.find((c) => c.id === courseId);
 
   const [activeTab, setActiveTab] = useState<'intro' | 'curriculum' | 'reviews'>('intro');
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [openChapterId, setOpenChapterId] = useState<string>(course.curriculum[0]?.id || 'c1');
+  const [openChapterId, setOpenChapterId] = useState<string>(course?.curriculum[0]?.id || 'c1');
+
+  if (!ready) return <p>과정을 불러오는 중입니다.</p>;
+  if (!course) return <p>과정을 찾을 수 없습니다. <Link href='/courses'>목록으로</Link></p>;
 
   const seatPercent = Math.round(
     ((course.totalSeats - course.remainingSeats) / course.totalSeats) * 100
@@ -110,7 +117,7 @@ export default function CourseDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
               <button
                 type="button"
-                onClick={() => toast.info('무료 맛보기 1강이 재생됩니다.')}
+                onClick={() => router.push('/materials')}
                 className="grid size-16 place-items-center rounded-full bg-white/90 text-blue-600 shadow-2xl hover:scale-110 active:scale-95 transition-all"
               >
                 <PlayCircle className="size-9 fill-blue-600 text-white" />
@@ -303,29 +310,7 @@ export default function CourseDetailPage() {
                 </button>
               </div>
 
-              {/* Review Items */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-sm">김*현 수강생</span>
-                      <span className="rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5">
-                        수강 인증
-                      </span>
-                    </div>
-                    <span className="text-xs text-slate-400">2025.05.12</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="size-3.5 fill-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                    강의 내용이 알차고 설명도 이해하기 쉬워요. 매주 월요일마다 회의록 정리하느라 반나절을 버렸는데,
-                    조영빈 대표님 클로드 기획서 추출 프롬프트 덕분에 이제 회의 끝나고 5분 만에 상무님 보고용 5단 구조 문서가 완성됩니다.
-                  </p>
-                </div>
-              </div>
+              <div className="space-y-4">{data.reviews.filter(r=>r.courseId===course.id && r.approved).map(r=><article key={r.id} className="rounded-xl border bg-white p-5"><strong>{r.author} {r.rating}/5</strong><p className="mt-2 whitespace-pre-wrap">{r.content}</p></article>)}</div>
             </div>
           )}
         </div>
@@ -336,7 +321,7 @@ export default function CourseDetailPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="rounded-full bg-rose-50 text-rose-600 border border-rose-200 px-2.5 py-0.5 text-xs font-black">
-                {course.dDay} 할인 마감까지 3일 남음
+                {course.dDay}
               </span>
               <button
                 type="button"
@@ -394,7 +379,7 @@ export default function CourseDetailPage() {
 
             <button
               type="button"
-              onClick={() => toast.success('장바구니에 담겼습니다.')}
+              onClick={() => router.push('/my-learning')}
               className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               <ShoppingCart className="size-4" />
@@ -427,6 +412,7 @@ export default function CourseDetailPage() {
 
       {/* Slide 32 Checkout Modal */}
       <SeatHoldCheckoutModal
+        courseId={course.id}
         open={checkoutModalOpen}
         onOpenChange={setCheckoutModalOpen}
         courseTitle={course.title}

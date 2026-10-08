@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:local": "next dev --hostname :: --port 3000",
+    "test:platform": "node scripts/platform-integration.mjs",
+    "test:promotions": "node scripts/promotion-integration.mjs",
+    "migrate:firebase": "node scripts/migrate-platform-firebase.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -35,6 +39,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.9.0",
+    "firebase-admin": "^14.5.0",
     "framer-motion": "^12.4.7",
     "jszip": "^3.10.2",
     "lucide-react": "^0.544.0",

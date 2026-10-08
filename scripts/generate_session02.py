@@ -26,21 +26,6 @@ body{
 }
 
 /* ── 인증 게이트 모달 (0922) ── */
-#gate{position:fixed;inset:0;background:var(--navy);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
-#gate .box{max-width:380px;width:100%;text-align:center;color:#fff;background:var(--navy2);border:1px solid #233554;padding:32px 28px;border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,0.6)}
-#gate .logo{width:56px;height:56px;border-radius:14px;background:var(--green);color:#fff;font-weight:900;font-size:26px;line-height:56px;margin:0 auto 16px;box-shadow:0 4px 16px rgba(3,199,90,0.4)}
-#gate h1{font-size:22px;margin-bottom:8px;font-weight:800}
-#gate p{color:var(--text-muted);font-size:13.5px;margin-bottom:20px;line-height:1.5}
-#gate .input-wrap{position:relative}
-#gate input{width:100%;padding:15px;border-radius:12px;border:2px solid #233554;background:#0A192F;color:#fff;font-size:24px;text-align:center;letter-spacing:.35em;font-weight:800;transition:all .2s}
-#gate input:focus{border-color:var(--green);outline:none;background:#0F2442}
-#gate button.go-btn{width:100%;margin-top:12px;padding:15px;border:0;border-radius:12px;background:var(--green);color:#fff;font-weight:900;font-size:16px;cursor:pointer;font-family:inherit;transition:background .2s}
-#gate button.go-btn:hover{background:var(--green2)}
-#gate .err{color:#FF7875;font-size:13px;margin-top:12px;min-height:18px;font-weight:600}
-#gate .presenter-hint{margin-top:18px;padding-top:14px;border-top:1px dashed #233554;font-size:12px;color:var(--text-muted)}
-#gate .presenter-hint span{color:var(--gold);font-weight:700}
-#gate .auto-btn{background:transparent;border:1px solid #233554;color:var(--text-muted);padding:6px 12px;border-radius:6px;font-size:11.5px;margin-top:8px;cursor:pointer}
-#gate .auto-btn:hover{background:#112240;color:#fff}
 
 /* ── 메인 피칭덱 앱 프레임 ── */
 #app{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:#070F1E}
@@ -55,8 +40,6 @@ body{
 #bar .brand-badge{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800}
 #bar .session-tag{background:var(--green);color:#fff;font-size:11px;font-weight:900;padding:2px 7px;border-radius:4px}
 #bar .tistory-tag{background:var(--tistory);color:#fff;font-size:10px;font-weight:900;padding:1px 6px;border-radius:4px}
-#bar .pin-pill{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:11.5px;padding:2px 8px;border-radius:4px;display:flex;gap:5px;align-items:center}
-#bar .pin-pill strong{color:var(--gold);letter-spacing:.05em}
 
 #bar .now{font-size:13.5px;font-weight:700;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #bar .now span{color:var(--green);font-weight:900;margin-right:6px}
@@ -307,26 +290,7 @@ body.allmode #pager,body.allmode #prog{display:none}
 </head>
 <body>
 
-<!-- ── 1. 인증번호 입력 게이트 (0922) ── -->
-<div id="gate">
-  <div class="box">
-    <div class="logo">N</div>
-    <h1>2교시 · 실습 피칭덱</h1>
-    <p>강의 화면에 표시된 <strong>인증번호 4자리</strong>를 입력해 주세요.</p>
-    <div class="input-wrap">
-      <input id="pw" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" autofocus>
-      <button class="go-btn" id="goBtn">피칭덱 입장하기</button>
-      <div class="err" id="errBox"></div>
-    </div>
-    <div class="presenter-hint">
-      강사용 마스터 패스코드: <span>0922</span>
-      <div><button class="auto-btn" id="quickEnterBtn">클릭 시 자동 입장</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── 2. 메인 피칭덱 앱 ── -->
-<div id="app" class="hidden">
+<div id="app">
 
 <!-- 마스터 탑 바 -->
 <div id="bar">
@@ -334,7 +298,6 @@ body.allmode #pager,body.allmode #prog{display:none}
     <span class="session-tag">2교시</span>
     <span>AI 블로그 마케팅 &amp; 티스토리 이전 피칭덱</span>
     <span class="tistory-tag">Tistory 실습</span>
-    <span class="pin-pill">강의 PIN <strong>0922</strong></span>
   </div>
   <div class="now" id="nowSec">00 · 대기 &amp; 준비물 확인</div>
   <div class="actions">
@@ -384,7 +347,6 @@ body.allmode #pager,body.allmode #prog{display:none}
       <span class="p-badge">30초 준비</span>
       <span class="p-txt">스마트폰 갤러리의 사진 3장과 티스토리 에디터 창만 열어두시면 준비 완료입니다</span>
     </div>
-    <div style="font-size:12px;color:var(--gold);font-weight:800">강의 PIN: 0922</div>
   </div>
 
   <!-- 3대 대형 준비물 도형 카드 -->
@@ -919,7 +881,6 @@ body.allmode #pager,body.allmode #prog{display:none}
 <!-- ── 4. 스크립트 ── -->
 <script>
 (function(){
-  var AUTH_CODE = '0922';
 
   // ── 1. 슬라이드 페이징 제어 ──
   var pages = Array.from(document.querySelectorAll('main section.pg'));
@@ -1009,53 +970,12 @@ body.allmode #pager,body.allmode #prog{display:none}
     }
   }
 
-  // ── 2. 인증 및 게이트 제어 ──
-  var gate = document.getElementById('gate');
-  var app = document.getElementById('app');
-  var pwInput = document.getElementById('pw');
-  var goBtn = document.getElementById('goBtn');
-  var errBox = document.getElementById('errBox');
-  var quickEnterBtn = document.getElementById('quickEnterBtn');
-
-  function unlock() {
-    gate.classList.add('hidden');
-    app.classList.remove('hidden');
-    sessionStorage.setItem('aiedu_auth_passed_session02', '1');
-    updatePageDisplay();
-  }
-
-  var params = new URLSearchParams(window.location.search);
-  if (params.get('pw') === AUTH_CODE || params.get('master') === 'true' || sessionStorage.getItem('aiedu_auth_passed_session02') === '1' || sessionStorage.getItem('aiedu_auth_passed') === '1') {
-    unlock();
-  }
-
-  function handleAuth() {
-    var val = pwInput.value.trim();
-    if (val === AUTH_CODE) {
-      unlock();
-    } else {
-      errBox.textContent = '인증번호가 맞지 않습니다. (강의 화면을 확인해 주세요)';
-      pwInput.value = '';
-      pwInput.focus();
-    }
-  }
-
-  goBtn.addEventListener('click', handleAuth);
-  pwInput.addEventListener('keyup', function(e){
-    if (e.key === 'Enter') handleAuth();
-  });
-  if (quickEnterBtn) {
-    quickEnterBtn.addEventListener('click', function(){
-      pwInput.value = AUTH_CODE;
-      unlock();
-    });
-  }
+  updatePageDisplay();
 
   prevBtn.addEventListener('click', function(){ goToPage(curIndex - 1); });
   nextBtn.addEventListener('click', function(){ goToPage(curIndex + 1); });
 
   window.addEventListener('keydown', function(e){
-    if (!gate.classList.contains('hidden')) return;
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
       e.preventDefault();

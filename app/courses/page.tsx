@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import { usePlatform } from '@/contexts/PlatformContext';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -16,15 +17,18 @@ import {
   ChevronRight,
   CheckCircle2,
 } from 'lucide-react';
-import { COURSES, Course } from '@/data/courses';
+import { Course } from '@/data/courses';
 import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal';
 
 export default function CoursesPage() {
+  const { data, ready } = usePlatform();
+  const COURSES = data.courses.filter(c => c.published);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourseForModal, setSelectedCourseForModal] = useState<Course | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  useEffect(() => { const read = () => setSearchQuery(new URLSearchParams(window.location.search).get('q') ?? ''); read(); window.addEventListener('popstate', read); return () => window.removeEventListener('popstate', read); }, []);
   const categories = ['전체', 'AI·데이터', '업무자동화', '개발·백엔드', '비즈니스·마케팅'];
 
   const filteredCourses = COURSES.filter((c) => {
@@ -90,6 +94,7 @@ export default function CoursesPage() {
         ))}
       </div>
 
+      {ready && filteredCourses.length === 0 && <p className="rounded-2xl border bg-white p-8 text-center text-slate-500">{searchQuery || selectedCategory !== '전체' ? '조건에 맞는 교육과정이 없습니다.' : '등록된 교육과정이 없습니다.'}</p>}
       {/* Courses Grid matching standard platform card style */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => {
@@ -210,6 +215,7 @@ export default function CoursesPage() {
         <SeatHoldCheckoutModal
           open={modalOpen}
           onOpenChange={setModalOpen}
+          courseId={selectedCourseForModal.id}
           courseTitle={selectedCourseForModal.title}
           price={selectedCourseForModal.price}
           originalPrice={selectedCourseForModal.originalPrice}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Bell,
@@ -38,6 +39,8 @@ export function DashboardHeader({
   isSidebarOpen = true,
   onToggleSidebar,
 }: DashboardHeaderProps) {
+  const router = useRouter();
+  const [search, setSearch] = useState('');
   const { user, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -85,7 +88,10 @@ export function DashboardHeader({
             type="text"
             placeholder="검색어를 입력하세요..."
             className="h-10 w-full rounded-xl border border-slate-200/90 bg-slate-50/70 pl-10 pr-12 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-            readOnly
+            aria-label='교육과정 검색'
+            value={search}
+            onChange={e=>setSearch(e.target.value)}
+            onKeyDown={e=>{if(e.key==='Enter')window.location.assign('/courses?q='+encodeURIComponent(search));}}
           />
           <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-0.5 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 shadow-xs">
             <span>⌘</span>
@@ -117,9 +123,10 @@ export function DashboardHeader({
           type="button"
           className="relative grid size-9 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
           title="알림"
+          onClick={()=>router.push('/my-learning')}
         >
           <Bell className="size-4.5" />
-          <span className="absolute right-2 top-2 size-2 rounded-full bg-rose-500 ring-2 ring-white" />
+
         </button>
 
         {/* Messages */}
@@ -127,6 +134,7 @@ export function DashboardHeader({
           type="button"
           className="grid size-9 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
           title="메시지"
+          onClick={()=>router.push('/admin/crm')}
         >
           <Mail className="size-4.5" />
         </button>

@@ -48,7 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (cached) {
-        setUser(JSON.parse(cached));
+        const profile = JSON.parse(cached) as User;
+        if (profile.isGuest || profile.uid?.startsWith('quick_')) setUser({ ...profile, isGuest: true });
       }
     } catch (e) {}
 
@@ -81,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     email: fbUser.email,
                     displayName: newUser.displayName,
                     photoURL: fbUser.photoURL,
-                    role: 'student',
                     lastLoginAt: Date.now(),
                   },
                   { merge: true }
@@ -91,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }
           }
+          if (!fbUser) setUser(previous => previous?.isGuest ? previous : null);
           setLoading(false);
         });
       } catch (err) {
@@ -131,12 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       toast.success(`🎉 ${newUser.displayName}님, 환영합니다!`);
     } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
-        toast.info('로그인 창이 닫혔습니다.');
-      } else {
-        toast.error(`로그인 중 오류가 발생했습니다: ${error.message || ''}`);
-      }
       throw error;
     } finally {
       setLoading(false);
@@ -150,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName: name.trim() || '수강생',
       email: email?.trim() || `${name.trim().toLowerCase()}@gmail.com`,
       photoURL: null,
-      isGuest: false,
+      isGuest: true,
     };
 
     setUser(fallbackUser);
@@ -158,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(fallbackUser));
     } catch (e) {}
 
-    toast.success(`🎉 ${fallbackUser.displayName}님으로 간편 로그인되었습니다!`);
+    toast.success(`🎉 ${fallbackUser.displayName}님으로 로컬 실습 프로필을 열었습니다!`);
   };
 
   // 4. 로그아웃

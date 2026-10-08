@@ -1,5 +1,6 @@
 'use client';
 
+import { usePlatform } from '@/contexts/PlatformContext';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,6 +44,7 @@ const GOOGLE_FORM_URL =
 
 export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const { data } = usePlatform();
   const [labsOpen, setLabsOpen] = useState(true);
   const [adminOpen, setAdminOpen] = useState(pathname.startsWith('/admin'));
 
@@ -64,7 +66,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
   return (
     <aside className="flex h-full w-64 flex-col justify-between border-r border-slate-200/80 bg-white p-4 select-none overflow-y-auto">
       <div>
-        {/* Brand Header matching standard specs: 🎓 에듀플랫폼 (AI수강생 플랫폼) */}
+        {/* Brand Header matching standard specs: 🎓 네오앤피터 에듀플랫폼 (AI수강생 플랫폼) */}
         <div className="flex items-center justify-between px-2 py-3">
           <Link
             href="/"
@@ -76,7 +78,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             </div>
             <div>
               <span className="text-base font-black tracking-tight text-slate-900">
-                에듀플랫폼
+                네오앤피터 에듀플랫폼
               </span>
               <p className="text-[10px] font-semibold text-blue-600 -mt-0.5">
                 AI 교육플랫폼 표준 1차
@@ -123,9 +125,10 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             }`}
           >
             <Home className="size-4.5" />
-            <span>홈 (소개)</span>
+            <span>홍보 캘린더</span>
           </Link>
 
+<Link href="/education" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />교육플랫폼 소개</Link>
           {/* 교육과정 탐색 */}
           <Link
             href="/courses"
@@ -141,11 +144,12 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
               <span>교육과정 탐색</span>
             </div>
             <span className="rounded-md bg-blue-100 px-1.5 py-0.5 text-[10px] font-black text-blue-700">
-              4개
+              {data.courses.filter(c => c.published).length}개
             </span>
           </Link>
 
-          {/* 통합 교육 캘린더 (Slide 24) */}
+          <Link href="/my-learning" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />내 강의실·신청 현황</Link>
+          {/* 날짜별 홍보글 (Slide 24) */}
           <Link
             href="/calendar"
             onClick={onCloseMobile}
@@ -156,7 +160,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             }`}
           >
             <Calendar className="size-4.5" />
-            <span>통합 교육 캘린더</span>
+            <span>날짜별 홍보글</span>
           </Link>
 
           {/* 강의 자료실 & 스마트 뷰어 (Slide 45, 46) */}
@@ -303,6 +307,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             <span>얼리버드 갤러리</span>
           </Link>
 
+          <Link href="/admin/operations" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><FileCheck className="size-4.5" />수업·자료·환불 관리</Link>
           {/* 관리자 운영 콘솔 (Accordion matching standard specs) */}
           <div className="pt-2 border-t border-slate-100">
             <button
