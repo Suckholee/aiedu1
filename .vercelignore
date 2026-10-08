@@ -7,3 +7,10 @@ magazines
 public/downloads
 .chrome-data
 참고자료
+잡지
+참고자료
+scripts/register-magazine.mjs
+scripts/remove-example-data.mjs
+scripts/migrate-platform-firebase.mjs
+scripts/platform-integration.mjs
+scripts/promotion-integration.mjs
