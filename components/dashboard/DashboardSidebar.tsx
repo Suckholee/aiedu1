@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, ChevronDown, ChevronRight, PanelLeftClose, X } from 'lucide-react';
+import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, CreditCard, ChevronDown, ChevronRight, PanelLeftClose, X } from 'lucide-react';
 
 interface DashboardSidebarProps { onCloseMobile?: () => void; onToggleCollapse?: () => void; }
 const mainLinks = [
@@ -40,5 +40,10 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
       {labsOpen && <nav id="practice-links" aria-label="실습 도구" className="ml-3 border-l border-slate-100 pl-3">{practiceLinks.map(({href,label})=><Link key={href} href={href} onClick={onCloseMobile} className={linkClass(href)}>{label}</Link>)}</nav>}
     </div>
     <nav aria-label="플랫폼 안내" className="mt-4 space-y-1 border-t border-slate-100 pt-4">{[{href:'/education',label:'플랫폼 소개'},{href:'/reviews',label:'수강후기'},{href:'/gallery',label:'수강생 갤러리'}].map(({href,label})=><Link key={href} href={href} onClick={onCloseMobile} className={linkClass(href)}>{label}</Link>)}</nav>
+    <div className="mt-5 space-y-1 border-t border-slate-100 pt-4">
+      <p className="px-3 text-[11px] font-bold tracking-wider text-slate-400">관리 및 운영</p>
+      <Link href="/admin/settlements" onClick={onCloseMobile} className={linkClass('/admin/settlements')}><CreditCard className="size-4 shrink-0 text-indigo-600" /><span className="flex items-center gap-1.5">결제 &amp; 정산 관리<span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">신규</span></span></Link>
+      <Link href="/admin" onClick={onCloseMobile} className={linkClass('/admin')}><ShieldCheck className="size-4 shrink-0 text-slate-500" />운영 콘솔</Link>
+    </div>
   </aside>;
 }
