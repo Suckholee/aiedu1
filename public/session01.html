@@ -237,6 +237,20 @@ main details:not(.shot){background:var(--card,#fff);border:1px solid var(--ln);b
 main details:not(.shot) summary{cursor:pointer;padding:12px 14px;font-weight:700}
 main details:not(.shot) p{padding:0 14px 12px;margin:0}
 details.shot img{max-width:100%;height:auto;display:block;margin-top:10px;border:1px solid var(--ln);border-radius:6px}
+body.nohdr #app>header{display:none}
+html{scroll-behavior:auto}
+/* 강의 화면: 본문을 가리지 않는 간결한 배너와 페이지 이동 */
+#app>header,body.z2 #app>header,body.z3 #app>header{padding:12px 24px}
+#app>header .k{font-size:11px;letter-spacing:.08em}
+#app>header h1,body.z2 #app>header h1,body.z3 #app>header h1{font-size:22px;line-height:1.35;margin:4px 0}
+#app>header p{font-size:12px;line-height:1.5;margin:0}
+#bar{padding:6px 18px;gap:10px}
+#bar #tocBtn{width:auto;height:auto;min-height:32px;padding:7px 12px}
+#pager{position:static!important;left:auto;right:auto;margin:24px 0 0!important;padding:12px 0!important;box-shadow:none;justify-content:space-between}
+main,body.z2 main,body.z3 main{padding-bottom:24px!important}
+#prog{position:static}
+@media(max-width:600px){#app>header{padding:10px 16px}#app>header h1{font-size:19px}#app>header p{display:none}#bar{flex-wrap:wrap;padding:6px 12px}#bar .now{flex:1;min-width:0}#bar #tocBtn{font-size:11px}#bar .zoom{gap:3px}}
+
 </style>
 
 
@@ -244,7 +258,7 @@ details.shot img{max-width:100%;height:auto;display:block;margin-top:10px;border
 
 <header>
   <div class="k">AI 업무자동화 · 02번</div>
-  <h1>말로 한 상담이,<br>보낼 수 있는 보고서가 되기까지</h1>
+  <h1>말로 한 상담이, 보낼 수 있는 보고서가 되기까지</h1>
   <p>오늘 여기서 한 번만 만들어 두면, 다음 상담부터는 이게 10분입니다.</p>
 </header>
 
@@ -749,8 +763,8 @@ PPT 파일(.pptx)로 만들어 주세요.</pre>
     next.textContent=(i===pages.length-1)?'마지막 장입니다':'다음 →';
     bar.style.width=((i+1)/pages.length*100)+'%';
     try{history.replaceState(null,'','#p'+i);}catch(e){}
-    document.body.classList.toggle('nohdr', i!==0);
-    if(!noScroll) window.scrollTo(0,0);
+    if(!noScroll || i!==0) document.body.classList.add('nohdr');
+    if(!noScroll) window.scrollTo({top:0,behavior:'instant'});
   }
   prev.addEventListener('click',function(){this.blur();show(cur-1);});
   next.addEventListener('click',function(){this.blur();show(cur+1);});
