@@ -8,7 +8,7 @@ import {
   BookOpen,
   Calendar,
   Tv,
-  ShieldCheck,
+  GraduationCap,
 } from 'lucide-react';
 
 export function MobileBottomNav() {
@@ -18,7 +18,7 @@ export function MobileBottomNav() {
   const isCourses = pathname.startsWith('/courses');
   const isCalendar = pathname === '/calendar';
   const isMaterials = pathname === '/materials';
-  const isAdmin = pathname.startsWith('/admin');
+  const isLearning = pathname === '/my-learning';
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe">
@@ -61,7 +61,7 @@ export function MobileBottomNav() {
             }`}
           >
             <Calendar className="size-4" />
-            <span>캘린더</span>
+            <span>일정</span>
           </Link>
 
           {/* 4. Classroom / Materials */}
@@ -74,20 +74,20 @@ export function MobileBottomNav() {
             }`}
           >
             <Tv className="size-4" />
-            <span>강의실</span>
+            <span>자료실</span>
           </Link>
 
           {/* 5. Admin Console */}
           <Link
-            href="/admin"
+            href="/my-learning"
             className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition ${
-              isAdmin
+              isLearning
                 ? 'text-white bg-blue-600 font-extrabold shadow-xs'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
-            <ShieldCheck className="size-4" />
-            <span>관리자</span>
+            <GraduationCap className="size-4" />
+            <span>내 학습</span>
           </Link>
         </nav>
       </div>

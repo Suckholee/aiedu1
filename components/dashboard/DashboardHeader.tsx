@@ -102,22 +102,6 @@ export function DashboardHeader({
 
       {/* Right: Mode Switcher, Notifications, User Profile / Sign In */}
       <div className="flex items-center gap-2 sm:gap-3.5">
-        {/* Role Mode Switcher matching standard platform */}
-        <div className="hidden md:flex items-center rounded-xl bg-slate-100 p-1 text-xs font-bold">
-          <Link
-            href="/"
-            className="rounded-lg px-2.5 py-1 text-slate-700 hover:text-slate-900 transition hover:bg-white/50"
-          >
-            학습자 모드
-          </Link>
-          <Link
-            href="/admin"
-            className="rounded-lg bg-blue-600 text-white px-2.5 py-1 shadow-2xs hover:bg-blue-700 transition"
-          >
-            관리자 콘솔
-          </Link>
-        </div>
-
         {/* Notifications */}
         <button
           type="button"

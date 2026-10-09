@@ -8,24 +8,21 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div>
             <p className="font-extrabold text-slate-900 text-sm">
-              AI 업무자동화 실전 마스터 클래스
+              네오앤피터 에듀플랫폼
             </p>
             <p className="mt-1 text-slate-500">
               어니스톤(조영빈 대표) &amp; neoNpeter(이석호 대표 · 박재범 대표)
             </p>
             <p className="mt-0.5 text-[11px] text-slate-400">
-              본 사이트는 수강생 실습 및 강의 온보딩 전용 플랫폼입니다.
+              강의자료에서 실습까지, 배움을 실제 업무로 연결합니다.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 text-xs font-medium text-slate-600">
-            <Link href="/" className="hover:text-indigo-600 transition">홈</Link>
-            <Link href="/gallery" className="hover:text-indigo-600 transition">얼리버드 갤러리</Link>
-            <Link href="/materials" className="hover:text-indigo-600 transition">강의 자료실</Link>
-            <Link href="/tools/work-automation" className="hover:text-indigo-600 transition">업무자동화 실습</Link>
-            <Link href="/tools/blog" className="hover:text-indigo-600 transition">블로그 실습</Link>
-            <Link href="/tools/shorts" className="hover:text-indigo-600 transition">숏폼 실습 (VisKits)</Link>
-            <Link href="/guides/prep" className="hover:text-indigo-600 transition">사전 준비</Link>
+            <Link href="/calendar">일정</Link>
+            <Link href="/courses">교육과정</Link>
+            <Link href="/materials">강의실 &amp; 자료실</Link>
+            <Link href="/education">플랫폼 소개</Link>
           </div>
         </div>
 
