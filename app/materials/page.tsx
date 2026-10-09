@@ -5,6 +5,7 @@ import { ArrowUpRight, BookOpen, Puzzle } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
 
 const sessions = [
+    { period: '0교시', title: '함께 만드는 사람들 · 강사 소개', instructor: '어니스톤 × neoNpeter', href: '/00.html' },
     { period: '1교시', title: '클로드 입문 50분 · 문서 자동화', instructor: '조영빈 대표 · 어니스톤', href: '/01.html' },
     { period: '2교시', title: 'IT 정보화 · AEO·GEO와 블로그 콘텐츠', instructor: '이석호 대표 · neoNpeter', href: '/02.html' },
 ];
@@ -26,7 +27,7 @@ export default function MaterialsPage() {
                     <h2 id="lecture-materials-heading" className="text-xl font-bold text-slate-900">10월 9일 강의자료</h2>
                     <span className="text-sm text-slate-500">2026.10.09</span>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-3">
                     {sessions.map(session => (
                         <a key={session.period} className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-blue-400 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600" href={session.href} target="_blank" rel="noopener noreferrer">
                             <div className="flex items-center justify-between"><span className="text-sm font-bold text-blue-600">{session.period}</span><BookOpen className="size-5 text-slate-400" /></div>
