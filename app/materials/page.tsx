@@ -8,6 +8,8 @@ const sessions = [
     { period: '0교시', title: '함께 만드는 사람들 · 강사 소개', instructor: '어니스톤 × neoNpeter', href: '/00.html' },
     { period: '1교시', title: '클로드 입문 50분 · 문서 자동화', instructor: '조영빈 대표 · 어니스톤', href: '/01.html' },
     { period: '2교시', title: 'IT 정보화 · AEO·GEO와 블로그 콘텐츠', instructor: '이석호 대표 · neoNpeter', href: '/02.html' },
+    { period: '3교시', title: '비스킷AI로 영상 숏폼 만들기', instructor: '박재범 대표 · neoNpeter', href: '/03.html' },
+    { period: '4교시 · 심화', title: '나만의 플랫폼 만들기', instructor: '어니스톤 × neoNpeter', href: '/04.html' },
 ];
 
 export default function MaterialsPage() {
