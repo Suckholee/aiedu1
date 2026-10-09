@@ -6,7 +6,7 @@ import { usePlatform } from '@/contexts/PlatformContext';
 
 const sessions = [
     { period: '1교시', title: '클로드 입문 50분 · 문서 자동화', instructor: '조영빈 대표 · 어니스톤', href: '/01.html' },
-    { period: '2교시', title: 'AI 시대의 블로그 & 티스토리 스마트 옮겨쓰기', instructor: '이석호 대표 · neoNpeter', href: '/02.html' },
+    { period: '2교시', title: 'IT 정보화 · AEO·GEO와 블로그 콘텐츠', instructor: '이석호 대표 · neoNpeter', href: '/02.html' },
 ];
 
 export default function MaterialsPage() {
