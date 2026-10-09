@@ -47,6 +47,15 @@ export default function CoursesPage() {
 
   return (
     <div className="space-y-8 pb-16 text-left">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="past-education-heading">
+        <h2 id="past-education-heading" className="text-lg font-bold">지난 교육 이력</h2>
+        <article className="mt-3 rounded-xl bg-slate-50 p-4">
+          <span className="text-xs font-bold text-slate-500">교육 종료 · 2026년 9월 22일</span>
+          <h3 className="mt-1 font-bold">AI 업무자동화</h3>
+          <p className="mt-2 text-sm text-slate-600">17:00–20:00 · 가호스튜디오</p>
+          <p className="mt-1 text-sm text-slate-600">문서·블로그·숏폼 콘텐츠 자동화 실습</p>
+        </article>
+      </section>
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

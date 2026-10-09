@@ -149,7 +149,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
           </Link>
 
           <Link href="/my-learning" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />내 강의실·신청 현황</Link>
-          {/* 날짜별 홍보글 (Slide 24) */}
+          {/* 일정 */}
           <Link
             href="/calendar"
             onClick={onCloseMobile}
@@ -160,7 +160,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             }`}
           >
             <Calendar className="size-4.5" />
-            <span>날짜별 홍보글</span>
+            <span>일정</span>
           </Link>
 
           {/* 강의 자료실 & 스마트 뷰어 (Slide 45, 46) */}

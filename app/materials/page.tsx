@@ -10,6 +10,7 @@ export default function MaterialsPage() {
     return (
         <div className="space-y-6">
             <h1 className="text-2xl font-black">강의실 &amp; 자료실</h1>
+            <p className="text-sm text-slate-600">로그인 없이 강의자료와 설치 매뉴얼을 열어볼 수 있습니다.</p>
             <div className="flex flex-wrap gap-3">
                 <Link className="rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" href="/my-learning">내 신청·학습 현황</Link>
                 <Link className="rounded-lg border px-4 py-2" href="/admin/operations">학습 자료 등록</Link>
@@ -36,13 +37,15 @@ export default function MaterialsPage() {
             </section>
 
             <section className="space-y-3" aria-labelledby="course-materials-heading">
-                <h2 id="course-materials-heading" className="text-xl font-bold">내 과정 강의실</h2>
-                <p className="text-sm text-slate-600">수강 신청 후 관리자 승인을 받으면 내 강의실에서 과정별 자료와 학습 완료 기록을 이용할 수 있습니다.</p>
+                <h2 id="course-materials-heading" className="text-xl font-bold">과정별 강의자료</h2>
+                <p className="text-sm text-slate-600">과정별 자료는 바로 열 수 있습니다. 개인 신청 현황과 학습 완료 기록은 로그인 후 확인하세요.</p>
                 {!ready ? <p>과정을 불러오는 중입니다.</p> : courses.length === 0 ? <p className="text-sm text-slate-500">등록된 교육과정이 없습니다.</p> : courses.map(c => (
                     <article className="rounded-2xl border bg-white p-5" key={c.id}>
                         <Link className="text-lg font-bold text-blue-700" href={`/courses/${c.id}`}>{c.title}</Link>
                         <p className="mt-2 text-sm text-slate-500">{c.startDate} · 학습 자료 {data.materials.filter(m => m.courseId === c.id).length}개 · {c.instructor.name}</p>
-                        <Link className="mt-3 inline-block text-sm text-blue-700" href="/my-learning">강의실 입장 →</Link>
+                        <div className="mt-3 space-y-2">{data.materials.filter(m => m.courseId === c.id).map(m => (
+                            <a key={m.id} className="block text-sm font-bold text-blue-700" href={m.url} target="_blank" rel="noopener noreferrer">{m.title} 열기 ↗</a>
+                        ))}{!data.materials.some(m => m.courseId === c.id) && <p className="text-sm text-slate-500">등록된 자료가 없습니다.</p>}</div>
                     </article>
                 ))}
             </section>

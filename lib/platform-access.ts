@@ -14,5 +14,5 @@ export function visiblePlatform(data: PlatformData, user: DecodedIdToken | null)
     if (isPlatformAdmin(user)) return data;
     const email = user?.email?.toLowerCase();
     const enrollments = email ? data.enrollments.filter(e => e.email === email).map(e => ({ ...e, notes: [] })) : [];
-    return { ...data, courses: data.courses.filter(c => c.published), promotionPosts: user ? data.promotionPosts : data.promotionPosts.filter(p => p.status === '게시 완료'), reviews: data.reviews.filter(r => r.approved), logs: [], enrollments, materials: data.materials.filter(m => enrollments.some(e => e.courseId === m.courseId && ['승인', '수료'].includes(e.status))) };
+    return { ...data, courses: data.courses.filter(c => c.published), promotionPosts: user ? data.promotionPosts : data.promotionPosts.filter(p => p.status === '게시 완료'), reviews: data.reviews.filter(r => r.approved), logs: [], enrollments, materials: data.materials.filter(m => data.courses.some(c => c.id === m.courseId && c.published)) };
 }
