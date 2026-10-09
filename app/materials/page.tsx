@@ -1,64 +1,61 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowUpRight, BookOpen, Puzzle } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
+
+const sessions = [
+    { period: '1교시', title: '클로드 입문 50분 · 문서 자동화', instructor: '조영빈 대표 · 어니스톤', href: '/01.html' },
+    { period: '2교시', title: 'AI 시대의 블로그 & 티스토리 스마트 옮겨쓰기', instructor: '이석호 대표 · neoNpeter', href: '/02.html' },
+];
 
 export default function MaterialsPage() {
     const { data, ready } = usePlatform();
-    const courses = data.courses.filter(c => c.published);
+    const courses = data.courses.filter(c => c.published && data.materials.some(m => m.courseId === c.id));
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-2xl font-black">강의실 &amp; 자료실</h1>
-            <p className="text-sm text-slate-600">로그인 없이 강의자료와 설치 매뉴얼을 열어볼 수 있습니다.</p>
-            <div className="flex flex-wrap gap-3">
-                <Link className="rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" href="/my-learning">내 신청·학습 현황</Link>
-                <Link className="rounded-lg border px-4 py-2" href="/admin/operations">학습 자료 등록</Link>
-            </div>
+        <div className="mx-auto max-w-5xl space-y-10 pb-12">
+            <header className="border-b border-slate-200 pb-6">
+                <p className="mb-2 text-xs font-semibold tracking-widest text-blue-600">LEARNING LIBRARY</p>
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">강의실 &amp; 자료실</h1>
+                <p className="mt-3 text-sm text-slate-500">강의자료를 선택해 바로 시작하세요. 로그인 없이 이용할 수 있습니다.</p>
+            </header>
 
-            <section className="space-y-3" aria-labelledby="lecture-materials-heading">
-                <h2 id="lecture-materials-heading" className="text-xl font-bold">2026년 10월 9일 · 1·2교시 강의자료</h2>
-                <article className="rounded-2xl border bg-white p-5">
-                    <div className="mb-3 flex flex-wrap gap-2 text-xs font-bold">
-                        <span className="rounded-full bg-violet-50 px-3 py-1 text-violet-700">1교시</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">HTML 웹교재</span>
-                    </div>
-                    <h3 className="text-lg font-bold">클로드 입문 50분 · 문서 자동화</h3>
-                    <p className="mt-2 text-sm text-slate-500">2026년 10월 9일 · 조영빈 대표 (어니스톤)</p>
-                    <p className="mt-3 text-sm text-slate-600">상담 메모를 문서로 만드는 실습과 프롬프트를 확인할 수 있는 1교시 강의 교재입니다.</p>
-                    <a className="mt-4 inline-flex rounded-lg bg-violet-600 px-4 py-2 font-bold text-white hover:bg-violet-700" href="/01.html" target="_blank" rel="noopener noreferrer">1교시 강의자료 열기 ↗</a>
-                </article>
-                <article className="rounded-2xl border bg-white p-5">
-                    <div className="mb-3 flex flex-wrap gap-2 text-xs font-bold">
-                        <span className="rounded-full bg-violet-50 px-3 py-1 text-violet-700">2교시</span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">HTML 웹교재</span>
-                    </div>
-                    <h3 className="text-lg font-bold">AI 시대의 블로그 &amp; 티스토리 스마트 옮겨쓰기</h3>
-                    <p className="mt-2 text-sm text-slate-500">2026년 10월 9일 · 이석호 대표 (neoNpeter)</p>
-                    <p className="mt-3 text-sm text-slate-600">블로그 콘텐츠 작성과 티스토리 스마트 옮겨쓰기를 다루는 2교시 강의 교재입니다.</p>
-                    <a className="mt-4 inline-flex rounded-lg bg-violet-600 px-4 py-2 font-bold text-white hover:bg-violet-700" href="/02.html" target="_blank" rel="noopener noreferrer">2교시 강의자료 열기 ↗</a>
-                </article>
-                <article className="rounded-2xl border bg-white p-5">
-                    <span className="text-xs font-bold text-blue-700">설치 실습 · 웹매뉴얼</span>
-                    <h3 className="mt-2 text-lg font-bold">크롬 확장 프로그램 설치하고 첫 글 받아보기</h3>
-                    <p className="mt-2 text-sm text-slate-600">네오앤피터 블로그 도우미 ZIP 설치, 단계별 완료 체크, 글 수신 확인과 문제 해결 안내입니다.</p>
-                    <a className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" href="/extension-manual.html" target="_blank" rel="noopener noreferrer">설치 웹매뉴얼 열기 ↗</a>
-                </article>
+            <section aria-labelledby="lecture-materials-heading">
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="lecture-materials-heading" className="text-xl font-bold text-slate-900">10월 9일 강의자료</h2>
+                    <span className="text-sm text-slate-500">2026.10.09</span>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {sessions.map(session => (
+                        <a key={session.period} className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-blue-400 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600" href={session.href} target="_blank" rel="noopener noreferrer">
+                            <div className="flex items-center justify-between"><span className="text-sm font-bold text-blue-600">{session.period}</span><BookOpen className="size-5 text-slate-400" /></div>
+                            <h3 className="mt-5 text-lg font-bold leading-relaxed text-slate-900">{session.title}</h3>
+                            <p className="mt-2 text-sm text-slate-500">{session.instructor}</p>
+                            <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-blue-600">강의자료 열기 <ArrowUpRight className="size-4" /></span>
+                        </a>
+                    ))}
+                </div>
             </section>
 
-            <section className="space-y-3" aria-labelledby="course-materials-heading">
-                <h2 id="course-materials-heading" className="text-xl font-bold">과정별 강의자료</h2>
-                <p className="text-sm text-slate-600">과정별 자료는 바로 열 수 있습니다. 개인 신청 현황과 학습 완료 기록은 로그인 후 확인하세요.</p>
-                {!ready ? <p>과정을 불러오는 중입니다.</p> : courses.length === 0 ? <p className="text-sm text-slate-500">등록된 교육과정이 없습니다.</p> : courses.map(c => (
-                    <article className="rounded-2xl border bg-white p-5" key={c.id}>
-                        <Link className="text-lg font-bold text-blue-700" href={`/courses/${c.id}`}>{c.title}</Link>
-                        <p className="mt-2 text-sm text-slate-500">{c.startDate} · 학습 자료 {data.materials.filter(m => m.courseId === c.id).length}개 · {c.instructor.name}</p>
-                        <div className="mt-3 space-y-2">{data.materials.filter(m => m.courseId === c.id).map(m => (
-                            <a key={m.id} className="block text-sm font-bold text-blue-700" href={m.url} target="_blank" rel="noopener noreferrer">{m.title} 열기 ↗</a>
-                        ))}{!data.materials.some(m => m.courseId === c.id) && <p className="text-sm text-slate-500">등록된 자료가 없습니다.</p>}</div>
-                    </article>
-                ))}
+            <section aria-labelledby="manual-heading">
+                <h2 id="manual-heading" className="mb-4 text-lg font-bold text-slate-900">실습 준비</h2>
+                <a className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-400" href="/extension-manual.html" target="_blank" rel="noopener noreferrer">
+                    <Puzzle className="size-6 shrink-0 text-blue-600" />
+                    <div className="flex-1"><h3 className="font-semibold text-slate-900">크롬 확장 프로그램 설치 매뉴얼</h3><p className="mt-1 text-sm text-slate-500">설치 순서 · 첫 글 수신 · 문제 해결</p></div>
+                    <ArrowUpRight className="size-5 shrink-0 text-slate-400" />
+                </a>
             </section>
+
+            {ready && courses.length > 0 && <section aria-labelledby="course-materials-heading">
+                <h2 id="course-materials-heading" className="mb-4 text-lg font-bold">다른 과정 자료</h2>
+                <div className="space-y-4">{courses.map(c => <article className="rounded-2xl border border-slate-200 bg-white p-5" key={c.id}>
+                    <h3 className="font-semibold">{c.title}</h3><p className="mt-1 text-sm text-slate-500">{c.startDate} · {c.instructor.name}</p>
+                    <div className="mt-4 space-y-2">{data.materials.filter(m => m.courseId === c.id).map(m => <a key={m.id} className="block text-sm font-semibold text-blue-600" href={m.url} target="_blank" rel="noopener noreferrer">{m.title} ↗</a>)}</div>
+                </article>)}</div>
+            </section>}
+
+            <footer className="border-t border-slate-200 pt-5 text-sm text-slate-500">개인 신청 내역과 학습 기록은 <Link className="font-semibold text-blue-600" href="/my-learning">내 신청·학습 현황</Link>에서 확인하세요.</footer>
         </div>
     );
 }

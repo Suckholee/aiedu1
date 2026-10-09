@@ -125,7 +125,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             }`}
           >
             <Home className="size-4.5" />
-            <span>홍보 캘린더</span>
+            <span>홈</span>
           </Link>
 
 <Link href="/education" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />교육플랫폼 소개</Link>
@@ -148,7 +148,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
             </span>
           </Link>
 
-          <Link href="/my-learning" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />내 강의실·신청 현황</Link>
+          <Link href="/my-learning" onClick={onCloseMobile} className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-600 hover:bg-blue-50"><GraduationCap className="size-4.5" />내 신청·학습 현황</Link>
           {/* 일정 */}
           <Link
             href="/calendar"
