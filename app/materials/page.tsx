@@ -17,13 +17,7 @@ export default function MaterialsPage() {
             </div>
 
             <section className="space-y-3" aria-labelledby="lecture-materials-heading">
-                <h2 id="lecture-materials-heading" className="text-xl font-bold">강의자료 목록</h2>
-                <article className="rounded-2xl border bg-white p-5">
-                    <span className="text-xs font-bold text-blue-700">설치 실습 · 웹매뉴얼</span>
-                    <h3 className="mt-2 text-lg font-bold">크롬 확장 프로그램 설치하고 첫 글 받아보기</h3>
-                    <p className="mt-2 text-sm text-slate-600">네오앤피터 블로그 도우미 ZIP 설치, 단계별 완료 체크, 글 수신 확인과 문제 해결 안내입니다.</p>
-                    <a className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" href="/extension-manual.html" target="_blank" rel="noopener noreferrer">설치 웹매뉴얼 열기 ↗</a>
-                </article>
+                <h2 id="lecture-materials-heading" className="text-xl font-bold">2026년 10월 9일 · 1·2교시 강의자료</h2>
                 <article className="rounded-2xl border bg-white p-5">
                     <div className="mb-3 flex flex-wrap gap-2 text-xs font-bold">
                         <span className="rounded-full bg-violet-50 px-3 py-1 text-violet-700">1교시</span>
@@ -32,7 +26,23 @@ export default function MaterialsPage() {
                     <h3 className="text-lg font-bold">클로드 입문 50분 · 문서 자동화</h3>
                     <p className="mt-2 text-sm text-slate-500">2026년 10월 9일 · 조영빈 대표 (어니스톤)</p>
                     <p className="mt-3 text-sm text-slate-600">상담 메모를 문서로 만드는 실습과 프롬프트를 확인할 수 있는 1교시 강의 교재입니다.</p>
-                    <a className="mt-4 inline-flex rounded-lg bg-violet-600 px-4 py-2 font-bold text-white hover:bg-violet-700" href="/01.html" target="_blank" rel="noopener noreferrer">강의자료 열기 ↗</a>
+                    <a className="mt-4 inline-flex rounded-lg bg-violet-600 px-4 py-2 font-bold text-white hover:bg-violet-700" href="/01.html" target="_blank" rel="noopener noreferrer">1교시 강의자료 열기 ↗</a>
+                </article>
+                <article className="rounded-2xl border bg-white p-5">
+                    <div className="mb-3 flex flex-wrap gap-2 text-xs font-bold">
+                        <span className="rounded-full bg-violet-50 px-3 py-1 text-violet-700">2교시</span>
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">HTML 웹교재</span>
+                    </div>
+                    <h3 className="text-lg font-bold">AI 시대의 블로그 &amp; 티스토리 스마트 옮겨쓰기</h3>
+                    <p className="mt-2 text-sm text-slate-500">2026년 10월 9일 · 이석호 대표 (neoNpeter)</p>
+                    <p className="mt-3 text-sm text-slate-600">블로그 콘텐츠 작성과 티스토리 스마트 옮겨쓰기를 다루는 2교시 강의 교재입니다.</p>
+                    <a className="mt-4 inline-flex rounded-lg bg-violet-600 px-4 py-2 font-bold text-white hover:bg-violet-700" href="/02.html" target="_blank" rel="noopener noreferrer">2교시 강의자료 열기 ↗</a>
+                </article>
+                <article className="rounded-2xl border bg-white p-5">
+                    <span className="text-xs font-bold text-blue-700">설치 실습 · 웹매뉴얼</span>
+                    <h3 className="mt-2 text-lg font-bold">크롬 확장 프로그램 설치하고 첫 글 받아보기</h3>
+                    <p className="mt-2 text-sm text-slate-600">네오앤피터 블로그 도우미 ZIP 설치, 단계별 완료 체크, 글 수신 확인과 문제 해결 안내입니다.</p>
+                    <a className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 font-bold text-white" href="/extension-manual.html" target="_blank" rel="noopener noreferrer">설치 웹매뉴얼 열기 ↗</a>
                 </article>
             </section>
 
