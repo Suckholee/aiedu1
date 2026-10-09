@@ -33,7 +33,7 @@
   // --------------------------------------------------------------------------
   if (isNeonPeter) {
     try {
-      document.documentElement.dataset.neonpeterExtension = '2.7.1';
+      document.documentElement.dataset.neonpeterExtension = '2.7.2';
     } catch (e) {}
 
     // window.postMessage 이벤트 수신
@@ -348,8 +348,9 @@
 
     // 1. chrome.storage.local에서 최신 글 확인
     try {
-      const storageData = await chrome.storage.local.get(['latest_post', 'synced_at']);
-      if (storageData.latest_post && storageData.latest_post.title) {
+      const storageData = await chrome.storage.local.get(['latest_post', 'synced_at', 'public_feed_posts']);
+      if(storageData.public_feed_posts?.length) post = storageData.public_feed_posts[0];
+      if (!post && storageData.latest_post && storageData.latest_post.title) {
         post = storageData.latest_post;
       }
     } catch (e) {}

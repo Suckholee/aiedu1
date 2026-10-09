@@ -466,9 +466,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ─── 서버 글 목록 API 호출 헬퍼 ──────────────────
 
-  async function fetchServerPosts() { return null; }
+  async function fetchServerPosts() {
+    try { const r=await fetch('https://aiedu1.vercel.app/api/blog-auto/public-feed',{cache:'no-store'});if(!r.ok)throw Error('Feed unavailable');const data=await r.json();if(data.success&&Array.isArray(data.posts)){await chrome.storage.local.set({public_feed_posts:data.posts});return {posts:data.posts,host:'공용 자동생성 글'};} } catch {}
+    const cached=await chrome.storage.local.get(['public_feed_posts']);return {posts:cached.public_feed_posts||[],host:'공용 글 캐시'};
+  }
   async function loadPostData() {
     loadingEl.style.display = 'block'; postContentEl.style.display = 'none';
+    const feed = await fetchServerPosts();
+    if(feed.posts.length){savedPostsList=feed.posts;applyPost(feed.posts[0], '공용 자동생성 글 · 로그인 없이 수신', true);renderArchiveList(savedPostsList);return;}
     const data = await chrome.storage.local.get(['latest_post']);
     if (data.latest_post && data.latest_post.title) {
       applyPost(data.latest_post, '내 브라우저에서 전달한 글', true);
@@ -495,7 +500,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function loadArchivePosts() {
-    savedPostsList = currentPost ? [{...currentPost,id:'current',createdAt:Date.now()}] : [];
+    const feed = await fetchServerPosts();
+    savedPostsList = feed.posts.length ? feed.posts : (currentPost ? [{...currentPost,id:'current',createdAt:Date.now()}] : []);
     renderArchiveList(savedPostsList);
   }
 
