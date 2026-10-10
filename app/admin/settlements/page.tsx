@@ -7,7 +7,6 @@ import {
   CreditCard,
   CheckCircle2,
   Clock,
-  AlertCircle,
   FileText,
   Download,
   Search,
@@ -347,114 +346,7 @@ export default function AdminSettlementsPage() {
         </div>
       </div>
 
-      {/* ── 3. 4 Settlement & Applicant Status KPI Cards matching Slide 64 & 40 ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: 전체 신청자 */}
-        <div
-          onClick={() => setActiveTab('all')}
-          className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition-all flex flex-col justify-between ${
-            activeTab === 'all'
-              ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20'
-              : 'border-slate-200/90 bg-white hover:border-slate-300'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">전체 신청자</span>
-            <div className="grid size-8 place-items-center rounded-lg bg-blue-100 text-blue-600">
-              <Users className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900">{totalApplicantsCount}</span>
-              <span className="text-xs font-semibold text-slate-500">명</span>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-1">
-              수강 신청 접수 총계
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2: 미정산자 (정산 대기) */}
-        <div
-          onClick={() => setActiveTab('unsettled')}
-          className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition-all flex flex-col justify-between ${
-            activeTab === 'unsettled'
-              ? 'border-amber-500 bg-amber-50/40 ring-2 ring-amber-500/20'
-              : 'border-slate-200/90 bg-white hover:border-slate-300'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-700">미정산자 (정산 대기)</span>
-            <div className="grid size-8 place-items-center rounded-lg bg-amber-100 text-amber-700">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-amber-900">{unsettledCount}</span>
-              <span className="text-xs font-semibold text-amber-700">명</span>
-            </div>
-            <p className="text-[11px] text-amber-700 mt-1 font-semibold">
-              미정산 강사료 ₩ {totalUnsettledInstructorFee.toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        {/* Card 3: 정산 완료자 */}
-        <div
-          onClick={() => setActiveTab('settled')}
-          className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition-all flex flex-col justify-between ${
-            activeTab === 'settled'
-              ? 'border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-500/20'
-              : 'border-slate-200/90 bg-white hover:border-slate-300'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-700">정산 완료자</span>
-            <div className="grid size-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700">
-              <CheckCircle2 className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-emerald-900">{settledCount}</span>
-              <span className="text-xs font-semibold text-emerald-700">명</span>
-            </div>
-            <p className="text-[11px] text-emerald-700 mt-1 font-semibold">
-              지급 완료 ₩ {totalSettledInstructorFee.toLocaleString()} (3.3% 공제)
-            </p>
-          </div>
-        </div>
-
-        {/* Card 4: 미결제 / 결제 실패 */}
-        <div
-          onClick={() => setActiveTab('unpaid')}
-          className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition-all flex flex-col justify-between ${
-            activeTab === 'unpaid'
-              ? 'border-rose-500 bg-rose-50/40 ring-2 ring-rose-500/20'
-              : 'border-slate-200/90 bg-white hover:border-slate-300'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-rose-600">미결제 / 결제 실패</span>
-            <div className="grid size-8 place-items-center rounded-lg bg-rose-100 text-rose-600">
-              <AlertCircle className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-rose-900">{unpaidCount}</span>
-              <span className="text-xs font-semibold text-rose-600">명</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              가상계좌 입금 대기 &amp; 재시도 대상
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 4. Filter Tabs and Search Bar ── */}
+      {/* ── 3. Filter Tabs and Search Bar ── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1">
@@ -556,10 +448,12 @@ export default function AdminSettlementsPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <span>강사 배분율: <strong>70%</strong></span>
-            <span>•</span>
-            <span>원천징수: <strong>3.3%</strong></span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-500">
+            <span>미정산 강사료: <strong className="text-amber-700 font-mono">₩{totalUnsettledInstructorFee.toLocaleString()}</strong></span>
+            <span className="hidden sm:inline">•</span>
+            <span>지급 완료: <strong className="text-emerald-700 font-mono">₩{totalSettledInstructorFee.toLocaleString()}</strong></span>
+            <span className="hidden sm:inline">•</span>
+            <span className="text-slate-400">강사배분 70% (원천세 3.3%)</span>
           </div>
         </div>
 
