@@ -56,7 +56,7 @@ export default function AdminSettlementsPage() {
   }, []);
 
   const [activeTab, setActiveTab] = useState<
-    'all' | 'unsettled' | 'settled' | 'unpaid' | 'refunded'
+    'all' | 'unsettled' | 'settled' | 'unpaid' | 'refunded' | 'credit'
   >('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
@@ -90,10 +90,11 @@ export default function AdminSettlementsPage() {
     if (!matchesSearch) return false;
 
     if (activeTab === 'all') return true;
-    if (activeTab === 'unsettled') return r.settlementStatus === '정산대기';
+    if (activeTab === 'unsettled') return r.settlementStatus === '정산대기' && (!r.creditBalance || r.creditBalance === 0);
     if (activeTab === 'settled') return r.settlementStatus === '정산완료';
     if (activeTab === 'unpaid') return r.paymentStatus === '미결제' || r.paymentStatus === '결제실패';
     if (activeTab === 'refunded') return r.paymentStatus === '환불';
+    if (activeTab === 'credit') return (r.creditBalance ?? 0) > 0;
     return true;
   });
 
@@ -488,6 +489,18 @@ export default function AdminSettlementsPage() {
 
           <button
             type="button"
+            onClick={() => setActiveTab('credit')}
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
+              activeTab === 'credit'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+            }`}
+          >
+            ★ 예치금 잔액보관 ({courseRecords.filter((r) => (r.creditBalance ?? 0) > 0).length})
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('refunded')}
             className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
               activeTab === 'refunded'
@@ -614,6 +627,13 @@ export default function AdminSettlementsPage() {
                         <span className="text-[10px] text-slate-400 font-mono block">
                           {rec.phone} • {rec.email}
                         </span>
+                        {rec.creditBalance !== undefined && rec.creditBalance > 0 && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center gap-1 rounded bg-amber-50 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[10px] font-black">
+                              ★ 잔액보관 ₩{rec.creditBalance.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Price & Method */}
@@ -622,23 +642,35 @@ export default function AdminSettlementsPage() {
                           ₩ {rec.amount.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-slate-400">{rec.paymentMethod}</span>
+                        {rec.creditBalance !== undefined && rec.creditBalance > 0 && (
+                          <span className="text-[10px] text-amber-700 font-bold block mt-0.5">
+                            (수강 미사용 잔액)
+                          </span>
+                        )}
                       </td>
 
                       {/* Payment Status Badge matching Slide 40 */}
                       <td className="py-3 px-3">
-                        <span
-                          className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-extrabold ${
-                            rec.paymentStatus === '결제완료'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : rec.paymentStatus === '미결제'
-                              ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                              : rec.paymentStatus === '환불'
-                              ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                              : 'bg-rose-50 text-rose-700 border border-rose-200'
-                          }`}
-                        >
-                          {rec.paymentStatus}
-                        </span>
+                        <div className="flex flex-col gap-1 items-start">
+                          <span
+                            className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-extrabold ${
+                              rec.paymentStatus === '결제완료'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : rec.paymentStatus === '미결제'
+                                ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                                : rec.paymentStatus === '환불'
+                                ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            }`}
+                          >
+                            {rec.paymentStatus}
+                          </span>
+                          {rec.creditBalance !== undefined && rec.creditBalance > 0 && (
+                            <span className="inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                              예치 잔액
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Enrollment Approval Status matching Slide 33 */}
@@ -848,6 +880,24 @@ export default function AdminSettlementsPage() {
                 <span className="font-mono text-slate-700">{detailTargetRecord.paidAt || detailTargetRecord.appliedAt}</span>
               </div>
             </div>
+
+            {/* Credit Balance Alert if present */}
+            {detailTargetRecord.creditBalance !== undefined && detailTargetRecord.creditBalance > 0 && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-950 space-y-1">
+                <div className="flex items-center justify-between font-bold">
+                  <span className="flex items-center gap-1.5 text-amber-900">
+                    <span className="size-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    선수 예치금 (미사용 크레딧 잔액)
+                  </span>
+                  <span className="font-extrabold text-sm font-mono text-amber-950">
+                    ₩ {detailTargetRecord.creditBalance.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-800 leading-relaxed pt-1">
+                  {detailTargetRecord.creditNote || '수강료는 정상 입금되었으나 해당 강의는 미수강 상태로 잔액이 보관 중입니다. 10/27 특강 또는 차기 강의 수강 시 잔액 차감 처리가 가능합니다.'}
+                </p>
+              </div>
+            )}
 
             {/* Settlement breakdown */}
             <div className="border border-slate-200 rounded-xl p-4 space-y-2 text-xs">

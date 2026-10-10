@@ -18,7 +18,7 @@ export type {
   SettlementStatus,
 };
 
-const STORAGE_KEY = 'aiedu_settlement_records_v4';
+const STORAGE_KEY = 'aiedu_settlement_records_v5';
 const USER_ORDERS_KEY = 'aiedu_user_order_ids_v1';
 const USER_EMAIL_KEY = 'platform-learner-email';
 

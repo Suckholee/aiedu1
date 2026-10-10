@@ -25,7 +25,7 @@ export interface BankTransactionRecord {
   courseTitle?: string;
 }
 
-const STORAGE_KEY = 'aiedu_ledger_transactions_v2';
+const STORAGE_KEY = 'aiedu_ledger_transactions_v3';
 
 export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
   {
@@ -157,6 +157,19 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     note: '강사진 및 운영진/수강생 저녁 식사비 지출',
     status: '확인완료',
     courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+  },
+  {
+    id: 'tx-20261010-011',
+    date: '2026-10-10',
+    time: '09:29',
+    type: '입금',
+    category: '수강료',
+    account: '기업은행 123-456789-01-012',
+    counterparty: '김형석',
+    amount: 150000,
+    note: '[예치금 잔액 보관] 김형석 대표 150,000원 입금 확인 (10/9 수강 미사용, 선수 크레딧 잔액 보관)',
+    status: '확인완료',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (선수 예치금)',
   },
 ];
 

@@ -25,6 +25,8 @@ export interface ApplicantSettlementRecord {
   cashReceiptType?: string;
   cashReceiptNumber?: string;
   note?: string;
+  creditBalance?: number; // 미사용 예치금 / 선수 잔액 (e.g. 김형석 대표 150,000원 보관)
+  creditNote?: string;
 }
 
 export interface CourseSettlementMeta {
@@ -200,16 +202,19 @@ export const INITIAL_SETTLEMENT_RECORDS: ApplicantSettlementRecord[] = [
     phone: '010-7414-8186',
     company: '중고차 유통',
     appliedAt: '2026.10.02 17:09',
+    paidAt: '2026.10.08 11:20',
     amount: 150000,
-    paymentMethod: '무통장입금(예정)',
-    paymentStatus: '미결제',
-    enrollmentStatus: '신청',
-    settlementStatus: '미정산',
-    instructorShare: 105000,
-    taxDeducted: 3465,
-    netToInstructor: 101535,
+    paymentMethod: '무통장입금(기업은행)',
+    paymentStatus: '결제완료',
+    enrollmentStatus: '대기',
+    settlementStatus: '정산대기',
+    creditBalance: 150000,
+    instructorShare: 0, // 미수강 예치금으로 강사 정산 미차감(선수금 보관)
+    taxDeducted: 0,
+    netToInstructor: 0,
     taxInvoiceStatus: '미신청',
-    note: '[첫 수강] 추천인: 조영빈 / 사용도구: Gemini / 기대: 업무 전반의 자동화 파이프라인 구축 / 사전질문: 잘부탁드려요',
+    note: '★ [예치 잔액 보관: 150,000원] 수강료 150,000원 정상 입금 확인 완료. 10/9 강의는 미수강 상태로 전액 크레딧(선수금)으로 보관 중. 향후 10/27 특강 또는 차기 강의 수강 시 잔액 차감 가능',
+    creditNote: '수강 미사용 잔액 150,000원 전액 보관 중 (차기 특강 수강 시 사용 가능)',
   },
   {
     id: 'rec-1009-005',
