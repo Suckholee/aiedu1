@@ -11,6 +11,7 @@ import {
   getDynamicCourseMetas,
   ApplicantSettlementRecord,
 } from '@/lib/settlement-store';
+import { getLedgerTransactions, getLedgerSummary } from '@/lib/ledger-store';
 import { COURSE_SETTLEMENT_METAS } from '@/data/settlements';
 import {
   GraduationCap,
@@ -78,9 +79,15 @@ export function AdminConsole({ view }: {
         { href: '/admin/courses', label: '🎓 과정·기수 관리', key: 'courses' },
         { href: '/admin/crm', label: '👥 원생·신청 CRM', key: 'crm' },
         { href: '/admin/settlements', label: '💳 결제 & 정산 회계', key: 'settlements' },
+        { href: '/admin/ledger', label: '📑 통장 입출금 대장', key: 'ledger' },
         { href: '/admin/operations', label: '📁 수업·교안 관리', key: 'operations' },
         { href: '/admin/promotions', label: '📢 홍보 & 배너', key: 'banners' },
     ];
+
+    const [ledgerSummary, setLedgerSummary] = useState({ totalIncome: 950000, totalExpense: 652500, netBalance: 297500 });
+    useEffect(() => {
+        setLedgerSummary(getLedgerSummary(getLedgerTransactions()));
+    }, []);
 
     // ERP Metrics Calculations
     const dynamicMetas = getDynamicCourseMetas(COURSE_SETTLEMENT_METAS, settlementRecords);
@@ -203,7 +210,7 @@ export function AdminConsole({ view }: {
       </div>
 
       {/* 2. Core ERP Operations Modules Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/admin/settlements" className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 to-white p-5 hover:border-indigo-400 transition shadow-xs space-y-3 group">
           <div className="flex items-center justify-between">
             <div className="grid size-10 place-items-center rounded-xl bg-indigo-600 text-white font-bold">
@@ -219,6 +226,25 @@ export function AdminConsole({ view }: {
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               강의별 신청자·미정산자·정산자 분류, 70% 강사료 산출 및 일괄 정산 확정
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/admin/ledger" className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-white p-5 hover:border-emerald-400 transition shadow-xs space-y-3 group">
+          <div className="flex items-center justify-between">
+            <div className="grid size-10 place-items-center rounded-xl bg-emerald-600 text-white font-bold">
+              <Building className="size-5" />
+            </div>
+            <span className="rounded-full bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 text-xs">
+              잔액 +₩{ledgerSummary.netBalance.toLocaleString()}
+            </span>
+          </div>
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition">
+              통장 입출금 &amp; 수납·지출 장부
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              수강료 입금(95만), 대관료(서강대 22만), 교재비(17.5만), 식사비(25.7만)
             </p>
           </div>
         </Link>
