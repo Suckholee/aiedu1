@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, CreditCard, ChevronDown, ChevronRight, PanelLeftClose, X } from 'lucide-react';
+import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, CreditCard, Sparkles, ChevronDown, ChevronRight, PanelLeftClose, X } from 'lucide-react';
 
 interface DashboardSidebarProps { onCloseMobile?: () => void; onToggleCollapse?: () => void; }
 const mainLinks = [
   { href: '/', label: '홈', icon: Home },
-  { href: '/calendar', label: '일정', icon: Calendar },
   { href: '/courses', label: '교육과정', icon: BookOpen },
+  { href: '/apply', label: '온라인 수강신청', icon: Sparkles },
+  { href: '/calendar', label: '일정', icon: Calendar },
   { href: '/materials', label: '강의실 & 자료실', icon: BookOpen },
   { href: '/my-learning', label: '내 신청·학습 현황', icon: GraduationCap },
 ];

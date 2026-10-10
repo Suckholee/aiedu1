@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -33,13 +33,28 @@ import {
   PaymentStatus,
   EnrollmentStatus,
 } from '@/data/settlements';
+import {
+  getSettlementRecords,
+  saveSettlementRecords,
+  subscribeSettlementChanges,
+  getDynamicCourseMetas,
+} from '@/lib/settlement-store';
 import { toast } from 'sonner';
 
 export default function AdminSettlementsPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>(
     COURSE_SETTLEMENT_METAS[0].courseId
   );
-  const [records, setRecords] = useState<ApplicantSettlementRecord[]>(INITIAL_SETTLEMENT_RECORDS);
+  const [records, setRecords] = useState<ApplicantSettlementRecord[]>([]);
+
+  useEffect(() => {
+    setRecords(getSettlementRecords());
+    const unsub = subscribeSettlementChanges((updated) => {
+      setRecords(updated);
+    });
+    return unsub;
+  }, []);
+
   const [activeTab, setActiveTab] = useState<
     'all' | 'unsettled' | 'settled' | 'unpaid' | 'refunded'
   >('all');
@@ -56,9 +71,10 @@ export default function AdminSettlementsPage() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailTargetRecord, setDetailTargetRecord] = useState<ApplicantSettlementRecord | null>(null);
 
+  const courseMetas = getDynamicCourseMetas(COURSE_SETTLEMENT_METAS, records);
   const currentCourse =
-    COURSE_SETTLEMENT_METAS.find((c) => c.courseId === selectedCourseId) ||
-    COURSE_SETTLEMENT_METAS[0];
+    courseMetas.find((c) => c.courseId === selectedCourseId) ||
+    courseMetas[0];
 
   // Records for current selected course
   const courseRecords = records.filter((r) => r.courseId === selectedCourseId);
@@ -107,9 +123,11 @@ export default function AdminSettlementsPage() {
 
   // Approve enrollment
   const handleApprove = (rec: ApplicantSettlementRecord) => {
-    setRecords((prev) =>
-      prev.map((r) => (r.id === rec.id ? { ...r, enrollmentStatus: '승인' } : r))
+    const next = records.map((r) =>
+      r.id === rec.id ? { ...r, enrollmentStatus: '승인' as const } : r
     );
+    setRecords(next);
+    saveSettlementRecords(next);
     toast.success(`${rec.applicantName}님의 수강 신청이 승인되었습니다.`);
   };
 
@@ -127,27 +145,29 @@ export default function AdminSettlementsPage() {
       toast.error('반려 사유를 5자 이상 입력해주세요.');
       return;
     }
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.id === rejectTargetRecord.id
-          ? {
-              ...r,
-              enrollmentStatus: '반려',
-              settlementStatus: '미정산',
-              rejectReason,
-            }
-          : r
-      )
+    const next = records.map((r) =>
+      r.id === rejectTargetRecord.id
+        ? {
+            ...r,
+            enrollmentStatus: '반려' as const,
+            settlementStatus: '미정산' as const,
+            rejectReason,
+          }
+        : r
     );
+    setRecords(next);
+    saveSettlementRecords(next);
     toast.info(`${rejectTargetRecord.applicantName}님의 신청이 반려 처리되었습니다.`);
     setRejectModalOpen(false);
   };
 
   // Settle single record
   const handleSettleRecord = (rec: ApplicantSettlementRecord) => {
-    setRecords((prev) =>
-      prev.map((r) => (r.id === rec.id ? { ...r, settlementStatus: '정산완료' } : r))
+    const next = records.map((r) =>
+      r.id === rec.id ? { ...r, settlementStatus: '정산완료' as const } : r
     );
+    setRecords(next);
+    saveSettlementRecords(next);
     toast.success(`${rec.applicantName}님의 강사료 정산이 확정되었습니다. (실지급: ₩${rec.netToInstructor.toLocaleString()})`);
   };
 
@@ -157,11 +177,11 @@ export default function AdminSettlementsPage() {
       toast.error('정산 처리할 신청자를 1명 이상 선택해주세요.');
       return;
     }
-    setRecords((prev) =>
-      prev.map((r) =>
-        selectedRecordIds.includes(r.id) ? { ...r, settlementStatus: '정산완료' } : r
-      )
+    const next = records.map((r) =>
+      selectedRecordIds.includes(r.id) ? { ...r, settlementStatus: '정산완료' as const } : r
     );
+    setRecords(next);
+    saveSettlementRecords(next);
     toast.success(`선택한 ${selectedRecordIds.length}건의 정산이 확정 완료되었습니다!`);
     setSelectedRecordIds([]);
   };
@@ -244,7 +264,7 @@ export default function AdminSettlementsPage() {
               </div>
 
               {/* Course Dropdown */}
-              <div className="relative inline-block">
+              <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={selectedCourseId}
                   onChange={(e) => {
@@ -253,12 +273,22 @@ export default function AdminSettlementsPage() {
                   }}
                   className="rounded-xl border border-blue-200 bg-white px-4 py-2 pr-10 text-sm font-extrabold text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
                 >
-                  {COURSE_SETTLEMENT_METAS.map((c) => (
+                  {courseMetas.map((c) => (
                     <option key={c.courseId} value={c.courseId}>
                       {c.courseTitle} (수강료 ₩{c.price.toLocaleString()})
                     </option>
                   ))}
                 </select>
+
+                <Link
+                  href={`/apply?course=${selectedCourseId}`}
+                  target="_blank"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700 shadow-2xs transition"
+                  title="이 과정의 온라인 수강 신청 접수 페이지 열기"
+                >
+                  <ArrowUpRight className="size-3.5" />
+                  <span>온라인 신청 폼 열기</span>
+                </Link>
               </div>
 
               <p className="text-xs text-slate-600 font-medium pt-0.5">

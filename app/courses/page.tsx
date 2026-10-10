@@ -70,6 +70,15 @@ export default function CoursesPage() {
           <p className="mt-1 text-xs sm:text-sm text-slate-500">
             현업 최고 전문가들이 설계한 실무 중심의 체계적인 커리큘럼을 만나보세요.
           </p>
+          <div className="mt-3 flex items-center gap-3">
+            <Link
+              href="/apply"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-indigo-700 shadow-sm shadow-indigo-200 transition"
+            >
+              <Sparkles className="size-3.5" />
+              <span>온라인 수강신청 폼 작성</span>
+            </Link>
+          </div>
         </div>
 
         {/* Search bar matching standard specs */}

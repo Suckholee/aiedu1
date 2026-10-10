@@ -22,6 +22,9 @@ export interface ApplicantSettlementRecord {
   netToInstructor: number; // 실지급액
   taxInvoiceStatus: '발급완료' | '미신청' | '신청접수';
   rejectReason?: string;
+  cashReceiptType?: string;
+  cashReceiptNumber?: string;
+  note?: string;
 }
 
 export interface CourseSettlementMeta {
