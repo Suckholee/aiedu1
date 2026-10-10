@@ -244,7 +244,7 @@ export function AdminConsole({ view }: {
               통장 입출금 &amp; 수납·지출 장부
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              수강료 입금(95만), 대관료(서강대 22만), 교재비(17.5만), 식사비(25.7만)
+              수강료 입금(95만), 대관료(22만), 교재비(17.5만), 식사비(25.7만)
             </p>
           </div>
         </Link>

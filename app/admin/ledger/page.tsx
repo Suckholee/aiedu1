@@ -50,7 +50,7 @@ export default function AdminLedgerPage() {
   const [counterparty, setCounterparty] = useState('');
   const [amount, setAmount] = useState<number | ''>('');
   const [note, setNote] = useState('');
-  const [courseTitle, setCourseTitle] = useState('AI 업무자동화 실전 마스터 클래스 (서강대 특강)');
+  const [courseTitle, setCourseTitle] = useState('AI 업무자동화 실전 마스터 클래스 (10/9 특강)');
 
   useEffect(() => {
     setTransactions(getLedgerTransactions());
@@ -202,7 +202,7 @@ export default function AdminLedgerPage() {
               기업은행 123-456789-01-012
             </p>
             <p className="text-xs text-slate-500">
-              예금주: 주식회사 네오앤피터 (서강대 특강 및 실무 마스터 전용 계좌)
+              예금주: 주식회사 네오앤피터 (10/9 실무 마스터 특강 계좌)
             </p>
           </div>
         </div>
@@ -512,7 +512,7 @@ export default function AdminLedgerPage() {
                 <input
                   type="text"
                   required
-                  placeholder="예: 홍길동, (서강대), (알파문구)"
+                  placeholder="예: 홍길동, (대관처), (알파문구)"
                   value={counterparty}
                   onChange={(e) => setCounterparty(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 p-2.5 text-xs"

@@ -25,7 +25,7 @@ export interface BankTransactionRecord {
   courseTitle?: string;
 }
 
-const STORAGE_KEY = 'aiedu_ledger_transactions_v3';
+const STORAGE_KEY = 'aiedu_ledger_transactions_v4';
 
 export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
   {
@@ -39,7 +39,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 150000,
     note: '수강료 입금 (정상 납부)',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-002',
@@ -52,7 +52,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 150000,
     note: '수강료 입금 (정상 납부)',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-003',
@@ -65,7 +65,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 150000,
     note: '수강료 입금 (정상 납부)',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-004',
@@ -74,11 +74,11 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     type: '출금',
     category: '강의장대관',
     account: '기업은행 123-456789-01-012',
-    counterparty: '(서강대)',
+    counterparty: '(위든타워 대관)',
     amount: 220000,
     note: '강의장 및 세미나실 대관료 지출',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-005',
@@ -91,7 +91,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 175500,
     note: '수강생 교재 출력/제본 및 문구류 소모품비',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-006',
@@ -104,7 +104,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 150000,
     note: '수강료 입금 (정상 납부)',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-007',
@@ -117,7 +117,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 100000,
     note: '이주빈추천 특별할인 적용',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-008',
@@ -130,7 +130,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 100000,
     note: '이주빈추천 특별할인 적용',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-009',
@@ -143,7 +143,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 150000,
     note: '한선희 대납 입금 확인',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-010',
@@ -156,7 +156,7 @@ export const INITIAL_LEDGER_TRANSACTIONS: BankTransactionRecord[] = [
     amount: 257000,
     note: '강사진 및 운영진/수강생 저녁 식사비 지출',
     status: '확인완료',
-    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   },
   {
     id: 'tx-20261010-011',
@@ -224,7 +224,7 @@ export function addLedgerTransaction(
     amount: input.amount,
     note: input.note?.trim(),
     status: input.status || '확인완료',
-    courseTitle: input.courseTitle || 'AI 업무자동화 실전 마스터 클래스 (서강대 특강)',
+    courseTitle: input.courseTitle || 'AI 업무자동화 실전 마스터 클래스 (10/9 특강)',
   };
 
   const next = [newRecord, ...records];
