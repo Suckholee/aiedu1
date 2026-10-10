@@ -18,9 +18,34 @@ export type {
   SettlementStatus,
 };
 
-const STORAGE_KEY = 'aiedu_settlement_records_v5';
+const STORAGE_KEY = 'aiedu_settlement_records_real_only_v2';
 const USER_ORDERS_KEY = 'aiedu_user_order_ids_v1';
 const USER_EMAIL_KEY = 'platform-learner-email';
+
+const MOCK_APPLICANT_NAMES = new Set([
+  '김수강', '곽성진', '이지은', '정우진', '박민수', '김태희', '서지민', '오선호',
+  '한유진', '윤도현', '강태석'
+]);
+
+export function filterOutMockRecords(records: ApplicantSettlementRecord[]): ApplicantSettlementRecord[] {
+  return records.filter((r) => {
+    if (MOCK_APPLICANT_NAMES.has(r.applicantName)) return false;
+    if (r.orderId && r.orderId.startsWith('ORD-2025')) return false;
+    if (r.id && (r.id.startsWith('rec-00') || r.id.startsWith('rec-101') || r.id.startsWith('rec-102') || r.id.startsWith('rec-103'))) return false;
+    if (r.courseId !== 'ai-work-automation-master' && r.courseId !== 'ai-work-automation-1027') return false;
+    return true;
+  });
+}
+
+export function resetToRealSettlementRecords(): ApplicantSettlementRecord[] {
+  if (typeof window !== 'undefined') {
+    const clean = filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+    window.dispatchEvent(new CustomEvent('aiedu-settlement-change', { detail: clean }));
+    return clean;
+  }
+  return filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
+}
 
 export interface NewApplicationInput {
   courseId: string;
@@ -39,22 +64,44 @@ export interface NewApplicationInput {
 
 export function getSettlementRecords(): ApplicantSettlementRecord[] {
   if (typeof window === 'undefined') {
-    return INITIAL_SETTLEMENT_RECORDS;
+    return filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
   }
   try {
+    // Purge legacy storage keys
+    const legacyKeys = [
+      'aiedu_settlement_records_v1',
+      'aiedu_settlement_records_v2',
+      'aiedu_settlement_records_v3',
+      'aiedu_settlement_records_v4',
+      'aiedu_settlement_records_v5',
+      'aiedu_settlement_records_real_only_v1',
+    ];
+    legacyKeys.forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {}
+    });
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_SETTLEMENT_RECORDS));
-      return INITIAL_SETTLEMENT_RECORDS;
+      const clean = filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+      return clean;
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+      const filtered = filterOutMockRecords(parsed);
+      if (filtered.length !== parsed.length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      }
+      return filtered.length > 0 ? filtered : filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
     }
-    return INITIAL_SETTLEMENT_RECORDS;
+    const clean = filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+    return clean;
   } catch (err) {
     console.error('Failed to load settlement records:', err);
-    return INITIAL_SETTLEMENT_RECORDS;
+    return filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
   }
 }
 

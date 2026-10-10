@@ -38,6 +38,7 @@ import {
   saveSettlementRecords,
   subscribeSettlementChanges,
   getDynamicCourseMetas,
+  resetToRealSettlementRecords,
 } from '@/lib/settlement-store';
 import { toast } from 'sonner';
 
@@ -205,6 +206,14 @@ export default function AdminSettlementsPage() {
     }
   };
 
+  // Clean mock data reset handler
+  const handleCleanReset = () => {
+    const clean = resetToRealSettlementRecords();
+    setRecords(clean);
+    setSelectedRecordIds([]);
+    toast.success('이전 목업 데이터가 완전히 제거되고 실제 10/9(13명), 10/27(7명) 명단만 동기화되었습니다.');
+  };
+
   return (
     <div className="space-y-6 pb-20 text-left">
       {/* ── 1. Top Breadcrumb & Header ── */}
@@ -227,6 +236,16 @@ export default function AdminSettlementsPage() {
 
         {/* Action buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleCleanReset}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 shadow-2xs transition"
+            title="브라우저에 남아있을 수 있는 2025년 가상 목업 데이터를 즉시 제거하고 실제 수강생 명단만 동기화합니다."
+          >
+            <RefreshCw className="size-3.5 text-rose-600" />
+            <span>목업 데이터 제거 &amp; 실제 명단 동기화</span>
+          </button>
+
           <button
             type="button"
             onClick={() => toast.success('신청자 및 정산 내역 엑셀 파일이 다운로드되었습니다.')}
