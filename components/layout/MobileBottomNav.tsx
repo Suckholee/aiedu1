@@ -21,7 +21,7 @@ export function MobileBottomNav() {
   const isLearning = pathname === '/my-learning';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe print:hidden">
       {/* Floating blur container with standard educational platform styling */}
       <div className="mx-3 mb-2 rounded-2xl border border-slate-200/90 bg-white/95 px-2 py-2 shadow-xl backdrop-blur-xl">
         <nav className="flex items-center justify-around text-[10px] font-bold">
