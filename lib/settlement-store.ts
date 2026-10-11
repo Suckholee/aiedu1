@@ -18,7 +18,7 @@ export type {
   SettlementStatus,
 };
 
-const STORAGE_KEY = 'aiedu_settlement_records_real_only_v5';
+const STORAGE_KEY = 'aiedu_settlement_records_real_only_v6';
 const USER_ORDERS_KEY = 'aiedu_user_order_ids_v1';
 const USER_EMAIL_KEY = 'platform-learner-email';
 
@@ -78,6 +78,7 @@ export function getSettlementRecords(): ApplicantSettlementRecord[] {
       'aiedu_settlement_records_real_only_v2',
       'aiedu_settlement_records_real_only_v3',
       'aiedu_settlement_records_real_only_v4',
+      'aiedu_settlement_records_real_only_v5',
     ];
     legacyKeys.forEach((key) => {
       try {
