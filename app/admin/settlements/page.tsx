@@ -22,6 +22,7 @@ import {
   Send,
   X,
   FileCheck,
+  Printer,
 } from 'lucide-react';
 import {
   COURSE_SETTLEMENT_METAS,
@@ -253,6 +254,16 @@ export default function AdminSettlementsPage() {
             <Download className="size-3.5 text-slate-500" />
             <span>엑셀 다운로드</span>
           </button>
+
+          <Link
+            href="/admin/settlements/1009-report"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 px-3.5 py-2 text-xs font-bold text-indigo-700 shadow-2xs transition"
+            title="10월 9일 특강 수강료 정산 및 지출 내역서 (PDF 출력용)"
+          >
+            <Printer className="size-3.5 text-indigo-600" />
+            <span>10/9 정산서 (PDF 출력)</span>
+          </Link>
 
           <button
             type="button"
