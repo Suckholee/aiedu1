@@ -82,9 +82,9 @@ export default function Settlement1009ReportPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <div className="border border-blue-200 bg-blue-50/50 p-4 rounded-xl">
-              <span className="text-xs text-blue-700 font-bold block">총 수강료 수납액</span>
+              <span className="text-xs text-blue-700 font-bold block">총 수강료 기준액</span>
               <span className="text-2xl font-black text-blue-900 mt-1 block">₩ 1,300,000</span>
-              <span className="text-[11px] text-blue-600 mt-1 block">유료 10인 실수납/수금완료 기준 (김미균 제외)</span>
+              <span className="text-[11px] text-blue-600 mt-1 block">유료 10인 기준 (실입금 110만 + 미수 20만 수금가정)</span>
             </div>
 
             <div className="border border-rose-200 bg-rose-50/50 p-4 rounded-xl">
@@ -102,7 +102,8 @@ export default function Settlement1009ReportPage() {
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-600 space-y-1">
             <p>• <strong>고정비 공제 상세</strong>: 위든타워 강의장 대관료(220,000원) + <strong>조영빈 대표 사비 선결제 저녁 회식비(257,000원)</strong> = 총 477,000원</p>
-            <p>• <strong>순이익 배분 기준</strong>: 유효 수납 총액 1,300,000원에서 고정비(477,000원) 차감 후 잔여 순이익 823,000원을 3인 균등(1/3) 정산</p>
+            <p>• <strong>순이익 배분 기준</strong>: 유효 수납 기준액 1,300,000원에서 고정비(477,000원) 차감 후 잔여 순이익 823,000원을 3인 균등(1/3) 정산</p>
+            <p>• <strong>★ 미수금 특이사항</strong>: 정미희·양온정 2인(20만 원)은 미수금 상태이나, <strong>조영빈 대표님 정산 시에는 전액 수금 완료된 것으로 가정(선반영)</strong>하여 정산금을 차감 없이 정상 지급합니다.</p>
             <p>• <strong>설문 신청 후 미입금자 제외</strong>: 김미균 대표(15만 원)는 설문 제출 후 실제 입금 내역이 없어 수납 매출 및 정산 대상에서 완전 제외</p>
             <p>• <strong>선수 예치금 별도 보관</strong>: 김형석 대표(150,000원) 입금액은 당일 미수강에 따른 차기 교육 크레딧으로 보관 중 (금번 정산 제외)</p>
           </div>
@@ -149,14 +150,14 @@ export default function Settlement1009ReportPage() {
                   <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-700">₩ 274,334</td>
                   <td className="py-3.5 px-4 text-right font-mono font-extrabold text-rose-600">+ ₩ 257,000</td>
                   <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-800 text-base">₩ 531,334</td>
-                  <td className="py-3.5 px-4 text-amber-900 font-bold">순이익(274,334원) + 저녁 회식비 사비 전액 환급</td>
+                  <td className="py-3.5 px-4 text-amber-900 font-bold">순이익(274,334원, 미수금 수금가정 선반영) + 회식비 사비 환급</td>
                 </tr>
                 <tr className="bg-slate-100 font-bold border-t-2 border-slate-300">
                   <td className="py-3 px-4 text-slate-900">합계</td>
                   <td className="py-3 px-4 text-right font-mono text-slate-900">₩ 823,000</td>
                   <td className="py-3 px-4 text-right font-mono text-rose-600">₩ 257,000</td>
                   <td className="py-3 px-4 text-right font-mono text-slate-950 text-base">₩ 1,080,000</td>
-                  <td className="py-3 px-4 text-[11px] text-slate-500">수납액 1,300,000원 - 대관료 220,000원과 100% 일치</td>
+                  <td className="py-3 px-4 text-[11px] text-slate-500">수납 기준액 1,300,000원 - 대관료 220,000원과 100% 일치</td>
                 </tr>
               </tbody>
             </table>
@@ -184,7 +185,7 @@ export default function Settlement1009ReportPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {/* 1. Paid Attendees (10인) */}
+                {/* 1. Paid Attendees (8인 입금완료 + 2인 미수) */}
                 <tr><td className="py-2 px-3 text-center text-slate-400">1</td><td className="py-2 px-3 font-bold">황선도</td><td>신규</td><td>오투아이 (안경원 운영)</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 150,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>구글폼 신청 / 기업은행 15만 원 입금 확인 (세금계산서)</td></tr>
                 <tr><td className="py-2 px-3 text-center text-slate-400">2</td><td className="py-2 px-3 font-bold">이보배</td><td>신규</td><td>보험설계사</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 150,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>구글폼 신청 / 기업은행 15만 원 입금 확인 (현금영수증)</td></tr>
                 <tr><td className="py-2 px-3 text-center text-slate-400">3</td><td className="py-2 px-3 font-bold">조보겸</td><td>신규</td><td>보험설계사</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 150,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>구글폼 신청 / 기업은행 15만 원 입금 확인 (이보배 합산)</td></tr>
@@ -193,8 +194,8 @@ export default function Settlement1009ReportPage() {
                 <tr><td className="py-2 px-3 text-center text-slate-400">6</td><td className="py-2 px-3 font-bold">김해리</td><td>신규</td><td>네오앤피터 수강생</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 150,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>한선희 대납 기업은행 15만 원 입금 확인</td></tr>
                 <tr><td className="py-2 px-3 text-center text-slate-400">7</td><td className="py-2 px-3 font-bold">옥리안</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 100,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>단체할인 기업은행 10만 원 입금 확인</td></tr>
                 <tr><td className="py-2 px-3 text-center text-slate-400">8</td><td className="py-2 px-3 font-bold">지미란</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 100,000</td><td className="text-center font-bold text-blue-700">결제완료</td><td>단체할인 기업은행 10만 원 입금 확인</td></tr>
-                <tr><td className="py-2 px-3 text-center text-slate-400">9</td><td className="py-2 px-3 font-bold">정미희</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 100,000</td><td className="text-center font-bold text-blue-700">수금완료</td><td>단체할인 10만 원 수납 반영</td></tr>
-                <tr><td className="py-2 px-3 text-center text-slate-400">10</td><td className="py-2 px-3 font-bold">양온정</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-blue-700">₩ 100,000</td><td className="text-center font-bold text-blue-700">수금완료</td><td>단체할인 10만 원 수납 반영</td></tr>
+                <tr className="bg-rose-50/40"><td className="py-2 px-3 text-center text-rose-500 font-bold">9</td><td className="py-2 px-3 font-bold text-slate-900">정미희</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-rose-700">₩ 100,000</td><td className="text-center font-bold text-rose-600">미수</td><td className="text-rose-800">단체할인 (현재 미수금 / ★ 조영빈대표 정산 시 수금 가정 선반영)</td></tr>
+                <tr className="bg-rose-50/40"><td className="py-2 px-3 text-center text-rose-500 font-bold">10</td><td className="py-2 px-3 font-bold text-slate-900">양온정</td><td>신규</td><td>네오앤피터 (단체할인)</td><td className="py-2 px-3 text-right font-mono font-bold text-rose-700">₩ 100,000</td><td className="text-center font-bold text-rose-600">미수</td><td className="text-rose-800">단체할인 (현재 미수금 / ★ 조영빈대표 정산 시 수금 가정 선반영)</td></tr>
 
                 {/* 2. Prepaid Credit 1 */}
                 <tr className="bg-amber-50/50"><td className="py-2 px-3 text-center text-amber-500">11</td><td className="py-2 px-3 font-bold text-amber-950">김형석</td><td>신규</td><td>중고차 유통</td><td className="py-2 px-3 text-right font-mono text-amber-800">₩ 150,000</td><td className="text-center font-bold text-amber-700">예치금보관</td><td className="text-amber-800 font-bold">구글폼 신청 / 10/9 당일 미수강, 차기 크레딧 별도 보관 (정산 제외)</td></tr>
@@ -221,11 +222,11 @@ export default function Settlement1009ReportPage() {
         <div className="border border-blue-200 bg-blue-50/40 rounded-xl p-4 text-xs">
           <h3 className="font-bold text-blue-950 mb-1.5 flex items-center gap-1.5">
             <CheckCircle2 className="size-4 text-blue-600" />
-            4. 최종 정산 집행 안내
+            4. 특이사항 및 조영빈 대표 최종 정산 집행 안내
           </h3>
-          <p className="text-slate-700 leading-relaxed">
-            • 10월 9일 마스터 클래스 유료 수강 10인 기준 총 수납액 <strong>1,300,000원</strong>을 기준으로 대관료(220,000원) 및 저녁 회식비(257,000원) 공제 후 순이익 <strong>823,000원</strong>에 대한 3인 배분이 최종 확정되었습니다.<br />
-            • <strong>조영빈 대표님 실지급액</strong>: 강사료 배분 <strong>₩ 274,334</strong> + 회식비 사비 환급 <strong>₩ 257,000</strong> = <strong>총 ₩ 531,334</strong>이 계좌로 송금 처리됩니다.
+          <p className="text-slate-700 leading-relaxed space-y-1">
+            • <strong>[미수금 수금 가정 선반영 특이사항]</strong>: 현재 정미희(10만), 양온정(10만) 총 20만 원은 수납 전 미수 상태이나, 이는 주최측(네오앤피터)의 관리 사항이므로 <strong>조영빈 대표님 정산 시에는 전액 수금 완료된 것으로 가정하여 전액 선지급</strong> 처리합니다.<br />
+            • <strong>[조영빈 대표님 실지급액]</strong>: 강사료 순이익 배분금 <strong>₩ 274,334</strong> + 저녁 회식비 사비 환급금 <strong>₩ 257,000</strong> = <strong>총 ₩ 531,334</strong>이 계좌로 송금 처리됩니다.
           </p>
         </div>
 
