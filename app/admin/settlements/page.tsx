@@ -449,11 +449,9 @@ export default function AdminSettlementsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-500">
-            <span>미정산 강사료: <strong className="text-amber-700 font-mono">₩{totalUnsettledInstructorFee.toLocaleString()}</strong></span>
+            <span>총 수납액: <strong className="text-blue-700 font-mono">₩{courseRecords.reduce((acc, r) => acc + (r.paymentStatus === '결제완료' ? r.amount : 0), 0).toLocaleString()}</strong></span>
             <span className="hidden sm:inline">•</span>
-            <span>지급 완료: <strong className="text-emerald-700 font-mono">₩{totalSettledInstructorFee.toLocaleString()}</strong></span>
-            <span className="hidden sm:inline">•</span>
-            <span className="text-slate-400">강사배분 70% (원천세 3.3%)</span>
+            <span className="text-slate-600 font-bold">정산 기준: [수강료 수납액 - 임대료 - 회식비] 3인 1/n 배분</span>
           </div>
         </div>
 
