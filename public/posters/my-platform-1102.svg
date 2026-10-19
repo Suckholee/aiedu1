@@ -1,22 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
-<title id="title">나만의 플랫폼 만들기 · 11월 2일·9일</title><desc id="desc">아이디어를 작동하는 첫 버전으로. 위든타워 3층, 2회 총 8시간, 전체 수강료 400,000원. 수업 시간은 추후 안내합니다.</desc>
+<title id="title">나만의 플랫폼 만들기 · 11월 2일·9일</title><desc id="desc">앞 4시간 AI 블로그 홍보 페이지 공통 실습, 뒤 4시간 개인 프로젝트 맞춤 코칭. 위든타워 3층, 2회 총 8시간, 전체 수강료 400,000원. 수업 시간은 추후 안내합니다.</desc>
 <rect width="1200" height="675" fill="#102639"/>
 <g font-family="Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="58" y="67" fill="#d5f78c" font-size="18" font-weight="700" letter-spacing="3">NEO &amp; PETER / PLATFORM WORKSHOP</text>
 <path d="M58 94H1142" stroke="#ffffff" stroke-opacity=".2"/>
 <text x="54" y="213" fill="#ffffff" font-size="75" font-weight="900" letter-spacing="-3">나만의 플랫폼</text>
 <text x="54" y="312" fill="#d5f78c" font-size="90" font-weight="900" letter-spacing="-4">만들기.</text>
-<text x="58" y="378" fill="#d9e1e7" font-size="26" font-weight="600">생각만 하던 아이디어를,</text>
-<text x="58" y="418" fill="#d9e1e7" font-size="26" font-weight="600">내가 쓰는 서비스의 첫 버전으로.</text>
+<text x="58" y="378" fill="#d9e1e7" font-size="26" font-weight="600">AI 블로그 홍보 페이지부터,</text>
+<text x="58" y="418" fill="#d9e1e7" font-size="26" font-weight="600">내가 만들고 싶은 플랫폼까지.</text>
 <rect x="755" y="150" width="386" height="308" rx="18" fill="#f4f4ee"/>
 <path d="M755 195H1141" stroke="#ced7d4"/>
 <circle cx="778" cy="173" r="5" fill="#a9c5b6"/><circle cx="795" cy="173" r="5" fill="#a9c5b6"/><circle cx="812" cy="173" r="5" fill="#a9c5b6"/>
-<text x="839" y="179" fill="#517465" font-size="12" font-weight="700">MY FIRST PLATFORM</text>
-<text x="782" y="241" fill="#102639" font-size="26" font-weight="800">내 일이 모이는 곳.</text>
-<rect x="782" y="263" width="332" height="43" rx="7" fill="#ffffff" stroke="#d9e1da"/><rect x="794" y="276" width="15" height="15" rx="3" fill="#317967"/><path d="M797 283l3 3 6-7" fill="none" stroke="#fff" stroke-width="2"/><text x="821" y="290" fill="#344953" font-size="15">데이터가 남는 나의 작업 공간</text>
-<rect x="782" y="317" width="332" height="43" rx="7" fill="#ffffff" stroke="#d9e1da"/><rect x="794" y="331" width="15" height="15" rx="3" fill="#d5f78c"/><text x="821" y="344" fill="#344953" font-size="15">AI 요청과 자동화 연결</text>
-<rect x="782" y="378" width="332" height="52" rx="7" fill="#e6edcf"/><text x="797" y="410" fill="#244537" font-size="17" font-weight="700">설계 → 구현 → 연결 → 배포</text>
-<text x="58" y="489" fill="#d5f78c" font-size="20" font-weight="700">01 함께 만드는 작은 플랫폼</text><text x="590" y="489" fill="#d5f78c" font-size="20" font-weight="700">02 내 아이디어로 확장과 배포</text>
+<text x="839" y="179" fill="#517465" font-size="12" font-weight="700">MY BRAND &amp; BLOG</text>
+<text x="782" y="241" fill="#102639" font-size="26" font-weight="800">내 이야기가 콘텐츠로.</text>
+<rect x="782" y="263" width="332" height="43" rx="7" fill="#ffffff" stroke="#d9e1da"/><rect x="794" y="276" width="15" height="15" rx="3" fill="#317967"/><path d="M797 283l3 3 6-7" fill="none" stroke="#fff" stroke-width="2"/><text x="821" y="290" fill="#344953" font-size="13">내 브랜드와 서비스를 소개하는 페이지</text>
+<rect x="782" y="317" width="332" height="43" rx="7" fill="#ffffff" stroke="#d9e1da"/><rect x="794" y="331" width="15" height="15" rx="3" fill="#d5f78c"/><text x="821" y="344" fill="#344953" font-size="15">블로그 글 작성 · 수정 · 저장</text>
+<rect x="782" y="378" width="332" height="52" rx="7" fill="#e6edcf"/><text x="797" y="410" fill="#244537" font-size="17" font-weight="700">주제 → AI 초안 → 검토 → 저장</text>
+<text x="58" y="489" fill="#d5f78c" font-size="20" font-weight="700">01 AI 블로그 홍보 페이지 · 4시간</text><text x="590" y="489" fill="#d5f78c" font-size="20" font-weight="700">02 개인 프로젝트 맞춤 코칭 · 4시간</text>
 <path d="M58 523H1142" stroke="#ffffff" stroke-opacity=".2"/>
 <text x="58" y="571" fill="#ffffff" font-size="24" font-weight="800">11.02 + 11.09</text><text x="345" y="571" fill="#ffffff" font-size="24" font-weight="800">2회 · 총 8시간</text><text x="680" y="571" fill="#ffffff" font-size="24" font-weight="800">위든타워 3층</text><text x="964" y="571" fill="#d5f78c" font-size="24" font-weight="800">400,000원</text>
 <text x="58" y="627" fill="#aabfc8" font-size="17">전체 과정 수강료 · 회차별 4시간 · 수업 시간 추후 안내</text>
