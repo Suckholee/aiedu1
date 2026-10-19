@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import {useAuth} from '@/contexts/AuthContext';
 import {AuthModal} from '@/components/auth/AuthModal';
 import { usePlatform } from '@/contexts/PlatformContext';
+import { PLATFORM_BUILDING_WORKSHOP as workshop } from '@/lib/platform-building-workshop';
 
 
 function ApplyContent() {
@@ -36,7 +37,7 @@ function ApplyContent() {
 
   const availableCourses = data.courses.filter(c => c.published && c.enrollmentOpen !== false).map(c => ({
     id:c.id,title:c.title,price:c.price,originalPrice:c.originalPrice,instructor:c.instructor.name,
-    period:c.startDate ? `${c.startDate} ${c.startTime} ~ ${c.endTime}` : '상시 온라인 학습',
+    period:c.id === workshop.slug ? workshop.schedule : c.startDate ? `${c.startDate} ${c.startTime} ~ ${c.endTime}` : '상시 온라인 학습',
     capacity:c.totalSeats,remainingSeats:c.remainingSeats,location:c.location,
   }));
 

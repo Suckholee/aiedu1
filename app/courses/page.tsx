@@ -24,7 +24,8 @@ import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal
 
 export default function CoursesPage() {
   const { data, ready } = usePlatform();
-  const COURSES = data.courses.filter(c => c.published);
+  const COURSES = data.courses.filter(c => c.published && c.id !== workshop.slug);
+  const workshopCourse = data.courses.find(c => c.id === workshop.slug && c.published);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourseForModal, setSelectedCourseForModal] = useState<Course | null>(null);
@@ -42,7 +43,7 @@ export default function CoursesPage() {
     return matchesCat && matchesQuery;
   });
 
-  const showWorkshop = (selectedCategory === '전체' || selectedCategory === workshop.category) && `${workshop.title} ${workshop.subtitle} ${workshop.duration} 11월 2일 11월 9일`.toLowerCase().includes(searchQuery.toLowerCase());
+  const showWorkshop = (selectedCategory === '전체' || selectedCategory === workshop.category) && `${workshop.title} ${workshop.subtitle} ${workshop.duration} 11월 1일 11월 8일`.toLowerCase().includes(searchQuery.toLowerCase());
 
   const openCheckout = (course: Course) => {
     setSelectedCourseForModal(course);
@@ -205,7 +206,7 @@ export default function CoursesPage() {
             </div>
           );
         })}
-        {showWorkshop && <PlatformWorkshopCard />}
+        {showWorkshop && <PlatformWorkshopCard enrollmentOpen={ready && workshopCourse?.enrollmentOpen === true} />}
       </div>
 
       {/* Seat Hold Checkout Modal */}

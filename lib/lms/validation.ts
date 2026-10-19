@@ -9,7 +9,7 @@ export const managementCommand=z.discriminatedUnion('action',[
     thumbnail:z.union([z.literal(''),z.string().regex(/^\/(?!\/)/),z.url().refine(v=>new URL(v).protocol==='https:')]).default('')}),
   z.object({action:z.literal('cohort'),id:id.optional(),course_id:id,title:text,delivery_mode:z.enum(['offline','live','vod','blended']),
     status:z.enum(['draft','open','closed','running','completed','cancelled']),starts_at:instant,ends_at:instant,
-    capacity:z.number().int().min(1).max(100000),reserved_seats:z.number().int().min(0).max(100000).optional(),price_krw:z.number().int().min(0).max(1000000000),location:optionalText,instructor_name:optionalText}),
+    capacity:z.number().int().min(1).max(100000).nullable(),reserved_seats:z.number().int().min(0).max(100000).optional(),price_krw:z.number().int().min(0).max(1000000000),location:optionalText,instructor_name:optionalText}),
   z.object({action:z.literal('member'),id,display_name:text,phone:z.string().trim().max(40).default(''),company:optionalText,status:z.enum(['active','suspended'])}),
   z.object({action:z.literal('roles'),id,roles:z.array(z.enum(['admin','operations','finance'])).max(3)}),
 ]);

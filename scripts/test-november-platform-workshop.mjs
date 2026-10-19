@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {readFile,readdir} from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+import {managementCommand} from '../lib/lms/validation.ts';
+const db=new PGlite();
+const actor='75000000-0000-4000-8000-000000000001', learner='75000000-0000-4000-8000-000000000002';
+try {
+ await db.exec(`create role anon nologin;create role authenticated nologin;create role service_role nologin bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema public,auth to anon,authenticated,service_role;`);
+ for(const file of (await readdir(new URL('../supabase/migrations/',import.meta.url))).filter(f=>f.endsWith('.sql')).sort())await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+ await db.query("insert into public.lms_profiles(id,display_name,email) values($1,'Admin','peter15975345@gmail.com'),($2,'Fixture learner','workshop-fixture@example.com')",[actor,learner]);
+ await db.query("insert into public.lms_staff_members(profile_id,role) values($1,'admin')",[actor]);
+ await db.exec(await readFile(new URL('./setup-november-platform-workshop.sql',import.meta.url),'utf8'));
+ const {rows:[cohort]}=await db.query("select * from public.lms_cohorts where legacy_course_id='my-platform-1102'");
+ assert.equal(Number(cohort.price_krw),800000);assert.equal(cohort.capacity,null);assert.equal(cohort.status,'draft');
+ const {rows:sessions}=await db.query("select starts_at,ends_at from public.lms_sessions where cohort_id=$1 order by starts_at",[cohort.id]);
+ assert.equal(sessions.length,2);
+ assert.deepEqual(sessions.map(s=>[new Date(s.starts_at).toISOString(),new Date(s.ends_at).toISOString()]),[['2026-11-01T05:00:00.000Z','2026-11-01T09:00:00.000Z'],['2026-11-08T05:00:00.000Z','2026-11-08T09:00:00.000Z']]);
+ const cmd={action:'apply',cohort_id:cohort.id,name:'Fixture learner',phone:'01000000000',payment_method:'무통장입금'};
+ const apply=()=>db.query('select public.lms_learning($1::jsonb,$2::uuid) id',[JSON.stringify(cmd),learner]);
+ await assert.rejects(apply,/신청 가능한 기수/);
+ await db.exec(await readFile(new URL('./test-november-platform-workshop-hosted.sql',import.meta.url),'utf8'));
+ assert.equal((await db.query('select count(*)::int n from public.lms_orders')).rows[0].n,0);
+ await db.exec(await readFile(new URL('./open-november-platform-workshop.sql',import.meta.url),'utf8'));
+ const {rows:[accepted]}=await apply();assert.equal((await apply()).rows[0].id,accepted.id);
+ const {rows:[order]}=await db.query('select * from public.lms_orders where enrollment_id=$1',[accepted.id]);
+ assert.equal(Number(order.amount_krw),800000);assert.equal(order.status,'pending');assert.equal(order.payment_method,'무통장입금');
+ assert.equal((await db.query('select count(*)::int n from public.lms_orders')).rows[0].n,1);
+ assert.equal((await db.query('select count(*)::int n from public.lms_payments')).rows[0].n,0);
+ assert.equal(managementCommand.parse({action:'cohort',id:cohort.id,course_id:cohort.course_id,title:cohort.title,delivery_mode:'offline',status:'open',starts_at:'2026-11-01T14:00:00+09:00',ends_at:'2026-11-08T18:00:00+09:00',capacity:null,price_krw:800000}).capacity,null);
+ assert.equal(managementCommand.safeParse({action:'cohort',course_id:cohort.course_id,title:'Invalid',delivery_mode:'offline',status:'open',capacity:0,price_krw:800000}).success,false);
+ console.log('PASS: draft enrollment guard, two Sunday sessions, 8-hour total, 800000 KRW server-priced pending order, repeat-submit idempotency, no fabricated payment, nullable capacity validation');
+} finally {await db.close();}

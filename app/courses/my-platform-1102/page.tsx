@@ -6,9 +6,9 @@ import { merchant } from '@/lib/merchant';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://aiedu1.vercel.app'),
-  title: '나만의 플랫폼 만들기 · 11월 2일·9일 | 네오앤피터',
-  description: `앞 4시간은 AI 블로그 홍보 페이지 공통 실습, 뒤 4시간은 개인 프로젝트 맞춤 코칭. 위든타워 3층, 전체 수강료 ${workshop.price.toLocaleString()}원. 수업 시간은 추후 안내합니다.`,
-  openGraph: { title: '나만의 플랫폼 만들기', description: `11월 2일·9일 · 2회 총 8시간 · 전체 ${workshop.price.toLocaleString()}원`, images: [{ url: workshop.poster, width: 1200, height: 675, alt: `11월 2일·9일 나만의 플랫폼 만들기, 2회 총 8시간, 전체 ${workshop.price.toLocaleString()}원` }] },
+  title: '나만의 플랫폼 만들기 · 11월 1일·8일 | 네오앤피터',
+  description: `앞 4시간은 AI 블로그 홍보 페이지 공통 실습, 뒤 4시간은 개인 프로젝트 맞춤 코칭. 위든타워 3층, 전체 수강료 ${workshop.price.toLocaleString()}원. 두 날 모두 14:00~18:00입니다.`,
+  openGraph: { title: '나만의 플랫폼 만들기', description: `11월 1일·8일 14:00~18:00 · 2회 총 8시간 · 전체 ${workshop.price.toLocaleString()}원`, images: [{ url: workshop.poster, width: 1200, height: 675, alt: `11월 1일·8일 나만의 플랫폼 만들기, 2회 총 8시간, 전체 ${workshop.price.toLocaleString()}원` }] },
 };
 
 const steps = [
@@ -27,11 +27,11 @@ export default function PlatformWorkshopPage() {
     <section className="relative grid gap-10 bg-[#102639] px-6 py-12 text-white sm:px-10 sm:py-16 xl:grid-cols-[1.05fr_.95fr] xl:items-center" aria-labelledby="workshop-title">
       <div>
         <p className="text-xs font-bold tracking-[.18em] text-[#d5f78c]">NEO &amp; PETER / BUILD YOUR OWN PLATFORM</p>
-        <div className="mt-7 flex flex-wrap gap-2 text-xs font-semibold"><span className="rounded-full border border-white/25 px-3 py-1.5">11.02 + 11.09</span><span className="rounded-full border border-white/25 px-3 py-1.5">2회 × 4시간</span><span className="rounded-full border border-white/25 px-3 py-1.5">오프라인 실습</span></div>
+        <div className="mt-7 flex flex-wrap gap-2 text-xs font-semibold"><span className="rounded-full border border-white/25 px-3 py-1.5">11.01 + 11.08</span><span className="rounded-full border border-white/25 px-3 py-1.5">14:00~18:00 · 2회 × 4시간</span><span className="rounded-full border border-white/25 px-3 py-1.5">오프라인 실습</span></div>
         <h1 id="workshop-title" className="mt-7 text-4xl font-black leading-[1.15] tracking-tight sm:text-6xl">나만의 플랫폼<br/><span className="text-[#d5f78c]">만들기.</span></h1>
         <p className="mt-7 text-xl font-semibold leading-relaxed sm:text-2xl">AI 블로그 홍보 페이지부터,<br/>내가 만들고 싶은 플랫폼까지.</p>
         <p className="mt-4 max-w-lg text-sm leading-7 text-slate-300">앞 4시간은 함께 홍보 페이지와 AI 블로그 기능을 만듭니다. 뒤 4시간은 각자의 프로젝트를 중심으로, 원하는 기능을 구현하고 막히는 지점을 풀어가는 코칭 수업입니다.</p>
-        <a href="#workshop-curriculum" className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#d5f78c] px-6 py-3.5 text-sm font-extrabold text-[#102639] hover:bg-lime-200">8시간의 커리큘럼 살펴보기<ArrowDown className="size-4"/></a>
+        <Link href={workshop.applyHref} className="mt-8 mr-3 inline-flex items-center gap-3 rounded-full bg-[#d5f78c] px-6 py-3.5 text-sm font-extrabold text-[#102639] hover:bg-lime-200">수강 신청하기<ArrowUpRight className="size-4"/></Link><a href="#workshop-curriculum" className="mt-4 inline-flex items-center gap-3 rounded-full bg-[#d5f78c] px-6 py-3.5 text-sm font-extrabold text-[#102639] hover:bg-lime-200">8시간의 커리큘럼 살펴보기<ArrowDown className="size-4"/></a>
       </div>
       <div className="rounded-2xl border border-white/20 bg-white/[.06] p-5 sm:p-7">
         <p className="mb-4 text-xs tracking-wider text-slate-300">실습 예시 / AI 블로그 기능이 있는 홍보 페이지</p>
@@ -44,7 +44,7 @@ export default function PlatformWorkshopPage() {
     </section>
 
     <section className="grid gap-0 border-b border-[#102639]/15 sm:grid-cols-2 xl:grid-cols-4" aria-label="교육 핵심 정보">
-      {[['교육 일정', '11월 2일 · 11월 9일'], ['교육 시간', '2회 · 총 8시간'], ['교육 장소', workshop.location], ['전체 수강료', `${workshop.price.toLocaleString()}원`]].map(([label,value])=><div key={label} className="border-b border-[#102639]/10 p-6 sm:p-8"><p className="text-xs font-semibold text-slate-500">{label}</p><p className="mt-2 text-lg font-black">{value}</p></div>)}
+      {[['교육 일정', '11월 1일 · 11월 8일'], ['교육 시간', '14:00~18:00 · 총 8시간'], ['교육 장소', workshop.location], ['전체 수강료', `${workshop.price.toLocaleString()}원`]].map(([label,value])=><div key={label} className="border-b border-[#102639]/10 p-6 sm:p-8"><p className="text-xs font-semibold text-slate-500">{label}</p><p className="mt-2 text-lg font-black">{value}</p></div>)}
     </section>
 
     <section className="px-6 py-12 sm:px-10 sm:py-16">
@@ -54,7 +54,7 @@ export default function PlatformWorkshopPage() {
 
     <section id="workshop-curriculum" className="scroll-mt-24 bg-white px-6 py-12 sm:px-10 sm:py-16" aria-labelledby="curriculum-heading">
       <p className="text-xs font-bold tracking-widest text-teal-700">THE TWO-SESSION WORKSHOP</p><h2 id="curriculum-heading" className="mt-4 text-3xl font-black sm:text-4xl">앞 4시간, 함께 만들고.<br/>뒤 4시간, 나에게 맞춥니다.</h2><p className="mt-5 max-w-2xl text-sm leading-7 text-slate-600">1회차는 AI 블로그 기능이 있는 홍보 페이지를 만드는 공통 실습입니다. 2회차는 개인이 원하는 프로젝트와 구현 방식에 대한 코칭을 중심으로 진행합니다. 회차별 4시간에는 휴식 시간이 포함됩니다.</p>
-      <div className="mt-10 grid gap-6 xl:grid-cols-2">{workshop.sessions.map((session,index)=><article key={session.date} className={`rounded-3xl p-6 sm:p-8 ${index===0?'bg-[#eef2e8]':'bg-[#102639] text-white'}`}><p className={`text-xs font-bold ${index===0?'text-teal-800':'text-[#d5f78c]'}`}>SESSION 0{index+1} / {session.label} / 4시간</p><h3 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">{session.title}</h3><ol className="mt-7 space-y-4">{session.topics.map((topic,i)=><li key={topic} className="flex gap-3 text-sm leading-6"><span className={`grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold ${index===0?'bg-white text-teal-800':'bg-white/10 text-[#d5f78c]'}`}>{i+1}</span><span>{topic}</span></li>)}</ol><div className={`mt-8 border-t pt-5 ${index===0?'border-[#102639]/15':'border-white/20'}`}><p className={`text-xs ${index===0?'text-slate-500':'text-slate-300'}`}>오늘의 결과물</p><p className="mt-2 text-sm font-bold leading-6">{session.outcome}</p></div></article>)}</div>
+      <div className="mt-10 grid gap-6 xl:grid-cols-2">{workshop.sessions.map((session,index)=><article key={session.date} className={`rounded-3xl p-6 sm:p-8 ${index===0?'bg-[#eef2e8]':'bg-[#102639] text-white'}`}><p className={`text-xs font-bold ${index===0?'text-teal-800':'text-[#d5f78c]'}`}>SESSION 0{index+1} / {session.label} / 14:00~18:00</p><h3 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">{session.title}</h3><ol className="mt-7 space-y-4">{session.topics.map((topic,i)=><li key={topic} className="flex gap-3 text-sm leading-6"><span className={`grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold ${index===0?'bg-white text-teal-800':'bg-white/10 text-[#d5f78c]'}`}>{i+1}</span><span>{topic}</span></li>)}</ol><div className={`mt-8 border-t pt-5 ${index===0?'border-[#102639]/15':'border-white/20'}`}><p className={`text-xs ${index===0?'text-slate-500':'text-slate-300'}`}>오늘의 결과물</p><p className="mt-2 text-sm font-bold leading-6">{session.outcome}</p></div></article>)}</div>
       <div className="mt-6 rounded-xl border border-dashed border-teal-300 bg-teal-50 p-5 text-sm leading-7 text-teal-950"><strong>두 수업 사이의 작은 과제.</strong> 만들고 싶은 서비스, 현재 작업한 화면이나 주소, 가장 해결하고 싶은 기능 하나를 정리해옵니다. 2회차 코칭에서 다룰 목표를 함께 정합니다.</div>
     </section>
 
@@ -64,10 +64,10 @@ export default function PlatformWorkshopPage() {
     </section>
 
     <section id="workshop-schedule" className="scroll-mt-24 bg-[#d5f78c] px-6 py-12 sm:px-10 sm:py-16" aria-labelledby="schedule-heading">
-      <p className="text-xs font-bold tracking-widest text-teal-900">SAVE THESE TWO MONDAYS</p><h2 id="schedule-heading" className="mt-4 text-3xl font-black sm:text-4xl">11월, 내 플랫폼의<br/>첫 번째 버전을 만듭니다.</h2>
-      <dl className="mt-8 grid gap-5 text-sm sm:grid-cols-2"><div><dt className="text-teal-900">1회차</dt><dd className="mt-1 text-lg font-bold">2026년 11월 2일 (월) · 4시간</dd></div><div><dt className="text-teal-900">2회차</dt><dd className="mt-1 text-lg font-bold">2026년 11월 9일 (월) · 4시간</dd></div><div><dt className="text-teal-900">장소</dt><dd className="mt-1 text-lg font-bold">{workshop.location}</dd></div><div><dt className="text-teal-900">2회 전체 수강료</dt><dd className="mt-1 text-2xl font-black">{workshop.price.toLocaleString()}원</dd></div></dl>
-      <div className="mt-8 rounded-2xl bg-white/65 p-5 text-sm leading-7"><p className="font-bold">수업 시간·강사진은 추후 안내합니다.</p><p className="mt-1">현재는 과정 안내를 먼저 공개합니다. 상세 시간이 확정되면 수강신청 안내를 이어갑니다.</p><a href={merchant.phoneHref} className="mt-3 inline-flex items-center gap-2 font-bold underline underline-offset-4">교육 문의 {merchant.phone}<ArrowUpRight className="size-4"/></a></div>
-      <div className="mt-6 flex flex-wrap gap-5 text-xs font-semibold"><Link href="/refund-policy" className="underline underline-offset-4">취소·환불 정책</Link><Link href="/service-policy" className="underline underline-offset-4">강의 제공 안내</Link><a href={workshop.poster} download="나만의-플랫폼-만들기-11월.png" className="underline underline-offset-4">포스터 내려받기</a></div>
+      <p className="text-xs font-bold tracking-widest text-teal-900">SAVE THESE TWO SUNDAYS</p><h2 id="schedule-heading" className="mt-4 text-3xl font-black sm:text-4xl">11월, 내 플랫폼의<br/>첫 번째 버전을 만듭니다.</h2>
+      <dl className="mt-8 grid gap-5 text-sm sm:grid-cols-2"><div><dt className="text-teal-900">1회차</dt><dd className="mt-1 text-lg font-bold">2026년 11월 1일 (일) · 14:00~18:00</dd></div><div><dt className="text-teal-900">2회차</dt><dd className="mt-1 text-lg font-bold">2026년 11월 8일 (일) · 14:00~18:00</dd></div><div><dt className="text-teal-900">장소</dt><dd className="mt-1 text-lg font-bold">{workshop.location}</dd></div><div><dt className="text-teal-900">2회 전체 수강료</dt><dd className="mt-1 text-2xl font-black">{workshop.price.toLocaleString()}원</dd></div></dl>
+      <div className="mt-8 rounded-2xl bg-white/65 p-5 text-sm leading-7"><p className="font-bold">로그인 후 수강신청을 접수할 수 있습니다.</p><p className="mt-1">2회 전체 수강료는 800,000원입니다. 신청 후 내 신청·결제 목록에서 주문과 입금 안내를 확인해주세요. 신청 접수와 결제 완료는 별도 처리됩니다.</p><a href={merchant.phoneHref} className="mt-3 inline-flex items-center gap-2 font-bold underline underline-offset-4">교육 문의 {merchant.phone}<ArrowUpRight className="size-4"/></a></div>
+      <Link href={workshop.applyHref} className="mt-6 inline-flex items-center gap-3 rounded-full bg-[#102639] px-6 py-3.5 text-sm font-extrabold text-white hover:bg-teal-900">수강 신청하기<ArrowUpRight className="size-4"/></Link><div className="mt-6 flex flex-wrap gap-5 text-xs font-semibold"><Link href="/refund-policy" className="underline underline-offset-4">취소·환불 정책</Link><Link href="/service-policy" className="underline underline-offset-4">강의 제공 안내</Link><a href={workshop.poster} download="나만의-플랫폼-만들기-11월.png" className="underline underline-offset-4">포스터 내려받기</a></div>
     </section>
   </div>;
 }
