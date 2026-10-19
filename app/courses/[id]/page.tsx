@@ -26,6 +26,8 @@ import {
 import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { toast } from 'sonner';
+import { AiWorkAutomationView } from '@/components/course/AiWorkAutomationView';
+import { hasWorkAutomationLanding } from '@/lib/course-presentation';
 
 export default function CourseDetailPage() {
   const { data, ready } = usePlatform();
@@ -45,9 +47,7 @@ export default function CourseDetailPage() {
   if (!course) return <p>과정을 찾을 수 없습니다. <Link href='/courses'>목록으로</Link></p>;
 
   const hasPreview = course.curriculum.some(chapter => chapter.lessons.some(lesson => lesson.isFreePreview));
-  const seatPercent = Math.round(
-    ((course.totalSeats - course.remainingSeats) / course.totalSeats) * 100
-  );
+  if (hasWorkAutomationLanding(course.id)) return <AiWorkAutomationView course={course}/>;
 
   return (
     <div className="space-y-8 pb-20 text-left">
@@ -348,25 +348,6 @@ export default function CourseDetailPage() {
             </div>
             <p className="text-xs text-slate-400 line-through mt-0.5">
               정가 ₩ {course.originalPrice.toLocaleString()}
-            </p>
-          </div>
-
-          {/* Real-time Seat Hold Indicator matching Slide 32 */}
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3.5 space-y-2">
-            <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700">실시간 잔여 좌석</span>
-              <span className="font-extrabold text-emerald-700 text-sm">
-                {course.remainingSeats} / {course.totalSeats}석
-              </span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${seatPercent}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-slate-500 font-medium">
-              신청 가능 여부와 잔여 좌석은 접수 시 확인합니다.
             </p>
           </div>
 

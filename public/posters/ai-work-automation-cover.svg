@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">AI 업무자동화 · 1day Learn AI</title>
+  <desc id="desc">어니스톤과 네오앤피터의 문서, 블로그, 숏폼 실전 마스터 클래스 홍보 표지</desc>
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#13034d"/><stop offset=".55" stop-color="#360777"/><stop offset="1" stop-color="#861fa0"/></linearGradient></defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect x="48" y="48" width="1104" height="579" rx="32" fill="none" stroke="#ffffff" stroke-opacity=".23"/>
+  <g font-family="Pretendard, Noto Sans KR, Apple SD Gothic Neo, sans-serif">
+    <text x="95" y="135" fill="#efb7ff" font-size="24" font-weight="700" letter-spacing="5">1DAY LEARN AI</text>
+    <text x="90" y="270" fill="#ffffff" font-size="92" font-weight="900" letter-spacing="-5">AI 업무자동화</text>
+    <text x="95" y="340" fill="#f0d9ff" font-size="32" font-weight="600">내 업무에 바로 쓰는 세 가지 자동화.</text>
+    <path d="M95 391h1010" stroke="#ffffff" stroke-opacity=".25"/>
+    <text x="95" y="452" fill="#ffffff" font-size="27" font-weight="700">01 문서·보고서</text>
+    <text x="460" y="452" fill="#ffffff" font-size="27" font-weight="700">02 블로그</text>
+    <text x="825" y="452" fill="#ffffff" font-size="27" font-weight="700">03 숏폼 영상</text>
+    <text x="95" y="495" fill="#d9c2ed" font-size="22">조영빈 대표</text>
+    <text x="460" y="495" fill="#d9c2ed" font-size="22">이석호 대표</text>
+    <text x="825" y="495" fill="#d9c2ed" font-size="22">박재범 대표</text>
+    <text x="95" y="582" fill="#e5c5f0" font-size="20" letter-spacing="3">HONESTONE × NEONPETER</text>
+    <text x="915" y="582" fill="#ffffff" font-size="22" font-weight="700">3시간 실전</text>
+  </g>
+</svg>

@@ -116,10 +116,6 @@ export default function CoursesPage() {
       {/* Courses Grid matching standard platform card style */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => {
-          const seatPercent = Math.round(
-            ((course.totalSeats - course.remainingSeats) / course.totalSeats) * 100
-          );
-
           return (
             <div
               key={course.id}
@@ -178,22 +174,6 @@ export default function CoursesPage() {
                       <Star className="size-3.5 fill-amber-400 text-amber-400" />
                       <span className="font-bold text-slate-900">{course.rating}</span>
                       <span className="text-slate-400">({course.reviewCount})</span>
-                    </div>
-                  </div>
-
-                  {/* Seat availability bar */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[11px] text-slate-500">
-                      <span>실시간 잔여 좌석</span>
-                      <span className="font-bold text-emerald-600">
-                        {course.remainingSeats} / {course.totalSeats}석 남음
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full"
-                        style={{ width: `${seatPercent}%` }}
-                      />
                     </div>
                   </div>
 

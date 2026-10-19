@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import type { LmsCourse,LmsCohort } from './types';
 import type { PlatformCourse } from '@/lib/platform-types';
 import { LmsError } from './access';
+import { hasWorkAutomationLanding } from '@/lib/course-presentation';
 
 export async function readCatalog() {
   const client=createAdminClient();
@@ -29,7 +30,7 @@ export function platformCourses(courses:LmsCourse[],cohorts:LmsCohort[]):Platfor
       published:c.published&&['open','closed','running','completed'].includes(h.status),
       enrollmentOpen:h.status==='open',
       startDate:start.slice(0,10),startTime:start.slice(11,16),endTime:end.slice(11,16),
-      location:h.location,thumbnail:c.thumbnail||old.thumbnail||'/images/learning_classroom.png',
+      location:h.location,thumbnail:hasWorkAutomationLanding(h.legacy_course_id??h.id)?'/posters/ai-work-automation-cover.svg':c.thumbnail||old.thumbnail||'/images/learning_classroom.png',
       instructor:{role:'',avatar:'',bio:'',...old.instructor,name:h.instructor_name||old.instructor?.name||'담당 강사'},
       rating:0,reviewCount:0,dDay:'',curriculum,lectureCount:curriculum.reduce((n,ch)=>n+ch.lessons.length,0),
       highlights:old.highlights??[],durationText:old.durationText??(h.delivery_mode==='vod'?'온라인 학습':`${start.slice(11,16)} ~ ${end.slice(11,16)}`),

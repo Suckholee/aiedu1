@@ -5,7 +5,6 @@ AI 업무자동화 실전 마스터 클래스
 장소: 위든타워 3층
 강사진: 이석호 · 조영빈 · 박재범 대표
 신규 수강료: 150,000원
-총 정원: 20명 (기존 7명 좌석 확보, 추가 모집 13명)
 
 강의 안내: https://aiedu1.vercel.app/courses/ai-work-automation-1027
 수강신청: https://aiedu1.vercel.app/apply?course=ai-work-automation-1027

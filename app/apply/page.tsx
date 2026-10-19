@@ -278,7 +278,7 @@ function ApplyContent() {
             공식 수강 신청
           </span>
           <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
-            실시간 좌석 선점
+            온라인 신청 접수
           </span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -319,7 +319,7 @@ function ApplyContent() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      강사: {c.instructor} · {c.period} · 잔여 {c.remainingSeats}석
+                      강사: {c.instructor} · {c.period}
                     </p>
                   </div>
                   <div className="shrink-0 text-left sm:text-right">
@@ -585,10 +585,6 @@ function ApplyContent() {
               <div className="flex items-center gap-2">
                 <MapPin className="size-3.5 text-slate-400" />
                 <span>{currentCourse.location}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="size-3.5 text-slate-400" />
-                <span>잔여 {currentCourse.remainingSeats}석 / 정원 {currentCourse.capacity}명</span>
               </div>
             </div>
           </div>

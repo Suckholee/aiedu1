@@ -9,6 +9,7 @@ import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { Footer } from '@/components/layout/Footer';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { WORK_AUTOMATION_COURSE_ID } from '@/lib/course-presentation';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -59,6 +60,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  if (pathname === `/courses/${WORK_AUTOMATION_COURSE_ID}`) return <>{children}</>;
 
   if (pathname === '/' || pathname === '/calendar') return <div className={`academy-shell ${pathname === '/' ? landingStyles.shell : ''}`}><AcademyHeader landing={pathname === '/'}/><main>{pathname === '/calendar' ? <div className="academy-calendar-standalone">{children}</div> : children}</main></div>;
 

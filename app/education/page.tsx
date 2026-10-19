@@ -234,10 +234,6 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {COURSES.map((course) => {
-            const seatPercent = Math.round(
-              ((course.totalSeats - course.remainingSeats) / course.totalSeats) * 100
-            );
-
             return (
               <div
                 key={course.id}
@@ -274,13 +270,6 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-2 pt-2 border-t border-slate-100">
-                    <div className="flex justify-between text-[10px] text-slate-500 font-medium">
-                      <span>잔여 좌석</span>
-                      <span className="font-bold text-emerald-600">
-                        {course.remainingSeats} / {course.totalSeats}석
-                      </span>
-                    </div>
-
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-black text-slate-950">
                         ₩ {course.price.toLocaleString()}
