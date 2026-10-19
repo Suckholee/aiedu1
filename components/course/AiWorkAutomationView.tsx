@@ -68,16 +68,16 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
     : <span aria-disabled="true" className={`${className} opacity-60`}>모집 마감</span>;
 
   return (
-    <OnePageScroll>
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#13034d]/95 backdrop-blur-xl">
+    <OnePageScroll embedded>
+      <div className="border-b border-white/10 bg-[#13034d]/95">
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-5 py-3 sm:px-8">
-          <Link href="/" className="text-sm font-semibold tracking-tight text-white sm:text-base">honestone <span className="text-white/45">&amp;</span> neoNpeter</Link>
+          <Link href="/courses" className="text-sm font-semibold tracking-tight text-white sm:text-base">← 교육과정 목록</Link>
           <div className="flex items-center gap-4">
             <Link href="/my-applications" className="hidden text-xs text-violet-100 sm:block">내 신청·결제</Link>
             {applyLink('수강 신청하기', 'inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-[#210067]')}
           </div>
         </div>
-      </header>
+      </div>
 
       <section aria-labelledby="promotion-title" className="relative mx-auto grid w-full max-w-6xl items-center gap-10 overflow-x-clip px-5 py-12 break-keep sm:px-8 md:min-h-[calc(100svh-4rem)] md:snap-start lg:grid-cols-[1.1fr_.9fr] lg:gap-16 lg:py-16">
         <div>

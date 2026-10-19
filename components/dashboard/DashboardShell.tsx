@@ -9,7 +9,6 @@ import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { Footer } from '@/components/layout/Footer';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
-import { WORK_AUTOMATION_COURSE_ID } from '@/lib/course-presentation';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -20,6 +19,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const isStudioPage = pathname?.startsWith('/tools/blog');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+
+  useEffect(() => { setMobileMenuOpen(false); }, [pathname]);
 
   // Restore user's sidebar preference on mount
   useEffect(() => {
@@ -61,9 +62,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  if (pathname === `/courses/${WORK_AUTOMATION_COURSE_ID}`) return <>{children}</>;
-
-  if (pathname === '/' || pathname === '/calendar') return <div className={`academy-shell ${pathname === '/' ? landingStyles.shell : ''}`}><AcademyHeader landing={pathname === '/'}/><main>{pathname === '/calendar' ? <div className="academy-calendar-standalone">{children}</div> : children}</main></div>;
+  if (pathname === '/') return <div className={`academy-shell ${landingStyles.shell}`}><AcademyHeader landing/><main>{children}</main></div>;
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">

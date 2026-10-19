@@ -28,7 +28,7 @@ const practiceLinks = [
 export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [labsOpen, setLabsOpen] = useState(pathname.startsWith('/tools') || pathname === '/drive');
-  const active = (href: string) => pathname === href || (href === '/courses' && pathname.startsWith('/courses/'));
+  const active = (href: string) => pathname === href || (href === '/courses' && pathname.startsWith('/courses/')) || (href === '/calendar' && pathname.startsWith('/calendar/'));
   const linkClass = (href: string) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${active(href) ? 'bg-blue-50 font-semibold text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`;
   return <aside className="flex h-full w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white px-4 py-6">
     <div className="mb-8 flex items-start justify-between gap-2 px-2">

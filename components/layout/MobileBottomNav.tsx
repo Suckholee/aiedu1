@@ -16,7 +16,7 @@ export function MobileBottomNav() {
 
   const isHome = pathname === '/';
   const isCourses = pathname.startsWith('/courses');
-  const isCalendar = pathname === '/calendar';
+  const isCalendar = pathname === '/calendar' || pathname.startsWith('/calendar/');
   const isMaterials = pathname === '/materials';
   const isLearning = pathname === '/my-learning';
 

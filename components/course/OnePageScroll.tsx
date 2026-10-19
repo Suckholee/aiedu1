@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-export function OnePageScroll({ children }: { children: React.ReactNode }) {
-  const rootRef = useRef<HTMLElement>(null);
+export function OnePageScroll({ children, embedded = false }: { children: React.ReactNode; embedded?: boolean }) {
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -18,9 +18,9 @@ export function OnePageScroll({ children }: { children: React.ReactNode }) {
       event.preventDefault();
 
       const desktopQuery = window.matchMedia('(min-width: 768px)');
-      const headerHeight = root.querySelector('header')?.getBoundingClientRect().height ?? 64;
+      const headerHeight = embedded ? 80 : root.querySelector('header')?.getBoundingClientRect().height ?? 64;
 
-      if (desktopQuery.matches) {
+      if (desktopQuery.matches && !embedded) {
         root.scrollTo({
           top: Math.max(0, target.offsetTop - headerHeight),
           behavior: 'smooth',
@@ -38,14 +38,16 @@ export function OnePageScroll({ children }: { children: React.ReactNode }) {
     return () => {
       root.removeEventListener('click', onAnchorClick);
     };
-  }, []);
+  }, [embedded]);
 
   return (
-    <main
+    <div
       ref={rootRef}
-      className="min-h-screen w-full max-w-[100vw] overflow-x-clip bg-[#10024a] text-white selection:bg-fuchsia-300 selection:text-[#150354] touch-pan-y break-keep md:h-[100svh] md:overflow-y-auto md:snap-y md:snap-mandatory md:scroll-pt-16 md:scroll-smooth"
+      className={embedded
+        ? 'w-full overflow-x-clip rounded-2xl bg-[#10024a] text-white selection:bg-fuchsia-300 selection:text-[#150354] break-keep'
+        : 'min-h-screen w-full max-w-[100vw] overflow-x-clip bg-[#10024a] text-white selection:bg-fuchsia-300 selection:text-[#150354] touch-pan-y break-keep md:h-[100svh] md:overflow-y-auto md:snap-y md:snap-mandatory md:scroll-pt-16 md:scroll-smooth'}
     >
       {children}
-    </main>
+    </div>
   );
 }

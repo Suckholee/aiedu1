@@ -125,7 +125,8 @@ body {
 
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    /* Clip horizontal spill without creating a scroll ancestor for sticky menus. */
+    overflow-x: clip;
     max-width: 100vw;
     width: 100%;
     touch-action: pan-y;
@@ -133,7 +134,7 @@ body {
 
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     width: 100%;
   }
