@@ -10,6 +10,16 @@
 
 현재 PG 상태는 `registration_pending`, checkoutEnabled=false. 카드 승인·자동 환불·토스 정산 조회는 아직 연결하지 않았다. 테스트/운영 키 확보 후 서버 승인 API, 금액·주문 검증, 멱등 취소 API, 검증된 웹훅, 결제대사 및 운영 심사를 별도 완료해야 한다. 서버 키는 승인된 Vercel Production 환경에서만 관리하고 클라이언트 번들·소스·문서에 넣지 않는다. 계약 동의·가입 비용·본인 인증은 사용자가 최종 확인한다.
 
+## 심사 전용 계정
+
+사용자가 2026-10-19에 테스트 계정 생성 및 ID·비밀번호를 토스 신청서에 전달하도록 승인했다. `scripts/prepare-toss-review-account.mjs --set-initial-password`는 별도 Supabase Auth 계정을 만들고 서버에서 기존 `lms_link_identity`로 일반 회원 프로필만 연결한다. 관리자·운영·회계 역할은 부여하지 않으며 기존 회원·주문·수납·환불·수강 기록을 변경하지 않았는지 비교한다. 이 운영용 계정은 강제 가입정보 입력 대상에서 제외하되 전화번호나 개인정보·알림톡·마케팅 동의는 임의로 만들지 않는다.
+
+무작위 전용 비밀번호는 첫 발급 시에만 설정하며 다시 실행해도 기존 비밀번호를 회전하지 않는다. 계정 정보는 Git·Vercel 배포에서 제외된 `.local-data/toss-review-account.json`, 비밀번호는 권한 0600의 `.local-data/toss-review-credentials.json`에만 저장한다. 터미널·채팅·소스에 출력하지 않는다. 심사가 끝난 뒤에는 관리자 회원 관리에서 해당 계정을 중지할 수 있다.
+
+`/login`과 공통 로그인 모달에서 등록된 이메일 계정의 비밀번호 로그인을 제공한다. 인증은 Supabase Auth가 처리하며 기존 회원 프로필이 연결된 계정만 LMS 세션을 사용한다. 이메일 기반 자체 회원가입·이메일만으로 기존 회원 병합·관리자 승격은 추가하지 않는다. 카카오·구글 가입 흐름은 유지한다.
+
+검증: `scripts/test-toss-review-account.mjs`에서 실제 비밀번호 로그인·잘못된 비밀번호 차단·본인 프로필 RLS·관리 API 거절·다른 회원 금융정보 차단·빈 본인 수납 내역을 확인한다. 브라우저에서도 이메일 로그인 후 본인 신청 목록으로 이동하는 것을 확인했다. 이 검증은 실제 수강신청·결제·환불을 만들지 않는다.
+
 공식 참고: https://docs.tosspayments.com/guides/v2/payment-window/integration , https://docs.tosspayments.com/reference , https://docs.tosspayments.com/reference/using-api/api-keys .
 
 ## 개발 연결 순서

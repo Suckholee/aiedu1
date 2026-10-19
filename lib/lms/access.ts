@@ -20,7 +20,7 @@ export async function currentMember():Promise<LmsMember|null> {
 }
 export async function requireMember(roles?:LmsRole[]) {
   const member=await currentMember();
-  if(!member) throw new LmsError('카카오 또는 구글 계정으로 로그인하세요.',401);
+  if(!member) throw new LmsError('회원 계정으로 로그인하세요.',401);
   if(roles && !roles.some(r=>member.roles.includes(r))) throw new LmsError('접근 권한이 없습니다.',403);
   return member;
 }

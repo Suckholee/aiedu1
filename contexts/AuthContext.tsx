@@ -4,8 +4,8 @@ import {auth} from '@/lib/firebase';import {GoogleAuthProvider,signInWithPopup,s
 import {createIdentityBridge,type BridgeIdentity} from '@/lib/lms/identity-bridge';
 import {toast} from 'sonner';import type {LmsMember} from '@/lib/lms/types';import {createClient as createSupabaseClient} from '@/lib/supabase/client';import {safeNext} from '@/lib/lms/redirect';import {chooseSession} from '@/lib/lms/session-choice';
 export interface User{uid:string;email:string|null;displayName:string|null;photoURL?:string|null;isGuest?:boolean}
-interface AuthContextType{lmsMember:LmsMember|null;lmsLoading:boolean;lmsError:string;legacyError:string;reconnectLms:()=>Promise<void>;user:User|null;loading:boolean;signInWithGoogle:()=>Promise<void>;signInWithKakao:()=>Promise<void>;signInQuick:(name:string,email?:string)=>void;signOut:()=>Promise<void>}
-const AuthContext=createContext<AuthContextType>({lmsMember:null,lmsLoading:true,lmsError:'',legacyError:'',reconnectLms:async()=>{},user:null,loading:true,signInWithGoogle:async()=>{},signInWithKakao:async()=>{},signInQuick:()=>{},signOut:async()=>{}});
+interface AuthContextType{lmsMember:LmsMember|null;lmsLoading:boolean;lmsError:string;legacyError:string;reconnectLms:()=>Promise<void>;user:User|null;loading:boolean;signInWithGoogle:()=>Promise<void>;signInWithKakao:()=>Promise<void>;signInWithEmail:(email:string,password:string)=>Promise<void>;signInQuick:(name:string,email?:string)=>void;signOut:()=>Promise<void>}
+const AuthContext=createContext<AuthContextType>({lmsMember:null,lmsLoading:true,lmsError:'',legacyError:'',reconnectLms:async()=>{},user:null,loading:true,signInWithGoogle:async()=>{},signInWithKakao:async()=>{},signInWithEmail:async()=>{},signInQuick:()=>{},signOut:async()=>{}});
 type SyncIdentity=BridgeIdentity&{firebase:FirebaseUser|null;explicitGoogle:boolean};
 const LOCAL_STORAGE_KEY='student_auth_user_v1';
 async function request(path:string,init:RequestInit={},signal?:AbortSignal){const r=await fetch(path,{...init,cache:'no-store',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)});const b=await r.json();if(!r.ok)throw Error(b.error??'회원 연결을 확인하지 못했습니다.');return b;}
@@ -47,8 +47,22 @@ export function AuthProvider({children}:{children:React.ReactNode}){
  },[]);
  const signInWithGoogle=async()=>{let completed=false;googlePending.current=true;desiredUid.current=null;setLoading(true);++epoch.current;active.current?.abort();try{if(!auth)throw Error('구글 로그인 연결을 다시 시도해주세요.');const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});const result=await signInWithPopup(auth,provider);const member=await synchronize(result.user,true);if(!member)throw Error('회원 연결을 완료하지 못했습니다. 다시 시도해주세요.');completed=true;toast.success(`${member.display_name}님, 환영합니다!`);}finally{googlePending.current=false;setLoading(false);if(!completed)void synchronize(auth?.currentUser??null).catch(()=>{});}};
  const signInWithKakao=async()=>{setLoading(true);try{const providers=await request('/api/auth/providers');if(!providers.kakao)throw Error('카카오 로그인 연결을 준비하고 있습니다.');const next=safeNext(window.location.pathname+window.location.search);const {error}=await createSupabaseClient().auth.signInWithOAuth({provider:'kakao',options:{redirectTo:`${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`}});if(error)throw Error('카카오 로그인을 다시 시도해주세요.');}catch(error){setLoading(false);throw error;}};
+ const signInWithEmail=async(email:string,password:string)=>{
+  let authenticated=false,completed=false;googlePending.current=true;setLoading(true);syncBridge.current?.cancel();++epoch.current;active.current?.abort();
+  try{
+   const client=createSupabaseClient();const {error}=await client.auth.signInWithPassword({email,password});
+   if(error)throw Error('이메일 또는 비밀번호를 확인해 주세요. 등록된 이메일 계정에서만 이용할 수 있습니다.');
+   authenticated=true;
+   await request('/api/lms/firebase-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'membership'})});
+   const member=await synchronize(null);if(!member)throw Error('회원 연결을 완료하지 못했습니다. 다시 로그인해 주세요.');
+   completed=true;toast.success(`${member.display_name}님, 환영합니다!`);
+  }catch(error){
+   if(authenticated){await createSupabaseClient().auth.signOut({scope:'local'});setLmsMember(null);setUser(null);}
+   throw error;
+  }finally{googlePending.current=false;setLoading(false);if(!completed)void synchronize(auth?.currentUser??null).catch(()=>{});}
+ };
  const signInQuick=(name:string,email?:string)=>{if(lmsLoading||lmsMember){toast.info('현재 계정에서 로그아웃한 뒤 로컬 실습을 시작해주세요.');return;}const profile:User={uid:`quick_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,displayName:name.trim()||'수강생',email:email?.trim()||null,photoURL:null,isGuest:true};setUser(profile);try{localStorage.setItem(LOCAL_STORAGE_KEY,JSON.stringify(profile));}catch{}toast.success('로컬 실습 프로필을 열었습니다.');};
  const signOut=async()=>{signingOut.current=true;desiredUid.current=null;syncBridge.current?.cancel();++epoch.current;active.current?.abort();try{await request('/api/lms/session',{method:'DELETE'});if(auth)await fbSignOut(auth);setUser(null);setLmsMember(null);setLmsError('');setLegacyError('');setLmsLoading(false);localStorage.removeItem(LOCAL_STORAGE_KEY);toast.info('로그아웃되었습니다.');if(window.location.pathname.startsWith('/admin'))window.location.replace('/');}catch(error){toast.error(error instanceof Error?error.message:'로그아웃을 다시 시도해주세요.');}finally{signingOut.current=false;setLoading(false);}};
- return <AuthContext.Provider value={{user,lmsMember,lmsLoading,lmsError,legacyError,loading,reconnectLms,signInWithGoogle,signInWithKakao,signInQuick,signOut}}>{legacyError&&<div role="status" className="bg-amber-50 p-3 text-sm text-amber-800">{legacyError} <button onClick={()=>void reconnectLms()}>다시 연결</button></div>}{children}</AuthContext.Provider>;
+ return <AuthContext.Provider value={{user,lmsMember,lmsLoading,lmsError,legacyError,loading,reconnectLms,signInWithGoogle,signInWithKakao,signInWithEmail,signInQuick,signOut}}>{legacyError&&<div role="status" className="bg-amber-50 p-3 text-sm text-amber-800">{legacyError} <button onClick={()=>void reconnectLms()}>다시 연결</button></div>}{children}</AuthContext.Provider>;
 }
 export const useAuth=()=>useContext(AuthContext);

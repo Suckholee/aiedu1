@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { EmailLoginForm } from './EmailLoginForm';
 
 interface AuthModalProps {
   open: boolean;
@@ -126,6 +127,11 @@ export function AuthModal({ open, onOpenChange, memberPurpose }: AuthModalProps)
             )}
             <span>구글로 로그인</span>
           </button>
+
+          <details className="rounded-2xl border border-slate-200 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-slate-700">등록된 이메일 계정으로 로그인</summary>
+            <div className="pt-4"><EmailLoginForm onSuccess={() => onOpenChange(false)}/></div>
+          </details>
 
           {/* Member Benefits List */}
           {memberPurpose ? <p className="rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-600">개인 신청·결제 및 학습 내역은 로그인한 회원만 확인할 수 있습니다. 다른 계정으로 로그인하면 이전 신청이 보이지 않을 수 있습니다.</p> : <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-2.5 text-xs text-slate-600">
