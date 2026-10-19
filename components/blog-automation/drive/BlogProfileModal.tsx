@@ -1,4 +1,5 @@
 'use client';
+import { PhoneInput } from '@/components/ui/phone-input';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -607,11 +608,11 @@ export function BlogProfileModal({
                     <Phone className="w-3.5 h-3.5 text-emerald-500" />
                     대표 연락처 / 예약 전화
                   </Label>
-                  <Input
+                  <PhoneInput
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onValueChange={setPhone}
                     placeholder="예: 02-555-2875"
-                    className="mt-1 text-sm font-mono"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 mt-1 text-sm font-mono"
                   />
                 </div>
 

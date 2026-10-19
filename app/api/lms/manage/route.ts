@@ -16,7 +16,7 @@ export async function GET(request:Request) {
       const page=Math.floor(Math.max(0,Math.min(10000,Number(url.searchParams.get('page'))||0)));
       const q=(url.searchParams.get('q')??'').replace(/[%_,().\\]/g,'').slice(0,100);
       let query=client.from('lms_profiles').select('*,lms_staff_members(role)',{count:'exact'}).order('created_at',{ascending:false});
-      if(q)query=query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%,industry.ilike.%${q}%,company.ilike.%${q}%`);
+      if(q)query=query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%,industry.ilike.%${q}%,company.ilike.%${q}%,referral_code.ilike.%${q}%`);
       const industry=url.searchParams.get('industry');
       if(INDUSTRIES.includes(industry as typeof INDUSTRIES[number]))query=query.eq('industry',industry);
       const profile=url.searchParams.get('profile');

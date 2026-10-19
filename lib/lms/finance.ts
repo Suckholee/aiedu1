@@ -13,19 +13,21 @@ export const isFinance=(m:LmsMember)=>m.roles.some(r=>['admin','finance'].includ
 export async function readFinance(member:LmsMember,url:URL):Promise<FinanceData>{
  const financial=isFinance(member),crm=member.roles.includes('operations');
  if(!financial&&!crm)throw new LmsError('운영·회계 권한이 필요합니다.',403);
- const [orders,payments,refunds,settlements,lines,legacy,notes,enrollments,catalog,notices]=await Promise.all([
-  allRows('lms_orders'),financial?allRows('lms_payments'):[],financial?allRows('lms_refunds'):[],financial?allRows('lms_settlements'):[],financial?allRows('lms_settlement_lines'):[],financial?allRows('lms_legacy_finance_records'):[],allRows('lms_crm_notes'),allRows('lms_enrollments','id,cohort_id,contact_name,contact_email,amount_krw,applied_at,status'),readCatalog(),financial?allRows('lms_payment_notices'):[]
+ const [orders,payments,refunds,settlements,lines,legacy,notes,enrollments,catalog,notices,referrals]=await Promise.all([
+  allRows('lms_orders'),financial?allRows('lms_payments'):[],financial?allRows('lms_refunds'):[],financial?allRows('lms_settlements'):[],financial?allRows('lms_settlement_lines'):[],financial?allRows('lms_legacy_finance_records'):[],allRows('lms_crm_notes'),allRows('lms_enrollments','id,cohort_id,contact_name,contact_email,amount_krw,applied_at,status'),readCatalog(),financial?allRows('lms_payment_notices'):[],allRows('lms_referrals')
  ]);
  const mapped:FinanceOrder[]=orders.map(o=>{
   const e=enrollments.find(e=>e.id===o.enrollment_id);const ps=payments.filter(p=>p.order_id===o.id),rs=refunds.filter(r=>ps.some(p=>p.id===r.payment_id));
   const received=ps.reduce((n,p)=>n+Number(p.amount_krw),0),returned=rs.filter(r=>r.status==='succeeded').reduce((n,r)=>n+Number(r.amount_krw),0),reserved=rs.filter(r=>['requested','processing'].includes(r.status)).reduce((n,r)=>n+Number(r.amount_krw),0);
-  const base={...o,number:orderNumber(o),cohort_id:e?.cohort_id??null,cohort_title:catalog.cohorts.find(h=>h.id===e?.cohort_id)?.title??'',enrollment_status:e?.status??null,received_krw:received,refunded_krw:returned,reserved_refund_krw:reserved,net_krw:received-returned,due_krw:o.status==='cancelled'||o.review_status==='needs_review'?0:Math.max(0,Number(o.amount_krw)-received)};
+  const referral=referrals.find(r=>r.order_id===o.id);
+  const attribution={referral_code:referral?.referral_code??null,referrer_name:referral?.referrer_name??null};
+  const base={...o,...attribution,number:orderNumber(o),cohort_id:e?.cohort_id??null,cohort_title:catalog.cohorts.find(h=>h.id===e?.cohort_id)?.title??'',enrollment_status:e?.status??null,received_krw:received,refunded_krw:returned,reserved_refund_krw:reserved,net_krw:received-returned,due_krw:o.status==='cancelled'||o.review_status==='needs_review'?0:Math.max(0,Number(o.amount_krw)-received)};
   if(financial)return base;
   // Operations receives contact and enrollment fields only, no financial raw or evidence.
-  return {id:o.id,number:orderNumber(o),title:o.title,customer_name:o.customer_name,customer_email:o.customer_email,customer_phone:o.customer_phone,company:o.company,enrollment_id:o.enrollment_id,cohort_id:base.cohort_id,cohort_title:base.cohort_title,enrollment_status:base.enrollment_status,created_at:o.created_at} as FinanceOrder;
+  return {id:o.id,...attribution,number:orderNumber(o),title:o.title,customer_name:o.customer_name,customer_email:o.customer_email,customer_phone:o.customer_phone,company:o.company,enrollment_id:o.enrollment_id,cohort_id:base.cohort_id,cohort_title:base.cohort_title,enrollment_status:base.enrollment_status,created_at:o.created_at} as FinanceOrder;
  });
  const search=(url.searchParams.get('q')??'').slice(0,200).toLowerCase(),cohort=url.searchParams.get('cohort')??'';
- const filtered=mapped.filter(o=>(!cohort||o.cohort_id===cohort)&&`${o.customer_name} ${o.customer_email} ${o.customer_phone} ${o.number} ${o.title}`.toLowerCase().includes(search)).sort((a,b)=>b.created_at.localeCompare(a.created_at));
+ const filtered=mapped.filter(o=>(!cohort||o.cohort_id===cohort)&&`${o.customer_name} ${o.customer_email} ${o.customer_phone} ${o.referral_code??''} ${o.referrer_name??''} ${o.number} ${o.title}`.toLowerCase().includes(search)).sort((a,b)=>b.created_at.localeCompare(a.created_at));
  const page=Math.max(0,Math.min(10000,Math.floor(Number(url.searchParams.get('page'))||0))),selected=filtered.slice(page*50,page*50+50),ids=new Set(selected.map(o=>o.id));
  const selectedPayments=payments.filter(p=>ids.has(p.order_id));
  return {actor_id:member.id,financial,notices:notices.filter(n=>ids.has(n.order_id)),orders:selected,payments:selectedPayments,refunds:refunds.filter(r=>selectedPayments.some(p=>p.id===r.payment_id)),settlements,lines,legacy:legacy.filter(l=>selected.some(o=>o.legacy_record_id===l.id)),notes:notes.filter(n=>ids.has(n.order_id)),

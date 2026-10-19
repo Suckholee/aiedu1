@@ -12,10 +12,11 @@ try {
  await db.exec(`create role anon nologin;create role authenticated nologin;create role service_role nologin bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema public,auth to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`);
  const dir=new URL('../supabase/migrations/',import.meta.url);
  const files=(await readdir(dir)).filter(f=>f.endsWith('.sql')).sort();
- for(const f of files.filter(f=>!f.includes('0009')))await db.exec(await readFile(new URL(f,dir),'utf8'));
+ for(const f of files.filter(f=>f<'202610190009'))await db.exec(await readFile(new URL(f,dir),'utf8'));
  for(let n=1;n<=3;n++){await db.query('insert into auth.users values($1)',[id(n)]);await db.query('insert into public.lms_profiles(id,auth_user_id,display_name,email,phone) values($1,$1,$2,$3,$4)',[id(n),'기존 회원',`profile${n}@example.com`,n===1?'01022223333':null]);}
  await db.query("insert into public.lms_staff_members values($1,'admin')",[id(2)]);
  await db.exec(await readFile(new URL('202610190009_lms_member_profiles.sql',dir),'utf8'));
+ for(const f of files.filter(f=>f>'202610190009_lms_member_profiles.sql'))await db.exec(await readFile(new URL(f,dir),'utf8'));
  eq(await value('select phone v from public.lms_profiles where id=$1',[id(1)]),'01022223333','existing phone preserved');
  eq(await value('select bool_or(onboarding_required) v from public.lms_profiles'),false,'existing members not blocked');
  await db.query('insert into public.lms_profiles(id,display_name) values($1,$2)',[id(4),'신규']);

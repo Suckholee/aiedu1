@@ -10,7 +10,7 @@ await expect('/api/lms/learning',401);
 await expect('/api/lms/finance',401);
 await expect('/api/lms/billing',401);
 await expect('/api/lms/profile',401);
-for(const route of ['/api/lms/finance','/api/lms/billing','/api/lms/checkout','/api/lms/profile']){await expect(route,403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});await expect(route,401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});}
+for(const route of ['/api/lms/finance','/api/lms/billing','/api/lms/checkout','/api/lms/profile','/api/lms/referrals']){await expect(route,403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});await expect(route,401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});}
 await expect('/api/lms/learning',403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});
 await expect('/api/lms/learning',401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});
 const session=await (await expect('/api/lms/session',200)).json();

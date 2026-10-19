@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Sparkles,
@@ -32,6 +34,7 @@ function ApplyContent() {
   const [login,setLogin]=useState(false);
   const searchParams = useSearchParams();
   const initialCourseId = searchParams.get('course') || searchParams.get('id') || '';
+  const initialReferralCode=searchParams.get('ref') || '';
 
   const { data, mutate, ready } = usePlatform();
 
@@ -56,6 +59,8 @@ function ApplyContent() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [referralCode,setReferralCode]=useState(initialReferralCode);
+  useEffect(()=>{if(initialReferralCode)setReferralCode(initialReferralCode);},[initialReferralCode]);
   const [company, setCompany] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -125,7 +130,7 @@ function ApplyContent() {
     setIsProcessing(true);
 
     try {
-      const accepted = await mutate({ action: 'enroll', courseId: currentCourse.id, name, email, phone, company, notes, paymentMethod, receiptType, receiptNumber, depositorName });
+      const accepted = await mutate({ action: 'enroll', courseId: currentCourse.id, name, email, phone, company, notes, referralCode, paymentMethod, receiptType, receiptNumber, depositorName });
 
       // Display the order created in the same transaction as the application.
       const enrollment=accepted.enrollments.find(e=>e.courseId===currentCourse.id&&e.learnerId===lmsMember.id);
@@ -360,12 +365,12 @@ function ApplyContent() {
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   휴대전화 번호 <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="tel"
+                <PhoneInput
+                  aria-label="휴대전화 번호"
                   required
                   placeholder="010-1234-5678"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onValueChange={setPhone}
                   className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
@@ -412,6 +417,7 @@ function ApplyContent() {
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
+              <ReferralCodeField value={referralCode} onValueChange={setReferralCode}/>
             </div>
           </div>
 

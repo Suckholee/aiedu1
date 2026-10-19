@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { formatPhone, phoneDigits, phoneEdit } from '../lib/ui/phone.ts';
+const cases=[['01012345678','010-1234-5678'],['010-89523667','010-8952-3667'],['010 1234 5678','010-1234-5678'],['+82 10-1234-5678','010-1234-5678'],['0212345678','02-1234-5678'],['021234567','02-123-4567'],['0311234567','031-123-4567'],['07012345678','070-1234-5678'],['050712345678','0507-1234-5678'],['15881234','1588-1234'],['',''],['010','010'],['0101','010-1'],['01012345','010-1234-5'],['010123456789','010-1234-56789']];
+for(const [input,expected] of cases)assert.equal(formatPhone(input),expected);
+assert.equal(phoneDigits('+82 10-1234-5678'),'01012345678');
+assert.deepEqual(phoneEdit('0101234-5678',3,'010-1234-5678','deleteContentBackward'),{formatted:'011-234-5678',caret:2});
+assert.deepEqual(phoneEdit('010-12345678',8,'010-1234-5678','deleteContentBackward'),{formatted:'010-1235-678',caret:7});
+assert.deepEqual(phoneEdit('0101234-5678',3,'010-1234-5678','deleteContentForward'),{formatted:'010-2345-678',caret:3});
+assert.deepEqual(phoneEdit('010-1934-5678',6,'010-1234-5678','insertText'),{formatted:'010-1934-5678',caret:6});
+assert.deepEqual(phoneEdit('',0,'010-1234-5678','deleteContentBackward'),{formatted:'',caret:0});
+console.log('PASS: 21 phone formatting, paste, partial input, no truncation and caret/deletion checks');

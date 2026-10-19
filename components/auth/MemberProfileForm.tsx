@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useAuth } from '@/contexts/AuthContext';
 import { INDUSTRIES, PROFILE_PRIVACY_VERSION, memberProfileInput } from '@/lib/lms/profile';
 import type { LmsMember } from '@/lib/lms/types';
@@ -39,7 +40,7 @@ export function MemberProfileForm({ member, onSaved }: { member: LmsMember; onSa
     <p className="text-sm text-slate-500">로그인 계정 <span className="break-all font-medium text-slate-700">{member.email ?? '카카오 계정'}</span></p>
     <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2 disabled:opacity-60">
       <label className="text-sm font-semibold">이름 <span className="text-rose-600">*</span><input name="display_name" autoComplete="name" className={field} defaultValue={member.display_name} minLength={2} maxLength={100} required placeholder="수강하실 분의 이름"/></label>
-      <label className="text-sm font-semibold">휴대전화 <span className="text-rose-600">*</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" className={field} defaultValue={member.phone ?? ''} maxLength={20} required placeholder="010-1234-5678"/><span className="mt-1 block text-xs font-normal text-slate-500">수강 안내를 받을 번호를 정확히 입력해 주세요.</span></label>
+      <label className="text-sm font-semibold">휴대전화 <span className="text-rose-600">*</span><PhoneInput name="phone" autoComplete="tel" className={field} defaultValue={member.phone ?? ''} maxLength={20} required placeholder="010-1234-5678"/><span className="mt-1 block text-xs font-normal text-slate-500">수강 안내를 받을 번호를 정확히 입력해 주세요.</span></label>
       <label className="text-sm font-semibold sm:col-span-2">업종·활동 분야 <span className="text-rose-600">*</span><select name="industry" className={field} defaultValue={member.industry ?? ''} required><option value="" disabled>업종을 선택해 주세요</option>{INDUSTRIES.map(industry => <option key={industry} value={industry}>{industry}</option>)}</select></label>
       <label className="text-sm font-semibold">회사·기관명 <span className="font-normal text-slate-400">(선택)</span><input name="company" autoComplete="organization" className={field} defaultValue={member.company ?? ''} maxLength={200} placeholder="회사명 또는 소속"/></label>
       <label className="text-sm font-semibold">직무·직책 <span className="font-normal text-slate-400">(선택)</span><input name="job_title" autoComplete="organization-title" className={field} defaultValue={member.job_title ?? ''} maxLength={100} placeholder="예: 대표, 마케터, 강사"/></label>

@@ -27,7 +27,7 @@ export function overlayLearning(data:PlatformData,learning:Awaited<ReturnType<ty
 }
 export async function resolveCohort(courseId:string){const {cohorts}=await readCatalog();const h=cohorts.find(c=>c.id===courseId||c.legacy_course_id===courseId);if(!h)throw new LmsError('기수를 찾을 수 없습니다.');return h;}
 export async function legacyLearningCommand(c:any,member:LmsMember){
- if(c.action==='enroll')return runLearning({action:'apply',cohort_id:(await resolveCohort(c.courseId)).id,name:c.name,phone:c.phone,company:c.company,note:c.notes,payment_method:c.paymentMethod,receipt_type:c.receiptType,receipt_number:c.receiptNumber,depositor_name:c.depositorName},member);
+ if(c.action==='enroll')return runLearning({action:'apply',cohort_id:(await resolveCohort(c.courseId)).id,referral_code:c.referralCode??'',name:c.name,phone:c.phone,company:c.company,note:c.notes,payment_method:c.paymentMethod,receipt_type:c.receiptType,receipt_number:c.receiptNumber,depositor_name:c.depositorName},member);
  if(c.action==='material'){
   const cohort=await resolveCohort(c.courseId);const lessons=await allRows('lms_lessons','*',{column:'cohort_id',value:cohort.id});
   return runLearning({action:'lesson',cohort_id:cohort.id,title:c.title,content_url:c.url,position:Math.max(-1,...lessons.map(l=>l.position))+1,required:true,kind:'document'},member);

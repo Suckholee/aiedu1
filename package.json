@@ -20,6 +20,8 @@
     "test:lms-learning": "node scripts/test-lms-learning.mjs",
     "test:lms-finance": "node scripts/test-lms-finance.mjs",
     "test:lms-checkout": "node scripts/test-lms-checkout.mjs",
+    "test:phone-input": "node --experimental-strip-types scripts/test-phone-input.mjs",
+    "test:lms-referrals": "node --experimental-strip-types scripts/test-lms-referrals.mjs",
     "test:lms-member-profile": "node --experimental-strip-types scripts/test-lms-member-profile.mjs",
     "test:lms-signup": "node scripts/test-lms-signup.mjs",
     "test:lms-auth-bridge": "node scripts/test-lms-auth-bridge.mjs",
