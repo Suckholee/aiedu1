@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
+import { TossPaymentNotice } from '@/components/course/TossPaymentNotice';
+import { TOSS_PAYMENT_CHANNEL } from '@/lib/lms/payment-channel';
 import { RefundPolicyNotice } from './RefundPolicyNotice';
 import { useRouter } from 'next/navigation';
 import {
@@ -13,21 +15,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Lock,
-  Clock,
   CheckCircle2,
   ShieldCheck,
-  X,
   Sparkles,
-  CreditCard,
-  Building,
   Copy,
   Check,
-  FileText,
-  AlertCircle,
   Printer,
   ChevronRight,
-  ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {useAuth} from '@/contexts/AuthContext';
@@ -67,18 +61,6 @@ export function SeatHoldCheckoutModal({
   const [company, setCompany] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Payment method
-  const [paymentMethod, setPaymentMethod] = useState<
-    '신용카드' | '카카오페이' | '토스페이' | '무통장입금' | '법인계산서'
-  >('무통장입금');
-  const [depositorName, setDepositorName] = useState('');
-
-  // Receipt options
-  const [receiptType, setReceiptType] = useState<
-    '미신청' | '개인소득공제' | '사업자증빙' | '세금계산서'
-  >('미신청');
-  const [receiptNumber, setReceiptNumber] = useState('');
-
   // Agreements
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeRefund, setAgreeRefund] = useState(false);
@@ -90,7 +72,6 @@ export function SeatHoldCheckoutModal({
     id: string;
     appliedAt: string;
     amount: number;
-    paymentMethod: string;
     paymentStatus: string;
   } | null>(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
@@ -116,8 +97,7 @@ export function SeatHoldCheckoutModal({
     setPhone('');setReferralCode('');
     setCompany('');
     setNotes('');
-    setDepositorName('');
-    setReceiptNumber('');setAgreePrivacy(false);setAgreeRefund(false);
+    setAgreePrivacy(false);setAgreeRefund(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,7 +125,7 @@ export function SeatHoldCheckoutModal({
     setIsProcessing(true);
 
     try {
-      const accepted = await mutate({ action: 'enroll', courseId: courseId, name, email, phone, company, notes, referralCode, paymentMethod, receiptType, receiptNumber, depositorName });
+      const accepted = await mutate({ action: 'enroll', courseId: courseId, name, email, phone, company, notes, referralCode, paymentMethod: TOSS_PAYMENT_CHANNEL });
 
       // Display the order created in the same transaction as the application.
       const enrollment=accepted.enrollments.find(e=>e.courseId===courseId&&e.learnerId===lmsMember.id);
@@ -157,7 +137,6 @@ export function SeatHoldCheckoutModal({
         orderId: record.orderId,
         appliedAt: new Date().toLocaleString('ko-KR'),
         amount: enrollment?.amount??price,
-        paymentMethod,
         paymentStatus: record.paymentStatus,
       });
 
@@ -192,7 +171,7 @@ export function SeatHoldCheckoutModal({
             <p className="text-xs text-slate-500 mt-0.5">
               {completedOrder
                 ? '정상적으로 접수되었습니다. 아래 안내 사항을 확인해주세요.'
-                : '신청자 정보 확인 후 원하시는 결제 수단을 선택하세요.'}
+                : '신청자 정보와 수강료를 확인하고 수강신청을 접수하세요.'}
             </p>
           </div>
         </div>
@@ -211,7 +190,7 @@ export function SeatHoldCheckoutModal({
                     수강 신청이 접수되었습니다!
                   </h3>
                   <p className="text-xs text-slate-600 mt-1">
-                    담당자 승인 및 안내 문자가 순차적으로 발송될 예정입니다.
+                    신청 상태와 결제 안내는 내 신청·결제 목록에서 확인하세요.
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-xl bg-white border border-emerald-200 px-3.5 py-1.5 shadow-2xs">
@@ -254,12 +233,7 @@ export function SeatHoldCheckoutModal({
                     <span className="text-slate-500">안내 이메일</span>
                     <span className="font-semibold text-slate-800">{email}</span>
                   </div>
-                  <div className="flex justify-between py-1 pt-2">
-                    <span className="text-slate-500">결제 수단</span>
-                    <span className="font-semibold text-slate-800">
-                      {completedOrder.paymentMethod}
-                    </span>
-                  </div>
+
                   <div className="flex justify-between py-1 pt-2">
                     <span className="text-slate-500">결제 상태</span>
                     <span
@@ -281,8 +255,8 @@ export function SeatHoldCheckoutModal({
                 </div>
               </div>
 
-              {/* Bank Transfer Guide if applied via 무통장입금 */}
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">수강신청이 접수되었습니다. 수납 안내는 담당자가 확인한 뒤 별도로 전달합니다.</div>
+              {/* Application and payment have separate statuses. */}
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">신청 접수와 결제 완료는 구분됩니다. 주문 상세에서 현재 결제 상태를 확인해주세요.</div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
@@ -413,111 +387,10 @@ export function SeatHoldCheckoutModal({
                 </div>
               </div>
 
-              {/* Section 2: Payment Method */}
-              <div className="space-y-3 pt-2 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  2. 납부 방식 기록 (카드결제 준비 중)
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {[
-
-
-                    { id: '무통장입금', label: '무통장입금', desc: '무통장 입금' },
-                    { id: '법인계산서', label: '법인 계산서 후불', desc: '기업 전용' },
-                  ].map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(m.id as any)}
-                      className={`flex flex-col text-left p-3 rounded-xl border transition ${
-                        paymentMethod === m.id
-                          ? 'border-indigo-600 bg-indigo-50/80 font-bold text-indigo-950 ring-2 ring-indigo-500/20'
-                          : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <span className="text-xs font-bold">{m.label}</span>
-                      <span className="text-[10px] text-slate-500 mt-0.5">{m.desc}</span>
-                    </button>
-                  ))}
-                </div>
-
-                {paymentMethod === '무통장입금' && (
-                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3.5 space-y-2">
-                    <p className="text-xs text-indigo-900 font-semibold">
-                      입금 안내는 담당자가 신청 확인 후 전달합니다.
-                    </p>
-                    <label className="block text-xs font-medium text-slate-700">
-                      입금자명 (미입력 시 신청자명으로 처리)
-                      <input
-                        type="text"
-                        placeholder={name || '입금자명'}
-                        value={depositorName}
-                        onChange={(e) => setDepositorName(e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs"
-                      />
-                    </label>
-                  </div>
-                )}
-
-                {paymentMethod === '법인계산서' && (
-                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3.5 space-y-2">
-                    <p className="text-xs text-indigo-900 font-semibold">
-                      기업/기관 후불 계산서 발행 신청
-                    </p>
-                    <label className="block text-xs font-medium text-slate-700">
-                      사업자등록번호 또는 계산서 수신 이메일
-                      <input
-                        type="text"
-                        placeholder="123-45-67890 / finance@company.com"
-                        value={receiptNumber}
-                        onChange={(e) => setReceiptNumber(e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs"
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              {/* Section 3: Receipt / Tax Invoice */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    3. 증빙 서류 신청 (선택)
-                  </h4>
-                  <div className="flex gap-2">
-                    {(['미신청', '개인소득공제', '사업자증빙', '세금계산서'] as const).map(
-                      (type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setReceiptType(type)}
-                          className={`rounded-lg px-2.5 py-1 text-xs transition ${
-                            receiptType === type
-                              ? 'bg-slate-900 font-bold text-white'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {receiptType !== '미신청' && paymentMethod !== '법인계산서' && (
-                  <input
-                    type="text"
-                    placeholder={
-                      receiptType === '개인소득공제'
-                        ? '현금영수증용 휴대전화번호 (010-0000-0000)'
-                        : '사업자등록번호 (000-00-00000)'
-                    }
-                    value={receiptNumber}
-                    onChange={(e) => setReceiptNumber(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 p-2.5 text-xs focus:border-indigo-500 focus:outline-none"
-                  />
-                )}
-              </div>
+              <section className="space-y-3 border-t border-slate-100 pt-4" aria-label="결제 안내">
+                <h4 className="text-xs font-bold text-slate-500">2. 결제 안내</h4>
+                <TossPaymentNotice />
+              </section>
 
               {/* Order Pricing Breakdown */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
@@ -591,7 +464,7 @@ export function SeatHoldCheckoutModal({
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
                 <ShieldCheck className="size-3.5 text-emerald-600" />
-                <span>신청 후 담당자가 수강 승인과 납부 내역을 확인합니다.</span>
+                <span>신청 접수 후 내 신청·결제 목록에서 상태를 확인할 수 있습니다.</span>
               </div>
             </form>
           )}
