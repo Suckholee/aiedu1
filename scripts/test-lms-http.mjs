@@ -9,7 +9,8 @@ await expect('/api/lms/manage',401);
 await expect('/api/lms/learning',401);
 await expect('/api/lms/finance',401);
 await expect('/api/lms/billing',401);
-for(const route of ['/api/lms/finance','/api/lms/billing','/api/lms/checkout']){await expect(route,403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});await expect(route,401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});}
+await expect('/api/lms/profile',401);
+for(const route of ['/api/lms/finance','/api/lms/billing','/api/lms/checkout','/api/lms/profile']){await expect(route,403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});await expect(route,401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});}
 await expect('/api/lms/learning',403,{method:'POST',headers:{Origin:'https://outside.example','Content-Type':'application/json'},body:'{}'});
 await expect('/api/lms/learning',401,{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:'{}'});
 const session=await (await expect('/api/lms/session',200)).json();
@@ -27,5 +28,5 @@ assert.equal(callback.status,307);assert.equal(callback.headers.get('location'),
 const platform=await (await expect('/api/platform',200)).json();
 assert.deepEqual(platform.enrollments,[]);assert.deepEqual(platform.logs,[]);checks+=2;
 assert.ok(platform.courses.every(c=>c.published));checks++;
-for(const path of ['/','/courses','/apply','/admin/courses','/admin/cohorts','/admin/members','/admin/roles','/admin/learning','/admin/operations','/admin/finance','/admin/settlements','/admin/crm','/my-learning','/my-applications','/checkout/00000000-0000-4000-8000-000000000000'])await expect(path,200);
+for(const path of ['/','/courses','/apply','/admin/courses','/admin/cohorts','/admin/members','/admin/roles','/admin/learning','/admin/operations','/admin/finance','/admin/settlements','/admin/crm','/my-learning','/my-profile','/my-applications','/checkout/00000000-0000-4000-8000-000000000000'])await expect(path,200);
 console.log(`PASS: ${checks} production HTTP checks (anonymous access, CSRF, forged login, public DTO, routes)`);

@@ -164,6 +164,7 @@ export function DashboardHeader({
                 <p className="text-[11px] text-slate-400 font-normal truncate mt-0.5">{user.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="rounded-xl cursor-pointer p-2 text-xs"><Link href="/my-profile" className="flex items-center gap-2 font-medium"><UserIcon className="size-4 text-indigo-600"/><span>내 회원정보·수신 설정</span></Link></DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-xl cursor-pointer p-2 text-xs">
                 <Link href="/drive" className="flex items-center gap-2 font-medium">
                   <Camera className="size-4 text-indigo-600" />

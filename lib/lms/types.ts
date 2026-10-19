@@ -2,6 +2,7 @@ export type LmsRole = 'admin' | 'operations' | 'finance';
 export interface LmsMember {
   id:string; auth_user_id:string|null; legacy_firebase_uid:string|null; display_name:string;
   email:string|null; phone:string|null; company:string|null; status:'active'|'suspended';
+  industry?:string; job_title?:string; profile_completed_at?:string|null; privacy_consent_version?:string|null; privacy_consented_at?:string|null; service_alimtalk_opt_in?:boolean; marketing_opt_in?:boolean; contact_preferences_updated_at?:string|null; onboarding_required?:boolean;
   photo_url:string|null; created_at:string; last_seen_at:string|null; roles:LmsRole[];
 }
 export interface LmsCourse {

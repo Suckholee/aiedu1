@@ -32,7 +32,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ open, onOpenChange, memberPurpose }: AuthModalProps) {
-  const { signInWithGoogle, signInWithKakao, signInQuick, loading } = useAuth();
+  const { signInWithGoogle, signInWithKakao, signInQuick, loading, lmsMember } = useAuth();
   const [quickName, setQuickName] = useState('');
   const [quickEmail, setQuickEmail] = useState('');
   const [showManualForm, setShowManualForm] = useState(false);
@@ -67,7 +67,7 @@ export function AuthModal({ open, onOpenChange, memberPurpose }: AuthModalProps)
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open && !lmsMember} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-white text-slate-900 border-slate-200 p-0 rounded-3xl shadow-2xl">
         <DialogHeader className="p-6 pb-4 bg-gradient-to-br from-indigo-50 via-purple-50/50 to-pink-50 border-b border-indigo-100/80 text-center">
           <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-indigo-600 text-white shadow-md mb-2">
@@ -77,7 +77,7 @@ export function AuthModal({ open, onOpenChange, memberPurpose }: AuthModalProps)
             {memberPurpose ? `${memberPurpose} 확인을 위한 로그인` : '회원가입·로그인'}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-600 mt-1 leading-relaxed">
-            {memberPurpose ? '수강신청에 사용한 계정으로 로그인해 주세요. 인증 후 이 화면에서 내역을 확인할 수 있습니다.' : '카카오 또는 구글 계정으로 처음 로그인하면 회원가입이 완료됩니다. 수강 내역과 학습 자료를 한곳에서 관리하세요.'}
+            {memberPurpose ? '수강신청에 사용한 계정으로 로그인해 주세요. 인증 후 이 화면에서 내역을 확인할 수 있습니다.' : '카카오 또는 구글 계정으로 로그인하고 기본 정보를 입력하면 회원가입이 완료됩니다. 수강 내역과 학습 자료를 한곳에서 관리하세요.'}
           </DialogDescription>
         </DialogHeader>
 

@@ -87,7 +87,7 @@ function ApplyContent() {
   } | null>(null);
 
   const [copiedOrder, setCopiedOrder] = useState(false);
-  useEffect(()=>{setEmail(lmsMember?.email??'');setName(lmsMember?.display_name??'');setPhone(lmsMember?.phone??'');setCompany(lmsMember?.company??'');setCompletedOrder(null);},[lmsMember?.id]);
+  useEffect(()=>{setEmail(lmsMember?.email??'');setName(lmsMember?.display_name??'');setPhone(lmsMember?.phone??'');setCompany(lmsMember?.company??'');setCompletedOrder(null);},[lmsMember?.id,lmsMember?.display_name,lmsMember?.phone,lmsMember?.company]);
 
 
   const handleCopyOrder = () => {

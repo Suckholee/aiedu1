@@ -15,6 +15,7 @@ const mainLinks = [
   { href: '/materials', label: '강의실 & 자료실', icon: BookOpen },
   { href: '/my-applications', label: '내 신청·결제 목록', icon: CreditCard },
   { href: '/my-learning', label: '내 강의실·학습 현황', icon: GraduationCap },
+  { href: '/my-profile', label: '내 회원정보', icon: ShieldCheck },
 ];
 const practiceLinks = [
   { href: '/tools/work-automation', label: '업무자동화 실습' },

@@ -23,7 +23,7 @@ export function MemberAccessPrompt({ purpose }: { purpose: string }) {
         <p role="alert" className="mt-2 text-sm text-slate-500">{lmsError}</p>
         <button type="button" onClick={() => void reconnectLms()} className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">로그인 상태 다시 확인</button>
       </> : <>
-        <h2 className="font-bold">로그인 후 {purpose}을 확인할 수 있습니다.</h2>
+        <h2 className="font-bold">{purpose} 확인은 로그인이 필요합니다.</h2>
         <p className="mt-2 text-sm text-slate-500">수강신청에 사용한 카카오·구글 계정으로 로그인해 주세요.</p>
         <button type="button" onClick={() => setOpen(true)} className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">로그인하고 내역 확인</button>
       </>}

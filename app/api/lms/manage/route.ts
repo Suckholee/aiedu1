@@ -2,6 +2,7 @@ import { ZodError } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireMember,requireSameOrigin,lmsResponse,lmsFailure,LmsError } from '@/lib/lms/access';
 import { readCatalog } from '@/lib/lms/catalog';
+import { INDUSTRIES } from '@/lib/lms/profile';
 import { managementCommand } from '@/lib/lms/validation';
 export const runtime='nodejs';
 export async function GET(request:Request) {
@@ -15,7 +16,13 @@ export async function GET(request:Request) {
       const page=Math.floor(Math.max(0,Math.min(10000,Number(url.searchParams.get('page'))||0)));
       const q=(url.searchParams.get('q')??'').replace(/[%_,().\\]/g,'').slice(0,100);
       let query=client.from('lms_profiles').select('*,lms_staff_members(role)',{count:'exact'}).order('created_at',{ascending:false});
-      if(q)query=query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%`);
+      if(q)query=query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%,industry.ilike.%${q}%,company.ilike.%${q}%`);
+      const industry=url.searchParams.get('industry');
+      if(INDUSTRIES.includes(industry as typeof INDUSTRIES[number]))query=query.eq('industry',industry);
+      const profile=url.searchParams.get('profile');
+      if(profile==='complete')query=query.not('profile_completed_at','is',null);
+      if(profile==='incomplete')query=query.is('profile_completed_at',null);
+      if(url.searchParams.get('alimtalk')==='yes')query=query.eq('service_alimtalk_opt_in',true).eq('status','active').not('profile_completed_at','is',null);
       const result=await query.range(page*50,page*50+49);
       if(result.error)throw new LmsError('회원 목록을 조회하지 못했습니다.',503);
       members=(result.data??[]).map(({lms_staff_members,...p})=>({...p,roles:lms_staff_members.map(r=>r.role)}));

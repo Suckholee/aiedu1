@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePlatform } from '@/contexts/PlatformContext';
+import { INDUSTRIES } from '@/lib/lms/profile';
 import type { LmsCourse,LmsCohort,LmsMember,LmsRole } from '@/lib/lms/types';
 
 type View='courses'|'cohorts'|'members'|'roles';
@@ -23,14 +24,15 @@ export function ManagementConsole({view}:{view:View}) {
   const {refresh:refreshPlatform}=usePlatform();
   const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true);
   const [course,setCourse]=useState<LmsCourse|null>(null),[cohort,setCohort]=useState<LmsCohort|null>(null),[member,setMember]=useState<LmsMember|null>(null);
+  const [industry,setIndustry]=useState(''),[profileFilter,setProfileFilter]=useState(''),[alimtalkOnly,setAlimtalkOnly]=useState(false);
   const [query,setQuery]=useState(''),[search,setSearch]=useState(''),[page,setPage]=useState(0);
   const load=useCallback(async()=>{
     setLoading(true);
     try {
-      const r=await fetch(`/api/lms/manage?q=${encodeURIComponent(search)}&page=${page}`,{cache:'no-store'});
+      const r=await fetch(`/api/lms/manage?q=${encodeURIComponent(search)}&page=${page}&industry=${encodeURIComponent(industry)}&profile=${profileFilter}&alimtalk=${alimtalkOnly?'yes':''}`,{cache:'no-store'});
       const body=await r.json();if(!r.ok)throw Error(body.error);setData(body);setError('');
     }catch(e){setData(null);setError(e instanceof Error?e.message:'조회 실패');}finally{setLoading(false);}
-  },[page,search]);
+  },[page,search,industry,profileFilter,alimtalkOnly]);
   useEffect(()=>{
     if(lmsLoading)return;
     if(!lmsMember){setData(null);setError('카카오 또는 구글 계정으로 로그인하세요.');setLoading(false);return;}
@@ -82,14 +84,15 @@ export function ManagementConsole({view}:{view:View}) {
     </>}
 
     {(view==='members'||view==='roles')&&<>
-      <form className="flex gap-2" onSubmit={e=>{e.preventDefault();setPage(0);setSearch(query);}}><input aria-label="회원 이름·이메일 검색" className={field} placeholder="이름 또는 이메일 검색" value={query} onChange={e=>setQuery(e.target.value)}/><button className={button} disabled={loading}>검색</button></form>
+      <form className="flex gap-2" onSubmit={e=>{e.preventDefault();setPage(0);setSearch(query);}}><input aria-label="회원 이름·이메일·연락처 검색" className={field} placeholder="이름·이메일·연락처·회사 검색" value={query} onChange={e=>setQuery(e.target.value)}/><button className={button} disabled={loading}>검색</button></form>
+      {view==='members'&&<div className={card}><div className="flex flex-wrap gap-3"><label className="text-sm">업종<select aria-label="회원 업종 필터" className={field} value={industry} onChange={e=>{setIndustry(e.target.value);setPage(0);}}><option value="">전체 업종</option>{INDUSTRIES.map(v=><option key={v}>{v}</option>)}</select></label><label className="text-sm">회원 정보<select aria-label="회원 정보 등록 필터" className={field} value={profileFilter} onChange={e=>{setProfileFilter(e.target.value);setPage(0);}}><option value="">전체</option><option value="complete">등록 완료</option><option value="incomplete">미등록</option></select></label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={alimtalkOnly} onChange={e=>{setAlimtalkOnly(e.target.checked);setPage(0);}}/>알림톡 수신 선택 회원</label></div><p className="text-xs text-slate-500">알림톡 발송 서비스 연결 준비 중입니다. 현재는 회원 연락처와 수신 설정을 저장합니다. 휴대전화 번호는 회원이 직접 입력한 정보이며 본인인증 여부를 의미하지 않습니다.</p></div>}
       {member&&<form key={member.id+view} className={card} onSubmit={async e=>{
         e.preventDefault();const f=new FormData(e.currentTarget);const command=view==='roles'?{action:'roles',id:member.id,roles:f.getAll('roles')}:{action:'member',id:member.id,display_name:f.get('display_name'),phone:f.get('phone'),company:f.get('company'),status:f.get('status')};
         if(await save(command))setMember(null);
       }}><h2 className="font-bold">{member.display_name} · {view==='roles'?'권한 변경':'회원 정보 수정'}</h2><p className="text-sm text-slate-500">{member.email} · {member.status==='active'?'활성 회원':'이용 중지'}</p>
         {view==='roles'?<><p className="text-sm text-slate-600">기본 회원은 수강생입니다. 담당 업무에 필요한 권한만 선택하세요.</p><div className="flex flex-wrap gap-5">{Object.entries(roleNames).map(([role,label])=><label key={role} className="flex gap-2 text-sm"><input type="checkbox" name="roles" value={role} defaultChecked={member.roles.includes(role as LmsRole)}/>{label}</label>)}</div><p className="text-xs text-slate-500">관리자: 회원·권한·교육 운영 / 교육 운영: 과정·기수 / 회계: 수납·정산</p></>:<div className="grid gap-4 sm:grid-cols-2"><Input label="이름" name="display_name" value={member.display_name}/><Input label="연락처" name="phone" value={member.phone??''} required={false}/><Input label="소속" name="company" value={member.company??''} required={false}/><label className="text-sm font-semibold">회원 상태<select name="status" className={field} defaultValue={member.status}><option value="active">활성</option><option value="suspended">이용 중지</option></select></label></div>}
         <div className="flex gap-3"><button className={button} disabled={busy}>변경 저장</button><button type="button" onClick={()=>setMember(null)}>취소</button></div></form>}
-      <section className={card}><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b text-slate-500"><th className="p-3">회원</th><th className="p-3">상태</th><th className="p-3">역할</th><th className="p-3">관리</th></tr></thead><tbody>{data.members.map(m=><tr key={m.id} className="border-b"><td className="p-3"><strong>{m.display_name}</strong><p className="text-xs text-slate-500">{m.email}</p><p className="text-xs text-slate-400">{m.company}</p></td><td className="p-3">{m.status==='active'?'활성':'이용 중지'}</td><td className="p-3">{m.roles.map(r=>roleNames[r]).join(' · ')||'수강생'}</td><td className="p-3"><button className="font-semibold text-indigo-600" onClick={()=>setMember(m)}>{view==='roles'?'권한 변경':'정보 수정'}</button></td></tr>)}</tbody></table></div>{!data.members.length&&<p>검색 결과가 없습니다.</p>}<div className="flex justify-between text-sm"><button disabled={!page||loading} onClick={()=>setPage(p=>p-1)}>이전</button><span>{page+1} / {Math.max(1,Math.ceil(data.totalMembers/50))} 페이지 · {data.totalMembers}명</span><button disabled={(page+1)*50>=data.totalMembers||loading} onClick={()=>setPage(p=>p+1)}>다음</button></div></section>
+      <section className={card}><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b text-slate-500"><th className="p-3">회원</th><th className="p-3">연락처·업종</th><th className="p-3">회원정보·연락 수신</th><th className="p-3">상태</th><th className="p-3">역할</th><th className="p-3">관리</th></tr></thead><tbody>{data.members.map(m=><tr key={m.id} className="border-b"><td className="p-3"><strong>{m.display_name}</strong><p className="text-xs text-slate-500">{m.email}</p><p className="text-xs text-slate-400">{m.company}</p></td><td className="p-3"><p className="whitespace-nowrap">{m.phone||'연락처 미등록'}</p><p className="mt-1 text-xs text-slate-500">{m.industry||'업종 미등록'}{m.job_title&&` · ${m.job_title}`}</p></td><td className="p-3"><span className={`rounded px-2 py-1 text-xs font-semibold ${m.profile_completed_at?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-800'}`}>{m.profile_completed_at?'등록 완료':'정보 보완 필요'}</span><p className="mt-2 whitespace-nowrap text-xs">수강 안내 알림톡: {m.service_alimtalk_opt_in?'수신 선택':'미선택'}</p><p className="mt-1 text-xs text-slate-500">홍보 수신: {m.marketing_opt_in?'동의':'미동의'}</p>{m.privacy_consented_at&&<details className="mt-2 text-xs text-slate-500"><summary className="cursor-pointer">동의 기록</summary><p className="mt-1">개인정보: {new Date(m.privacy_consented_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</p><p>동의문 {m.privacy_consent_version}</p><p>수신 설정 변경: {m.contact_preferences_updated_at?new Date(m.contact_preferences_updated_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'—'}</p></details>}</td><td className="p-3">{m.status==='active'?'활성':'이용 중지'}</td><td className="p-3">{m.roles.map(r=>roleNames[r]).join(' · ')||'수강생'}</td><td className="p-3"><button className="font-semibold text-indigo-600" onClick={()=>setMember(m)}>{view==='roles'?'권한 변경':'정보 수정'}</button></td></tr>)}</tbody></table></div>{!data.members.length&&<p>검색 결과가 없습니다.</p>}<div className="flex justify-between text-sm"><button disabled={!page||loading} onClick={()=>setPage(p=>p-1)}>이전</button><span>{page+1} / {Math.max(1,Math.ceil(data.totalMembers/50))} 페이지 · {data.totalMembers}명</span><button disabled={(page+1)*50>=data.totalMembers||loading} onClick={()=>setPage(p=>p+1)}>다음</button></div></section>
     </>}
   </div>;
 }
