@@ -8,9 +8,9 @@ import styles from './AcademyLanding.module.css';
 import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
 
 const areas = [
-  { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/programs/work-automation-photo-v1.png', alt: '녹음과 메모를 노트북에서 보고서로 정리하는 AI 생성 실습 장면', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
-  { title: '나의 이야기가,\n콘텐츠가 되도록.', category: 'AI 블로그 & 콘텐츠', image: '/images/programs/blog-content-photo-v1.png', alt: '카페 사진을 골라 블로그 글을 작성하는 AI 생성 실습 장면', description: '사진 한 장, 일상의 경험에서 시작해 나다운 블로그 콘텐츠를 완성합니다.', outcome: '아이디어 정리 · 블로그 제작' },
-  { title: '짧은 영상으로,\n더 넓은 세상에.', category: 'AI 숏폼 영상', image: '/images/programs/shortform-video-photo-v1.png', alt: '휴대폰 세로 영상 촬영과 노트북 편집을 함께 진행하는 AI 생성 실습 장면', description: '아이디어에 이미지와 목소리를 더해 나의 비즈니스를 알리는 영상을 만듭니다.', outcome: '콘텐츠 기획 · 숏폼 제작' },
+  { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/teaching/cho-work-automation-workshop-v1.png', alt: '조영빈 대표가 업무자동화를 설명하는 AI 재구성 강의 장면', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
+  { title: '나의 이야기가,\n콘텐츠가 되도록.', category: 'AI 블로그 & 콘텐츠', image: '/images/teaching/peter-blog-workshop-v1.png', alt: '피터 이석호 대표가 사진과 블로그 작성을 지도하는 AI 재구성 강의 장면', description: '사진 한 장, 일상의 경험에서 시작해 나다운 블로그 콘텐츠를 완성합니다.', outcome: '아이디어 정리 · 블로그 제작' },
+  { title: '짧은 영상으로,\n더 넓은 세상에.', category: 'AI 숏폼 영상', image: '/images/teaching/neo-shortform-workshop-v1.png', alt: '네오 박재범 대표가 카메라 촬영을 시연하는 AI 재구성 강의 장면', description: '아이디어에 이미지와 목소리를 더해 나의 비즈니스를 알리는 영상을 만듭니다.', outcome: '콘텐츠 기획 · 숏폼 제작' },
 ];
 
 const instructors = [
@@ -34,7 +34,7 @@ export function AcademyLanding() {
 
   return <div className={styles.home}>
     <section className={styles.hero} aria-labelledby="landing-title">
-      <Image src="/images/learning_classroom.png" alt="함께 배우는 AI 교육 콘셉트 이미지" fill preload sizes="100vw" className={styles.heroImage}/>
+      <Image src="/images/teaching/instructors-classroom-hero-v1.png" alt="조영빈·이석호·박재범 강사진이 함께 수업을 진행하는 AI 재구성 장면" fill preload sizes="100vw" className={styles.heroImage}/>
       <div className={styles.heroShade}/>
       <div className={styles.heroContent}>
         <p className={styles.eyebrow}>NEO &amp; PETER · AI EDUCATION</p>
@@ -43,21 +43,21 @@ export function AcademyLanding() {
         <div className={styles.heroAside}><p>막막했던 업무가 가벼워지고,<br/>나의 이야기가 콘텐츠가 되는 시간.<br/>작은 배움을, 일상의 새로운 가능성으로.</p><a href="#programs" className={styles.outlineButton}>교육과정 살펴보기 <ArrowUpRight size={18}/></a></div>
       </div>
       <a href="#about" className={styles.scrollCue}><ArrowDown size={14}/> SCROLL TO DISCOVER</a>
-      <span className={styles.imageCaption}>AI EDUCATION / 콘셉트 이미지</span>
+      <span className={styles.imageCaption}>실제 강사진 사진 기반 AI 재구성</span>
     </section>
 
     <section id="about" className={`${styles.section} ${styles.about}`} aria-labelledby="about-title">
-      <div><p className={styles.kicker}>/ ABOUT NEO &amp; PETER /</p><h2 id="about-title">배우는 데서 끝나지 않는,<br/>내 것이 되는 AI.</h2><div className={styles.aboutImage}><Image src="/images/learning_team.png" alt="함께 아이디어를 나누는 학습 콘셉트 이미지" fill sizes="(max-width: 800px) 100vw, 45vw"/></div></div>
+      <div><p className={styles.kicker}>/ ABOUT NEO &amp; PETER /</p><h2 id="about-title">배우는 데서 끝나지 않는,<br/>내 것이 되는 AI.</h2><div className={styles.aboutImage}><Image src="/images/teaching/instructors-collaboration-v1.png" alt="네오앤피터 강사진이 함께 실습을 지도하는 AI 재구성 장면" fill sizes="(max-width: 800px) 100vw, 45vw"/></div></div>
       <div className={styles.aboutCopy}><p className={styles.wordmark}>LEARN.<br/><span>MAKE. SHARE.</span></p><p>기술의 이름을 외우는 것보다,<br/>내 일에 한 번 써보는 경험이 더 중요하니까.</p><p>보고서를 쓰고, 블로그를 만들고, 짧은 영상을 완성하며<br className={styles.desktopBreak}/> 오늘 배운 것을 내일의 일상으로 가져갑니다.</p><ul className={styles.principles}>{['처음부터 차근차근', '직접 만들며 배우고', '나의 일에 연결하기'].map(text => <li key={text}><Check size={15}/>{text}</li>)}</ul><Link href="/education" className={styles.textLink}>네오앤피터 알아보기 <ArrowUpRight size={17}/></Link></div>
     </section>
 
     <section id="programs" className={`${styles.section} ${styles.programs}`} aria-labelledby="programs-title">
       <div className={styles.sectionHeading}><div><p className={styles.kicker}>/ LEARNING PROGRAMS /</p><h2 id="programs-title">지금의 나에게 필요한,<br/>다음 배움.</h2></div><p>처음이어도, 더 잘하고 싶어도.<br/>업무 자동화부터 블로그와 숏폼까지.<br/>배움의 출발점을 함께 찾아갑니다.</p></div>
       <div className={styles.areaGrid}>{areas.map((area, index) => <article className={styles.area} key={area.category}>
-        <Link href="/courses" className={styles.areaImage} aria-label={`${area.category} 교육과정 살펴보기`}><Image src={area.image} alt={area.alt} fill sizes="(max-width: 800px) 100vw, 33vw"/><span className={styles.imageNumber}>0{index + 1}</span><span className={styles.imageArrow}><ArrowUpRight size={20}/></span></Link>
+        <Link href="/courses" className={styles.areaImage} aria-label={`${area.category} 교육과정 살펴보기`}><Image src={area.image} alt={area.alt} fill style={{objectPosition:'center top'}} sizes="(max-width: 800px) 100vw, 33vw"/><span className={styles.imageNumber}>0{index + 1}</span><span className={styles.imageArrow}><ArrowUpRight size={20}/></span></Link>
         <p className={styles.areaCategory}>{area.category}</p><h3>{area.title}</h3><p className={styles.areaDescription}>{area.description}</p><p className={styles.areaOutcome}>{area.outcome}</p>
       </article>)}</div>
-      <p className={styles.programImageNote}>교육 내용을 바탕으로 AI로 제작한 실습 장면 이미지입니다.</p>
+      <p className={styles.programImageNote}>실제 강사진의 사진과 교육 내용을 바탕으로 AI로 재구성한 강의 장면입니다.</p>
       <div className={styles.enrollmentHeading}><h3>지금 만날 수 있는 교육과정</h3><Link href="/courses" className={styles.textLink}>전체 교육과정 <ArrowUpRight size={16}/></Link></div>
       {!ready || error ? <div className={styles.empty} role="status"><p>{error ? '교육과정 정보를 불러오지 못했습니다.' : '모집 일정을 확인하고 있습니다.'}</p>{error && <button onClick={() => void refresh()} className={styles.textLink}>다시 확인하기 <ArrowUpRight size={16}/></button>}</div> : courses.length ? <div className={styles.courseList}>{courses.map(course => <Link key={course.id} href={`/courses/${course.id}`} className={styles.courseRow}><span>{course.category}</span><h4>{course.title}</h4><span>{course.startDate} · {course.startTime}</span><ArrowUpRight size={20}/></Link>)}</div> : <div className={styles.empty}><div><strong>다음 교육과정을 준비하고 있습니다.</strong><p>새로운 모집 소식은 교육과정과 일정에서 확인해주세요.</p></div><Link href="/calendar" className={styles.textLink}>일정 확인하기 <ArrowUpRight size={17}/></Link></div>}
     </section>
