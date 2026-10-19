@@ -44,6 +44,7 @@ export default function CourseDetailPage() {
   if (!ready) return <p>과정을 불러오는 중입니다.</p>;
   if (!course) return <p>과정을 찾을 수 없습니다. <Link href='/courses'>목록으로</Link></p>;
 
+  const hasPreview = course.curriculum.some(chapter => chapter.lessons.some(lesson => lesson.isFreePreview));
   const seatPercent = Math.round(
     ((course.totalSeats - course.remainingSeats) / course.totalSeats) * 100
   );
@@ -115,16 +116,16 @@ export default function CourseDetailPage() {
               className="size-full object-cover opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
-              <button
+              {hasPreview && <button
                 type="button"
                 onClick={() => router.push('/materials')}
                 className="grid size-16 place-items-center rounded-full bg-white/90 text-blue-600 shadow-2xl hover:scale-110 active:scale-95 transition-all"
               >
                 <PlayCircle className="size-9 fill-blue-600 text-white" />
-              </button>
+              </button>}
             </div>
             <div className="absolute bottom-4 left-4 text-white text-xs font-semibold drop-shadow-md">
-              ▶ 1차시 무료 미리보기 체험 가능
+              {hasPreview ? '무료 미리보기 자료 확인' : `${course.startDate} · ${course.location}`}
             </div>
           </div>
 
@@ -226,6 +227,7 @@ export default function CourseDetailPage() {
               </div>
 
               <div className="space-y-3">
+                {!course.curriculum.length && <p className="rounded-xl border bg-white p-5 text-sm text-slate-600">세부 커리큘럼은 준비 중입니다. 일정과 장소는 강의 소개에서 확인해주세요.</p>}
                 {course.curriculum.map((chapter) => {
                   const isOpen = openChapterId === chapter.id;
                   return (
@@ -381,32 +383,32 @@ export default function CourseDetailPage() {
 
             <button
               type="button"
-              onClick={() => router.push('/my-learning')}
+              onClick={() => router.push('/my-applications')}
               className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               <ShoppingCart className="size-4" />
-              <span>장바구니 담기</span>
+              <span>내 신청·결제 목록</span>
             </button>
           </div>
 
           {/* Benefits List matching Slide 32 */}
           <div className="pt-4 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
-            <h5 className="font-bold text-slate-900 text-xs">이 강의의 혜택</h5>
+            <h5 className="font-bold text-slate-900 text-xs">수강 안내</h5>
             <div className="flex items-center gap-2">
               <Award className="size-4 text-blue-600" />
-              <span>수료증 공식 발급</span>
+              <span>신청 접수와 수강 승인은 별도 처리</span>
             </div>
             <div className="flex items-center gap-2">
               <Smartphone className="size-4 text-blue-600" />
-              <span>모바일 무제한 수강 지원</span>
+              <span>모바일에서 신청 내역 확인</span>
             </div>
             <div className="flex items-center gap-2">
               <MessageSquare className="size-4 text-blue-600" />
-              <span>강사진 1:1 질문 &amp; 답변 지원</span>
+              <span>문의 사항은 신청 메모로 전달</span>
             </div>
             <div className="flex items-center gap-2">
               <FileText className="size-4 text-blue-600" />
-              <span>강의 자료 및 실전 프롬프트 팩 평생 제공</span>
+              <span>주문별 납부 안내와 처리 상태 확인</span>
             </div>
           </div>
         </div>

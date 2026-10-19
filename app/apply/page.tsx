@@ -615,18 +615,18 @@ function ApplyContent() {
 
           {/* Included Features */}
           <div className="pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
-            <p className="font-bold text-slate-900 text-xs">포함 혜택</p>
+            <p className="font-bold text-slate-900 text-xs">신청 안내</p>
             <div className="flex items-center gap-2 text-slate-700">
               <Check className="size-4 text-emerald-600" />
-              <span>실시간 LIVE 강의 및 다시보기 VOD 제공</span>
+              <span>선택한 일정·장소에서 교육 진행</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <Check className="size-4 text-emerald-600" />
-              <span>실습 교안 및 실전 프롬프트 팩 평생 소장</span>
+              <span>내 신청·결제 목록에서 접수 상태 확인</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <Check className="size-4 text-emerald-600" />
-              <span>수료 기준 충족 시 공식 수료증 발급</span>
+              <span>신청 확인 후 담당자가 수강 안내</span>
             </div>
           </div>
         </aside>
