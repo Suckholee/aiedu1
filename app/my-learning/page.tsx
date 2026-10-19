@@ -5,18 +5,18 @@ import {BillingPanel} from '@/components/lms/BillingPanel';
 import {useLearning} from '@/components/lms/useLearning';
 import {enrollmentNames,attendanceNames,learningSummary,canStudy} from '@/lib/lms/learning-types';
 import {getUserApplications,type ApplicantSettlementRecord} from '@/lib/settlement-store';
-import {AuthModal} from '@/components/auth/AuthModal';
+import {MemberAccessPrompt} from '@/components/auth/MemberAccessPrompt';
 const card='space-y-4 rounded-2xl border border-slate-200 bg-white p-6';
 const button='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
 const date=(v:string)=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
 export default function MyLearning(){
- const {data,error,busy,load,save,lmsMember,lmsLoading}=useLearning();const [login,setLogin]=useState(false),[local,setLocal]=useState<ApplicantSettlementRecord[]>([]);
+ const {data,error,busy,load,save,lmsMember,lmsLoading}=useLearning();const [local,setLocal]=useState<ApplicantSettlementRecord[]>([]);
  useEffect(()=>setLocal(getUserApplications()),[]);
  const ownLocal=lmsMember?.email?local.filter(r=>r.email?.toLowerCase()===lmsMember.email?.toLowerCase()):[];
  return <div className="mx-auto max-w-5xl space-y-6 pb-16"><nav className="flex gap-4 text-sm"><Link className="font-semibold text-indigo-600" href="/my-applications">내 신청·결제 목록</Link><Link href="/courses">강의 찾아보기</Link></nav><header className="flex flex-wrap justify-between gap-3"><div><p className="text-sm font-semibold text-indigo-600">내 학습</p><h1 className="mt-2 text-3xl font-bold">수강신청·출결·진도</h1><p className="mt-3 text-sm text-slate-500">신청 상태와 회차 출결을 확인하고 차시별 학습 기록을 이어가세요.</p></div><Link className="text-sm font-semibold text-indigo-600" href="/courses">교육과정 찾기</Link></header>
- {!lmsMember&&!lmsLoading&&<section className={card}><p>카카오 또는 구글 계정으로 로그인하면 다른 기기에서도 학습 기록을 확인할 수 있습니다.</p><button className={button} onClick={()=>setLogin(true)}>로그인</button></section>}
+ <MemberAccessPrompt purpose="학습 내역"/>
  {lmsLoading&&<p role="status">계정 정보를 확인하고 있습니다.</p>}
- {error&&<section className={card}><p role="alert">{error}</p><button onClick={()=>void load()}>다시 연결</button></section>}
+ {error&&lmsMember&&<section className={card}><p role="alert">{error}</p><button onClick={()=>void load()}>다시 연결</button></section>}
  {lmsMember&&!data&&!error&&<p role="status">학습 기록을 불러오는 중입니다.</p>}
  {data&&!data.enrollments.some(e=>e.learner_id===lmsMember?.id)&&<section className={card}><h2 className="font-bold">아직 수강신청 내역이 없습니다.</h2><Link className="text-indigo-600" href="/apply">온라인 수강신청</Link></section>}
  {data&&data.enrollments.filter(e=>e.learner_id===lmsMember?.id).map(e=>{
@@ -33,5 +33,5 @@ export default function MyLearning(){
  })}
  <BillingPanel/>
  {!!ownLocal.length&&<details className={card}><summary className="cursor-pointer text-sm font-semibold">이 기기에 남아 있는 이전 신청·정산 기록 {ownLocal.length}건</summary><p className="text-xs text-slate-500">기존 기기 저장 기록입니다. 현재 수강 승인과 학습 기록은 위 서버 내역을 기준으로 확인하세요.</p>{ownLocal.map(r=><div key={r.id} className="border-t py-3 text-sm"><strong>{r.applicantName} · {r.orderId}</strong><p className="text-xs text-slate-500">{date(r.appliedAt)} · 기존 상태 {r.enrollmentStatus} · ₩{r.amount.toLocaleString()}</p></div>)}</details>}
- <AuthModal open={login} onOpenChange={setLogin}/></div>;
+ </div>;
 }

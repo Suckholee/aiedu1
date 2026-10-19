@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Sparkles,
@@ -27,9 +28,10 @@ import { toast } from 'sonner';
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  memberPurpose?: string;
 }
 
-export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange, memberPurpose }: AuthModalProps) {
   const { signInWithGoogle, signInWithKakao, signInQuick, loading } = useAuth();
   const [quickName, setQuickName] = useState('');
   const [quickEmail, setQuickEmail] = useState('');
@@ -66,18 +68,17 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white text-slate-900 border-slate-200 p-0 overflow-hidden rounded-3xl shadow-2xl">
+      <DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto bg-white text-slate-900 border-slate-200 p-0 rounded-3xl shadow-2xl">
         <DialogHeader className="p-6 pb-4 bg-gradient-to-br from-indigo-50 via-purple-50/50 to-pink-50 border-b border-indigo-100/80 text-center">
           <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-indigo-600 text-white shadow-md mb-2">
             <Sparkles className="size-6" />
           </div>
           <DialogTitle className="text-xl font-black text-slate-900">
-            회원가입·로그인
+            {memberPurpose ? `${memberPurpose} 확인을 위한 로그인` : '회원가입·로그인'}
           </DialogTitle>
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-            카카오 또는 구글 계정으로 처음 로그인하면 회원가입이 완료됩니다.<br />
-            수강 내역과 학습 자료를 한곳에서 관리하세요.
-          </p>
+          <DialogDescription className="text-xs text-slate-600 mt-1 leading-relaxed">
+            {memberPurpose ? '수강신청에 사용한 계정으로 로그인해 주세요. 인증 후 이 화면에서 내역을 확인할 수 있습니다.' : '카카오 또는 구글 계정으로 처음 로그인하면 회원가입이 완료됩니다. 수강 내역과 학습 자료를 한곳에서 관리하세요.'}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="p-6 space-y-5">
@@ -127,7 +128,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </button>
 
           {/* Member Benefits List */}
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-2.5 text-xs text-slate-600">
+          {memberPurpose ? <p className="rounded-2xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-600">개인 신청·결제 및 학습 내역은 로그인한 회원만 확인할 수 있습니다. 다른 계정으로 로그인하면 이전 신청이 보이지 않을 수 있습니다.</p> : <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-2.5 text-xs text-slate-600">
             <div className="flex items-center gap-2 font-bold text-slate-900 pb-1 border-b border-slate-200/60">
               <CheckCircle2 className="size-4 text-emerald-600" />
               <span>회원 혜택</span>
@@ -144,10 +145,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               <Sparkles className="size-3.5 text-amber-500 shrink-0 mt-0.5" />
               <span>업무자동화·블로그·VisKits 숏폼 실습 산출물 클라우드 동기화</span>
             </div>
-          </div>
+          </div>}
 
           {/* Fallback Manual Name Form Toggle */}
-          <div className="pt-1 text-center">
+          {!memberPurpose && <div className="pt-1 text-center">
             {!showManualForm ? (
               <button
                 type="button"
@@ -193,7 +194,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 </Button>
               </form>
             )}
-          </div>
+          </div>}
         </div>
       </DialogContent>
     </Dialog>
