@@ -8,9 +8,9 @@ import styles from './AcademyLanding.module.css';
 import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
 
 const areas = [
-  { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/ai_consulting_workflow.jpg', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
-  { title: '나의 이야기가,\n콘텐츠가 되도록.', category: 'AI 블로그 & 콘텐츠', image: '/images/blog_automation_workflow.jpg', description: '사진 한 장, 일상의 경험에서 시작해 나다운 블로그 콘텐츠를 완성합니다.', outcome: '아이디어 정리 · 블로그 제작' },
-  { title: '짧은 영상으로,\n더 넓은 세상에.', category: 'AI 숏폼 영상', image: '/images/learning_virtual.png', description: '아이디어에 이미지와 목소리를 더해 나의 비즈니스를 알리는 영상을 만듭니다.', outcome: '콘텐츠 기획 · 숏폼 제작' },
+  { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/programs/work-automation-photo-v1.png', alt: '녹음과 메모를 노트북에서 보고서로 정리하는 AI 생성 실습 장면', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
+  { title: '나의 이야기가,\n콘텐츠가 되도록.', category: 'AI 블로그 & 콘텐츠', image: '/images/programs/blog-content-photo-v1.png', alt: '카페 사진을 골라 블로그 글을 작성하는 AI 생성 실습 장면', description: '사진 한 장, 일상의 경험에서 시작해 나다운 블로그 콘텐츠를 완성합니다.', outcome: '아이디어 정리 · 블로그 제작' },
+  { title: '짧은 영상으로,\n더 넓은 세상에.', category: 'AI 숏폼 영상', image: '/images/programs/shortform-video-photo-v1.png', alt: '휴대폰 세로 영상 촬영과 노트북 편집을 함께 진행하는 AI 생성 실습 장면', description: '아이디어에 이미지와 목소리를 더해 나의 비즈니스를 알리는 영상을 만듭니다.', outcome: '콘텐츠 기획 · 숏폼 제작' },
 ];
 
 const instructors = [
@@ -54,9 +54,10 @@ export function AcademyLanding() {
     <section id="programs" className={`${styles.section} ${styles.programs}`} aria-labelledby="programs-title">
       <div className={styles.sectionHeading}><div><p className={styles.kicker}>/ LEARNING PROGRAMS /</p><h2 id="programs-title">지금의 나에게 필요한,<br/>다음 배움.</h2></div><p>처음이어도, 더 잘하고 싶어도.<br/>업무 자동화부터 블로그와 숏폼까지.<br/>배움의 출발점을 함께 찾아갑니다.</p></div>
       <div className={styles.areaGrid}>{areas.map((area, index) => <article className={styles.area} key={area.category}>
-        <Link href="/courses" className={styles.areaImage} aria-label={`${area.category} 교육과정 살펴보기`}><Image src={area.image} alt={`${area.category} 학습 콘셉트 이미지`} fill sizes="(max-width: 800px) 100vw, 33vw"/><span className={styles.imageNumber}>0{index + 1}</span><span className={styles.imageArrow}><ArrowUpRight size={20}/></span></Link>
+        <Link href="/courses" className={styles.areaImage} aria-label={`${area.category} 교육과정 살펴보기`}><Image src={area.image} alt={area.alt} fill sizes="(max-width: 800px) 100vw, 33vw"/><span className={styles.imageNumber}>0{index + 1}</span><span className={styles.imageArrow}><ArrowUpRight size={20}/></span></Link>
         <p className={styles.areaCategory}>{area.category}</p><h3>{area.title}</h3><p className={styles.areaDescription}>{area.description}</p><p className={styles.areaOutcome}>{area.outcome}</p>
       </article>)}</div>
+      <p className={styles.programImageNote}>교육 내용을 바탕으로 AI로 제작한 실습 장면 이미지입니다.</p>
       <div className={styles.enrollmentHeading}><h3>지금 만날 수 있는 교육과정</h3><Link href="/courses" className={styles.textLink}>전체 교육과정 <ArrowUpRight size={16}/></Link></div>
       {!ready || error ? <div className={styles.empty} role="status"><p>{error ? '교육과정 정보를 불러오지 못했습니다.' : '모집 일정을 확인하고 있습니다.'}</p>{error && <button onClick={() => void refresh()} className={styles.textLink}>다시 확인하기 <ArrowUpRight size={16}/></button>}</div> : courses.length ? <div className={styles.courseList}>{courses.map(course => <Link key={course.id} href={`/courses/${course.id}`} className={styles.courseRow}><span>{course.category}</span><h4>{course.title}</h4><span>{course.startDate} · {course.startTime}</span><ArrowUpRight size={20}/></Link>)}</div> : <div className={styles.empty}><div><strong>다음 교육과정을 준비하고 있습니다.</strong><p>새로운 모집 소식은 교육과정과 일정에서 확인해주세요.</p></div><Link href="/calendar" className={styles.textLink}>일정 확인하기 <ArrowUpRight size={17}/></Link></div>}
     </section>
