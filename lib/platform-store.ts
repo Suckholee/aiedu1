@@ -11,7 +11,7 @@ function overlayCatalog(data:PlatformData,catalog:Awaited<ReturnType<typeof read
             course.lectureCount=lessons.length;
         }
 
-        const occupied=data.enrollments.filter(e=>e.courseId===course.id&&['신청','승인','수료'].includes(e.status)).length;
+        const occupied=(cohort?.reserved_seats??0)+data.enrollments.filter(e=>e.courseId===course.id&&['신청','승인','수료'].includes(e.status)).length;
         course.studentCount=occupied;course.remainingSeats=Math.max(0,course.totalSeats-occupied);
     }
     return data;

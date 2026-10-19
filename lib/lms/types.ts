@@ -11,6 +11,6 @@ export interface LmsCourse {
 export interface LmsCohort {
   id:string; legacy_course_id:string|null; course_id:string; title:string;
   delivery_mode:'offline'|'live'|'vod'|'blended'; status:'draft'|'open'|'closed'|'running'|'completed'|'cancelled';
-  starts_at:string|null; ends_at:string|null; capacity:number|null; price_krw:number;
+  starts_at:string|null; ends_at:string|null; capacity:number|null; reserved_seats:number; price_krw:number;
   location:string; instructor_name:string; payment_guide?:string; metadata:Record<string,any>;
 }

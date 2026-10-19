@@ -144,7 +144,7 @@ export function SeatHoldCheckoutModal({
       const accepted = await mutate({ action: 'enroll', courseId: courseId, name, email, phone, company, notes, paymentMethod, receiptType, receiptNumber, depositorName });
 
       // Display the order created in the same transaction as the application.
-      const enrollment=accepted.enrollments.find(e=>e.courseId===courseId&&e.email===email.trim().toLowerCase());
+      const enrollment=accepted.enrollments.find(e=>e.courseId===courseId&&e.learnerId===lmsMember.id);
       if(!enrollment?.orderId)throw Error('신청은 접수되었지만 주문을 확인하지 못했습니다. 내 신청 목록을 새로고침해주세요.');
       const record={orderId:enrollment?.orderNumber??enrollment?.id??'',paymentStatus:enrollment?.paymentStatus??'미결제'};
 

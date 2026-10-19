@@ -25,7 +25,7 @@ export function platformCourses(courses:LmsCourse[],cohorts:LmsCohort[]):Platfor
     const curriculum=old.curriculum??[];
     return [{...old,id:h.legacy_course_id??h.id,title:h.title,subtitle:c.subtitle||c.title,description:c.description,
       category:c.category||'업무자동화',level:c.level||'입문',price:Number(h.price_krw),originalPrice:Number(h.price_krw),
-      discountRate:0,totalSeats:h.capacity??100000,remainingSeats:h.capacity??100000,studentCount:0,
+      discountRate:0,totalSeats:h.capacity??100000,remainingSeats:Math.max(0,(h.capacity??100000)-(h.reserved_seats??0)),studentCount:h.reserved_seats??0,
       published:c.published&&['open','closed','running','completed'].includes(h.status),
       enrollmentOpen:h.status==='open',
       startDate:start.slice(0,10),startTime:start.slice(11,16),endTime:end.slice(11,16),
