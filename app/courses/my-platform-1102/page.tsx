@@ -7,8 +7,8 @@ import { merchant } from '@/lib/merchant';
 export const metadata: Metadata = {
   metadataBase: new URL('https://aiedu1.vercel.app'),
   title: '나만의 플랫폼 만들기 · 11월 2일·9일 | 네오앤피터',
-  description: '앞 4시간은 AI 블로그 홍보 페이지 공통 실습, 뒤 4시간은 개인 프로젝트 맞춤 코칭. 위든타워 3층, 전체 수강료 400,000원. 수업 시간은 추후 안내합니다.',
-  openGraph: { title: '나만의 플랫폼 만들기', description: '11월 2일·9일 · 2회 총 8시간 · 40만원', images: [{ url: workshop.poster, width: 1200, height: 675, alt: '11월 2일·9일 나만의 플랫폼 만들기, 2회 총 8시간, 전체 40만원' }] },
+  description: `앞 4시간은 AI 블로그 홍보 페이지 공통 실습, 뒤 4시간은 개인 프로젝트 맞춤 코칭. 위든타워 3층, 전체 수강료 ${workshop.price.toLocaleString()}원. 수업 시간은 추후 안내합니다.`,
+  openGraph: { title: '나만의 플랫폼 만들기', description: `11월 2일·9일 · 2회 총 8시간 · 전체 ${workshop.price.toLocaleString()}원`, images: [{ url: workshop.poster, width: 1200, height: 675, alt: `11월 2일·9일 나만의 플랫폼 만들기, 2회 총 8시간, 전체 ${workshop.price.toLocaleString()}원` }] },
 };
 
 const steps = [

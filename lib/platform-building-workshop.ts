@@ -4,7 +4,7 @@ export const PLATFORM_BUILDING_WORKSHOP = {
   title: '나만의 플랫폼 만들기',
   subtitle: '앞 4시간은 AI 블로그 홍보 페이지, 뒤 4시간은 개인 프로젝트 코칭.',
   category: '개발·백엔드',
-  price: 400000,
+  price: 800000,
   location: '위든타워 3층',
   duration: '2회 · 총 8시간',
   poster: '/posters/my-platform-1102.png',
