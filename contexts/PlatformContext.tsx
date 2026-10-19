@@ -1,46 +1,16 @@
 'use client';
-import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
-import { auth } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
-import type { PlatformData } from '@/lib/platform-types';
-const initial: PlatformData = { promotionPosts: [], reviews: [], courses: [], banners: [], enrollments: [], materials: [], logs: [] };
-const Context = createContext<{
-    data: PlatformData;
-    ready: boolean;
-    error: string;
-    mutate: (command: object) => Promise<PlatformData>;
-    refresh: () => Promise<void>;
-} | null>(null);
-export function PlatformProvider({ children }: {
-    children: ReactNode;
-}) {
-    const { user } = useAuth();
-    const [data, setData] = useState(initial);
-    const [ready, setReady] = useState(false);
-    const [error, setError] = useState('');
-    const version = useRef(0);
-    const refresh = useCallback(async () => {
-        const current = ++version.current;
-        try {
-            const r = await fetch('/api/platform', { cache: 'no-store', headers: auth?.currentUser ? { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` } : {} });
-            const d = await r.json();
-            if (!r.ok)
-                throw Error(d.error);
-            if (current === version.current) {
-                setData(d);
-                setError('');
-                setReady(true);
-            }
-        }
-        catch (e) {
-            if (current === version.current)
-                setError(e instanceof Error ? e.message : '연결에 실패했습니다.');
-        }
-    }, [user?.uid]);
-    useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 5000); window.addEventListener('focus', refresh); return () => { clearInterval(timer); window.removeEventListener('focus', refresh); }; }, [refresh]);
-    const mutate = async (command: object) => { ++version.current; const r = await fetch('/api/platform', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(auth?.currentUser ? { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` } : {}) }, body: JSON.stringify(command) }); const d = await r.json(); if (!r.ok)
-        throw Error(d.error); ++version.current; setData(d); setError(''); return d as PlatformData; };
-    return <Context.Provider value={{ data, ready, error, mutate, refresh }}>{error && <div role="alert" className="bg-amber-50 p-3 text-sm text-amber-800">공통 데이터: {error} <button onClick={() => void refresh()}>다시 연결</button></div>}{children}</Context.Provider>;
+import {acceptsScope} from '@/lib/lms/view-scope';
+import {createContext,useContext,useState,useEffect,useCallback,useRef,type ReactNode} from 'react';import {useAuth} from './AuthContext';import type {PlatformData} from '@/lib/platform-types';
+const initial:PlatformData={promotionPosts:[],reviews:[],courses:[],banners:[],enrollments:[],materials:[],logs:[]};
+const Context=createContext<{data:PlatformData;ready:boolean;error:string;mutate:(command:object)=>Promise<PlatformData>;refresh:()=>Promise<void>}|null>(null);
+export function PlatformProvider({children}:{children:ReactNode}){
+ const {user,lmsMember}=useAuth();const [data,setData]=useState(initial),[ready,setReady]=useState(false),[error,setError]=useState('');
+ const identity=lmsMember?.id??user?.uid??'anonymous',scope=useRef(identity),memberId=useRef(lmsMember?.id);scope.current=identity;memberId.current=lmsMember?.id;
+ const [dataOwner,setDataOwner]=useState(identity);const visible=dataOwner===identity;
+ const version=useRef(0),inflight=useRef<{controller:AbortController;promise:Promise<void>}|null>(null);
+ const refresh=useCallback(()=>{if(inflight.current)return inflight.current.promise;const run=++version.current,owner=identity,controller=new AbortController();const task={controller,promise:Promise.resolve()};task.promise=(async()=>{try{const r=await fetch('/api/platform',{cache:'no-store',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(20000)])});const body=await r.json();if(run!==version.current||owner!==scope.current)return;if(!r.ok)throw Error(body.error);if(!acceptsScope(owner,scope.current,body.actorId,memberId.current))return;setDataOwner(owner);setData(body);setError('');setReady(true);}catch(e){if(!controller.signal.aborted&&run===version.current&&owner===scope.current)setError(e instanceof Error&&e.name==='TimeoutError'?'조회가 지연되었습니다. 다시 연결해주세요.':e instanceof Error?e.message:'연결에 실패했습니다.');}finally{if(inflight.current===task)inflight.current=null;}})();inflight.current=task;return task.promise;},[identity]);
+ useEffect(()=>{++version.current;inflight.current?.controller.abort();inflight.current=null;setDataOwner(identity);setData(initial);setReady(false);setError('');void refresh();const timer=setInterval(()=>void refresh(),5000);const focus=()=>void refresh();window.addEventListener('focus',focus);return()=>{clearInterval(timer);window.removeEventListener('focus',focus);++version.current;inflight.current?.controller.abort();inflight.current=null;};},[refresh]);
+ const mutate=async(command:object)=>{const owner=scope.current;++version.current;inflight.current?.controller.abort();inflight.current=null;const r=await fetch('/api/platform',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(command),signal:AbortSignal.timeout(30000)});const body=await r.json();if(owner!==scope.current)throw Error('계정이 변경되었습니다. 현재 계정의 내역을 다시 확인해주세요.');if(!r.ok)throw Error(body.error);if(!acceptsScope(owner,scope.current,body.actorId,memberId.current))throw Error('현재 계정의 회원 연결을 다시 확인해주세요.');++version.current;inflight.current?.controller.abort();inflight.current=null;setDataOwner(owner);setData(body);setReady(true);setError('');return body as PlatformData;};
+ return <Context.Provider value={{data:visible?data:initial,ready:visible&&ready,error:visible?error:'',mutate,refresh}}>{visible&&error&&<div role="alert" className="bg-amber-50 p-3 text-sm text-amber-800">공통 데이터: {error} <button onClick={()=>void refresh()}>다시 연결</button></div>}{visible&&data.sync?.legacy==='unavailable'&&<div role="status" className="bg-amber-50 p-3 text-sm text-amber-800">일부 안내·후기를 불러오지 못했습니다. 수강신청과 학습 내역은 이용할 수 있습니다. <button onClick={()=>void refresh()}>다시 조회</button></div>}{children}</Context.Provider>;
 }
-export function usePlatform() { const context = useContext(Context); if (!context)
-    throw Error('PlatformProvider가 필요합니다.'); return context; }
+export function usePlatform(){const context=useContext(Context);if(!context)throw Error('PlatformProvider가 필요합니다.');return context;}

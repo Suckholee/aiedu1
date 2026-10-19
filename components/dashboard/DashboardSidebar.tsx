@@ -12,7 +12,8 @@ const mainLinks = [
   { href: '/apply', label: '온라인 수강신청', icon: Sparkles },
   { href: '/calendar', label: '일정', icon: Calendar },
   { href: '/materials', label: '강의실 & 자료실', icon: BookOpen },
-  { href: '/my-learning', label: '내 신청·학습 현황', icon: GraduationCap },
+  { href: '/my-applications', label: '내 신청·결제 목록', icon: CreditCard },
+  { href: '/my-learning', label: '내 강의실·학습 현황', icon: GraduationCap },
 ];
 const practiceLinks = [
   { href: '/tools/work-automation', label: '업무자동화 실습' },
@@ -44,7 +45,11 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
     <div className="mt-5 space-y-1 border-t border-slate-100 pt-4">
       <p className="px-3 text-[11px] font-bold tracking-wider text-slate-400">관리 및 ERP</p>
       <Link href="/admin" onClick={onCloseMobile} className={linkClass('/admin')}><ShieldCheck className="size-4 shrink-0 text-slate-500" />ERP 종합 상황실</Link>
-      <Link href="/admin/settlements" onClick={onCloseMobile} className={linkClass('/admin/settlements')}><CreditCard className="size-4 shrink-0 text-indigo-600" /><span className="flex items-center gap-1.5">결제 &amp; 강사료 정산</span></Link>
+      <Link href="/admin/courses" onClick={onCloseMobile} className={linkClass('/admin/courses')}><BookOpen className="size-4 shrink-0"/>교육과정 관리</Link>
+      <Link href="/admin/learning" onClick={onCloseMobile} className={linkClass('/admin/learning')}><GraduationCap className="size-4 shrink-0"/>수강·출결·진도 관리</Link>
+      <Link href="/admin/cohorts" onClick={onCloseMobile} className={linkClass('/admin/cohorts')}><Calendar className="size-4 shrink-0"/>기수·일정 관리</Link>
+      <Link href="/admin/members" onClick={onCloseMobile} className={linkClass('/admin/members')}><ShieldCheck className="size-4 shrink-0"/>회원·권한 관리</Link>
+      <Link href="/admin/finance" onClick={onCloseMobile} className={linkClass('/admin/finance')}><CreditCard className="size-4 shrink-0 text-indigo-600" /><span className="flex items-center gap-1.5">결제·환불·정산</span></Link>
       <Link href="/admin/ledger" onClick={onCloseMobile} className={linkClass('/admin/ledger')}><Cpu className="size-4 shrink-0 text-emerald-600" /><span className="flex items-center gap-1.5">통장 입출금 장부<span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">실시간</span></span></Link>
     </div>
   </aside>;

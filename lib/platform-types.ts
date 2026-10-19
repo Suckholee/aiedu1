@@ -1,5 +1,7 @@
 import type { Course } from '@/data/courses';
 export type PlatformCourse = Course & {
+    enrollmentOpen?: boolean;
+    description?: string;
     startDate: string;
     startTime: string;
     endTime: string;
@@ -20,10 +22,16 @@ export interface Banner {
 export interface Enrollment {
     id: string;
     courseId: string;
+    lmsId?: string;
+    orderId?: string;
+    orderNumber?: string;
+    paymentStatus?: string;
+    learnerId?: string;
+    accessUntil?: string|null;
     name: string;
     email: string;
     phone: string;
-    status: '신청' | '승인' | '반려' | '수료' | '환불';
+    status: '신청' | '승인' | '반려' | '수료' | '환불' | '대기' | '취소' | '수강권 회수';
     amount: number;
     createdAt: string;
     attendance: boolean;
@@ -62,6 +70,8 @@ export interface PromotionPost {
     updatedAt: string;
 }
 export interface PlatformData {
+    actorId?:string|null;
+    sync?:{legacy:'available'|'unavailable'};
     promotionPosts: PromotionPost[];
     reviews: Review[];
     courses: PlatformCourse[];

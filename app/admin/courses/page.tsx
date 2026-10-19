@@ -1,2 +1,2 @@
-import { AdminConsole } from '@/components/platform/AdminConsole';
-export default function Page() { return <AdminConsole view="courses" />; }
+import { ManagementConsole } from '@/components/lms/ManagementConsole';
+export default function Page() { return <ManagementConsole view="courses" />; }

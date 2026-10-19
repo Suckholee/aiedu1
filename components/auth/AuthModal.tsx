@@ -30,7 +30,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
-  const { signInWithGoogle, signInQuick, loading } = useAuth();
+  const { signInWithGoogle, signInWithKakao, signInQuick, loading } = useAuth();
   const [quickName, setQuickName] = useState('');
   const [quickEmail, setQuickEmail] = useState('');
   const [showManualForm, setShowManualForm] = useState(false);
@@ -46,10 +46,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
       const hostname = window.location.hostname;
       setLoginError(code === 'auth/unauthorized-domain'
-        ? `현재 접속 주소(${hostname})가 Firebase 로그인 허용 도메인에 등록되어 있지 않습니다. 로컬에서는 http://localhost:3000으로 접속해 주세요.`
+        ? `현재 접속 주소(${hostname})에서 구글 로그인을 사용할 수 없습니다. 공식 사이트에서 다시 시도해주세요.`
         : code === 'auth/popup-blocked'
           ? '브라우저에서 로그인 팝업을 차단했습니다. 팝업을 허용한 뒤 다시 시도해 주세요.'
-          : 'Google 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          : !code&&e instanceof Error?e.message:'Google 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
 
     }
   };
@@ -72,11 +72,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             <Sparkles className="size-6" />
           </div>
           <DialogTitle className="text-xl font-black text-slate-900">
-            AI 수강생 플랫폼 간편 로그인
+            회원가입·로그인
           </DialogTitle>
           <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-            구글(지메일) 계정으로 1초 만에 가입하고<br />
-            개인 사진첩 보관 및 3대 실습 데이터를 클라우드에 안전하게 저장하세요.
+            카카오 또는 구글 계정으로 처음 로그인하면 회원가입이 완료됩니다.<br />
+            수강 내역과 학습 자료를 한곳에서 관리하세요.
           </p>
         </DialogHeader>
 
@@ -85,11 +85,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {loginError && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 flex items-start gap-2">
               <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="leading-relaxed">{loginError}</p>
+              <p role="alert" className="leading-relaxed">{loginError}</p>
             </div>
           )}
 
-          {/* Main Google 1-Touch Button */}
+          <button type="button" disabled={loading} onClick={async()=>{setLoginError(null);try{await signInWithKakao();}catch(e){setLoginError(e instanceof Error?e.message:'카카오 로그인에 실패했습니다.');}}} className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#FEE500] px-4 py-3.5 text-sm font-bold text-[#191919] transition hover:bg-[#f4dc00] disabled:opacity-60">
+            <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.5 2 10.82c0 2.78 1.86 5.22 4.66 6.6l-1.18 4.24a.2.2 0 0 0 .3.22l5.04-3.34c.39.04.78.06 1.18.06 5.52 0 10-3.5 10-7.82S17.52 3 12 3Z"/></svg>
+            카카오톡으로 로그인
+          </button>
+          {/* Google remains compatible with existing accounts and learning data. */}
           <button
             type="button"
             disabled={loading}
@@ -119,7 +123,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 />
               </svg>
             )}
-            <span>Google 계정으로 원터치 로그인</span>
+            <span>구글로 로그인</span>
           </button>
 
           {/* Member Benefits List */}

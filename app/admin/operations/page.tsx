@@ -1,2 +1,2 @@
-import { AdminConsole } from '@/components/platform/AdminConsole';
-export default function Page() { return <AdminConsole view="operations" />; }
+import {LearningConsole} from '@/components/lms/LearningConsole';
+export default function Page(){return <LearningConsole/>;}

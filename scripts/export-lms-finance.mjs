@@ -1,0 +1,7 @@
+import {createRequire} from 'node:module';import {mkdir,writeFile} from 'node:fs/promises';import {createClient} from '@supabase/supabase-js';
+const require=createRequire(import.meta.url);createRequire(require.resolve('next/package.json'))('@next/env').loadEnvConfig(process.cwd());
+const client=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const tables=['schema_versions','profiles','staff_members','courses','cohorts','enrollments','materials','cohort_instructors','sessions','lessons','attendance','lesson_progress','orders','payments','refunds','audit_events','migration_runs','finance_imports','legacy_finance_records','crm_notes','settlements','settlement_lines','payment_notices'];
+const snapshot={exported_at:new Date().toISOString(),tables:{}};
+for(const suffix of tables){const table='lms_'+suffix;let rows=[];for(let offset=0;;offset+=500){const {data,error}=await client.from(table).select('*').range(offset,offset+499);if(error)throw Error('Backup failed: '+table);rows.push(...data);if(data.length<500)break;}snapshot.tables[table]=rows;}
+await mkdir('.local-data/backups',{recursive:true});const path='.local-data/backups/lms-finance-'+Date.now()+'.json';await writeFile(path,JSON.stringify(snapshot,null,2),{mode:0o600,flag:'wx'});console.log(JSON.stringify({path,counts:Object.fromEntries(Object.entries(snapshot.tables).map(([k,v])=>[k,v.length]))}));

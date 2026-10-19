@@ -168,6 +168,7 @@ export default function CourseDetailPage() {
           {/* Tab 1: 강의 소개 */}
           {activeTab === 'intro' && (
             <div className="space-y-6">
+              {course.description && <section className="rounded-2xl border bg-white p-6"><h3 className="mb-3 text-lg font-bold">과정 소개</h3><p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{course.description}</p></section>}
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 space-y-4">
                 <h3 className="text-lg font-bold text-slate-900">이런 분들께 강력 추천합니다</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -363,7 +364,7 @@ export default function CourseDetailPage() {
               />
             </div>
             <p className="text-[10px] text-slate-500 font-medium">
-              ⚡ 마감 임박! 결제 시 10분간 좌석이 임시 선점됩니다.
+              신청 가능 여부와 잔여 좌석은 접수 시 확인합니다.
             </p>
           </div>
 
@@ -372,9 +373,10 @@ export default function CourseDetailPage() {
             <button
               type="button"
               onClick={() => setCheckoutModalOpen(true)}
+              disabled={course.enrollmentOpen===false || course.remainingSeats<=0}
               className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-extrabold text-white hover:bg-blue-700 shadow-md shadow-blue-200 active:scale-98 transition"
             >
-              신청하기
+              {course.enrollmentOpen===false?'모집 마감':course.remainingSeats<=0?'정원 마감':'신청하기'}
             </button>
 
             <button

@@ -32,7 +32,6 @@ export function filterOutMockRecords(records: ApplicantSettlementRecord[]): Appl
     if (MOCK_APPLICANT_NAMES.has(r.applicantName)) return false;
     if (r.orderId && r.orderId.startsWith('ORD-2025')) return false;
     if (r.id && (r.id.startsWith('rec-00') || r.id.startsWith('rec-101') || r.id.startsWith('rec-102') || r.id.startsWith('rec-103'))) return false;
-    if (r.courseId !== 'ai-work-automation-master' && r.courseId !== 'ai-work-automation-1027') return false;
     return true;
   });
 }
@@ -48,6 +47,7 @@ export function resetToRealSettlementRecords(): ApplicantSettlementRecord[] {
 }
 
 export interface NewApplicationInput {
+  serverEnrollmentId?: string;
   courseId: string;
   courseTitle?: string;
   applicantName: string;
@@ -63,50 +63,10 @@ export interface NewApplicationInput {
 }
 
 export function getSettlementRecords(): ApplicantSettlementRecord[] {
-  if (typeof window === 'undefined') {
-    return filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
-  }
-  try {
-    // Purge legacy storage keys
-    const legacyKeys = [
-      'aiedu_settlement_records_v1',
-      'aiedu_settlement_records_v2',
-      'aiedu_settlement_records_v3',
-      'aiedu_settlement_records_v4',
-      'aiedu_settlement_records_v5',
-      'aiedu_settlement_records_real_only_v1',
-      'aiedu_settlement_records_real_only_v2',
-      'aiedu_settlement_records_real_only_v3',
-      'aiedu_settlement_records_real_only_v4',
-      'aiedu_settlement_records_real_only_v5',
-    ];
-    legacyKeys.forEach((key) => {
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {}
-    });
-
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const clean = filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-      return clean;
-    }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      const filtered = filterOutMockRecords(parsed);
-      if (filtered.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-      }
-      return filtered.length > 0 ? filtered : filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
-    }
-    const clean = filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-    return clean;
-  } catch (err) {
-    console.error('Failed to load settlement records:', err);
-    return filterOutMockRecords(INITIAL_SETTLEMENT_RECORDS);
-  }
+  if(typeof window==='undefined')return INITIAL_SETTLEMENT_RECORDS;
+  const keys=[STORAGE_KEY,'aiedu_settlement_records_real_only_v5','aiedu_settlement_records_real_only_v4','aiedu_settlement_records_real_only_v3','aiedu_settlement_records_real_only_v2','aiedu_settlement_records_real_only_v1','aiedu_settlement_records_v5','aiedu_settlement_records_v4','aiedu_settlement_records_v3','aiedu_settlement_records_v2','aiedu_settlement_records_v1'];
+  for(const key of keys){try{const raw=localStorage.getItem(key);if(raw!==null){const rows=JSON.parse(raw);if(Array.isArray(rows))return rows;}}catch{/* Preserve invalid source strings for the raw backup tool. */}}
+  return INITIAL_SETTLEMENT_RECORDS;
 }
 
 export function saveSettlementRecords(records: ApplicantSettlementRecord[]): void {
@@ -123,14 +83,16 @@ export function addSettlementApplication(
   input: NewApplicationInput
 ): ApplicantSettlementRecord {
   const records = getSettlementRecords();
+  const existing=input.serverEnrollmentId?records.find(r=>r.id===`rec-lms-${input.serverEnrollmentId}`):undefined;
+  if(existing)return existing;
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const orderId = `ORD-${dateStr}-${randomNum}`;
-  const recordId = `rec-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+  const recordId = input.serverEnrollmentId?`rec-lms-${input.serverEnrollmentId}`:`rec-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
-  const isPrepaid = input.paymentMethod === '신용카드' || input.paymentMethod === '카카오페이' || input.paymentMethod === '토스페이';
-  const paymentStatus: PaymentStatus = isPrepaid ? '결제완료' : '미결제';
+  // A chosen payment method is not proof of payment. Confirmation is a server workflow.
+  const paymentStatus: PaymentStatus = '미결제';
   const settlementStatus: SettlementStatus = '정산대기';
   const enrollmentStatus: EnrollmentStatus = '신청';
 
@@ -147,7 +109,7 @@ export function addSettlementApplication(
     phone: input.phone.trim(),
     company: input.company?.trim() || '개인 수강생',
     appliedAt: now.toISOString(),
-    paidAt: isPrepaid ? now.toISOString() : undefined,
+    paidAt: undefined,
     amount: input.amount,
     paymentMethod: input.paymentMethod,
     paymentStatus,

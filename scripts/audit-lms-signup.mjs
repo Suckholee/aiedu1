@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';import {createRequire} from 'node:module';import {createClient} from '@supabase/supabase-js';
+const require=createRequire(import.meta.url);createRequire(require.resolve('next/package.json'))('@next/env').loadEnvConfig(process.cwd());
+const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const admin=createClient(url,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false,autoRefreshToken:false}}),anon=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+const [profiles,roles,settings,google]=await Promise.all([admin.from('lms_profiles').select('id,auth_user_id,email,status'),admin.from('lms_staff_members').select('profile_id,role'),fetch(url+'/auth/v1/settings',{headers:{apikey:key},signal:AbortSignal.timeout(15000)}),fetch('https://identitytoolkit.googleapis.com/v1/projects?key='+encodeURIComponent(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),{signal:AbortSignal.timeout(15000)})]);
+assert.ifError(profiles.error);assert.ifError(roles.error);assert.equal(settings.ok,true);const auth=await settings.json();assert.equal(auth.external.kakao,true);assert.equal(auth.disable_signup,false);
+assert.equal(google.ok,true);const config=await google.json();assert.ok(config.authorizedDomains.includes('aiedu1.vercel.app'));
+const designated=profiles.data.find(p=>p.email==='peter15975345@gmail.com');assert.ok(designated);assert.ok(roles.data.some(r=>r.profile_id===designated.id&&r.role==='admin'));
+assert.equal(new Set(profiles.data.filter(p=>p.auth_user_id).map(p=>p.auth_user_id)).size,profiles.data.filter(p=>p.auth_user_id).length);
+for(const table of ['lms_profiles','lms_staff_members','lms_enrollments','lms_orders','lms_payments']){const r=await anon.from(table).select('*').limit(1);assert.ok(r.error||r.data.length===0,table+' leaked');}
+const denied=await anon.rpc('lms_link_identity',{firebase_uid:'audit-forged',auth_id:'00000000-0000-4000-8000-000000000000',verified_email:'forged@example.com',member_name:'Forbidden',avatar_url:null});assert.ok(denied.error);
+console.log(JSON.stringify({result:'PASS: read-only signup/permission audit',signupAllowed:!auth.disable_signup,kakaoEnabled:auth.external.kakao,googleProductionDomain:true,members:profiles.data.length,designatedAdminPreserved:true,roles:roles.data.reduce((counts,r)=>({...counts,[r.role]:(counts[r.role]??0)+1}),{}),basicLearners:profiles.data.filter(p=>!roles.data.some(r=>r.profile_id===p.id)).length,anonymousPrivateAccess:'blocked',anonymousIdentityWrite:'blocked'}));

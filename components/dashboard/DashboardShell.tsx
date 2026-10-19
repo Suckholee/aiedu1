@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { PanelLeftOpen } from 'lucide-react';
 import { AcademyHeader } from '@/components/platform/AcademyHeader';
+import landingStyles from '@/components/platform/AcademyLanding.module.css';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { Footer } from '@/components/layout/Footer';
@@ -59,7 +60,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  if (pathname === '/' || pathname === '/calendar') return <div className="academy-shell"><AcademyHeader/><main>{pathname === '/calendar' ? <div className="academy-calendar-standalone">{children}</div> : children}</main></div>;
+  if (pathname === '/' || pathname === '/calendar') return <div className={`academy-shell ${pathname === '/' ? landingStyles.shell : ''}`}><AcademyHeader landing={pathname === '/'}/><main>{pathname === '/calendar' ? <div className="academy-calendar-standalone">{children}</div> : children}</main></div>;
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">

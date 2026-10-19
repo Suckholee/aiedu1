@@ -1,6 +1,5 @@
 'use client';
 
-import { auth } from '@/lib/firebase';
 import { useState, useEffect, type FormEvent } from 'react';
 import Link from 'next/link';
 import { usePlatform } from '@/contexts/PlatformContext';
@@ -77,10 +76,13 @@ export function AdminConsole({ view }: {
     const erpNavItems = [
         { href: '/admin', label: '📊 ERP 종합 상황실', key: 'dashboard' },
         { href: '/admin/courses', label: '🎓 과정·기수 관리', key: 'courses' },
+        { href: '/admin/cohorts', label: '📅 기수·일정 관리', key: 'cohorts' },
+        { href: '/admin/members', label: '👤 회원 관리', key: 'members' },
+        { href: '/admin/roles', label: '🔐 권한 관리', key: 'roles' },
         { href: '/admin/crm', label: '👥 원생·신청 CRM', key: 'crm' },
         { href: '/admin/settlements', label: '💳 결제 & 정산 회계', key: 'settlements' },
         { href: '/admin/ledger', label: '📑 통장 입출금 대장', key: 'ledger' },
-        { href: '/admin/operations', label: '📁 수업·교안 관리', key: 'operations' },
+        { href: '/admin/learning', label: '📁 수업·교안 관리', key: 'operations' },
         { href: '/admin/promotions', label: '📢 홍보 & 배너', key: 'banners' },
     ];
 
@@ -415,7 +417,7 @@ export function AdminConsole({ view }: {
         void run({ action: 'status', id: e.id, status }); }}>{status}</button>)}</div></div><label className="flex gap-2"><input type="checkbox" checked={e.attendance} disabled={busy} onChange={v => void run({ action: 'attendance', id: e.id, attendance: v.target.checked })}/>출석 확인 · 학습 완료 자료 {e.progress.length}개</label><form className="flex gap-2" onSubmit={async (v) => { v.preventDefault(); const form = v.currentTarget; const f = new FormData(form); if (await run({ action: 'note', id: e.id, note: f.get('note') }))
         form.reset(); }}><input name="note" required placeholder="상담 내용 / 후속 업무 기록" className={input}/><button className={button} disabled={busy}>기록</button></form>{e.notes.map((n, i) => <p key={i} className="text-sm text-slate-600">{n}</p>)}</div>)}{!data.enrollments.length && <div className={section}>수강 신청이 없습니다. <Link className="text-blue-700" href="/courses">교육과정에서 테스트 신청하기</Link></div>}</div></>}
     {view === 'operations' && <><form className={section} onSubmit={async (e) => { e.preventDefault(); const form = e.currentTarget; setBusy(true); try {
-        const response = await fetch('/api/platform/files', { method: 'POST', headers: auth?.currentUser ? { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` } : {}, body: new FormData(form) });
+        const response = await fetch('/api/platform/files', { method: 'POST',  body: new FormData(form) });
         const result = await response.json();
         if (!response.ok)
             throw Error(result.error);

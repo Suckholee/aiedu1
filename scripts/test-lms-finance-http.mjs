@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {createClient} from '@supabase/supabase-js';
+import {createServerClient} from '@supabase/ssr';
+const require=createRequire(import.meta.url);createRequire(require.resolve('next/package.json'))('@next/env').loadEnvConfig(process.cwd());
+const base=process.env.LMS_TEST_BASE??'http://localhost:3100';
+if(!['http://localhost:3100','https://aiedu1.vercel.app'].includes(base))throw Error('Unexpected test destination.');
+const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SECRET_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const profile=await admin.from('lms_profiles').select('id,auth_user_id,email').eq('email','peter15975345@gmail.com').single();
+if(profile.error||!profile.data.auth_user_id)throw Error('Existing administrator required.');
+const identity=await admin.auth.admin.getUserById(profile.data.auth_user_id);
+if(identity.error||!identity.data.user.email_confirmed_at)throw Error('Verified existing account required.');
+const link=await admin.auth.admin.generateLink({type:'magiclink',email:profile.data.email});
+if(link.error)throw Error('Unable to create isolated test session.');
+let jar=[];const session=createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,{cookies:{getAll:()=>jar,setAll:cookies=>{for(const cookie of cookies){jar=jar.filter(c=>c.name!==cookie.name);if(cookie.value)jar.push(cookie);}}}});
+try{
+ const verified=await session.auth.verifyOtp({token_hash:link.data.properties.hashed_token,type:'magiclink'});
+ if(verified.error||verified.data.user.id!==profile.data.auth_user_id)throw Error('Test identity mismatch.');
+ const headers={'Cookie':jar.map(c=>`${c.name}=${c.value}`).join('; '),'Origin':base,'Content-Type':'application/json'};
+ const get=await fetch(base+'/api/lms/finance',{headers,signal:AbortSignal.timeout(20000)});assert.equal(get.status,200);const body=await get.json();assert.equal(body.financial,true);assert.equal(body.actor_id,profile.data.id);
+ for(const key of ['orders','settlements'])assert.ok(Array.isArray(body[key]),key);
+ assert.equal(body.provider.checkoutEnabled,false);
+ const billing=await fetch(base+'/api/lms/billing',{headers,signal:AbortSignal.timeout(20000)});assert.equal(billing.status,200);const own=await billing.json();assert.ok(Array.isArray(own.orders));assert.ok(Array.isArray(own.notices));assert.equal(own.actor_id,profile.data.id);assert.ok(!JSON.stringify(own).includes('provider_payment_key'));
+ const post=async(path,command,origin=base)=>fetch(base+path,{method:'POST',headers:{...headers,Origin:origin},body:JSON.stringify(command),signal:AbortSignal.timeout(20000)});
+ assert.equal((await post('/api/lms/finance',{action:'payment',order_id:'bad',amount_krw:1})).status,400);
+ assert.equal((await post('/api/lms/finance',{action:'settlement_confirm',order_ids:[]})).status,400);
+ assert.equal((await post('/api/lms/billing',{action:'payment'})).status,403);
+ assert.equal((await post('/api/lms/finance',{action:'payment'},'https://outside.example')).status,403);
+ assert.equal((await post('/api/lms/checkout',{action:'payment_notice',order_id:'bad'})).status,400);
+ assert.equal((await post('/api/lms/checkout',{action:'payment_guide',cohort_id:'bad',guide:'Validation only'})).status,400);
+ console.log('PASS: authenticated finance and own billing DTOs, validation, CSRF; no business data written');
+}finally{await session.auth.signOut({scope:'local'});}
