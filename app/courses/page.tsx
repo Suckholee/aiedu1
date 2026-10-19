@@ -18,6 +18,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Course } from '@/data/courses';
+import { PlatformWorkshopCard } from '@/components/course/PlatformWorkshopCard';
+import { PLATFORM_BUILDING_WORKSHOP as workshop } from '@/lib/platform-building-workshop';
 import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal';
 
 export default function CoursesPage() {
@@ -29,7 +31,7 @@ export default function CoursesPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => { const read = () => setSearchQuery(new URLSearchParams(window.location.search).get('q') ?? ''); read(); window.addEventListener('popstate', read); return () => window.removeEventListener('popstate', read); }, []);
-  const categories = ['전체', ...['AI·데이터', '업무자동화', '개발·백엔드', '비즈니스·마케팅'].filter(category => COURSES.some(course => course.category === category))];
+  const categories = ['전체', ...['AI·데이터', '업무자동화', '개발·백엔드', '비즈니스·마케팅'].filter(category => COURSES.some(course => course.category === category) || workshop.category === category)];
 
   const filteredCourses = COURSES.filter((c) => {
     const matchesCat = selectedCategory === '전체' || c.category === selectedCategory;
@@ -39,6 +41,8 @@ export default function CoursesPage() {
       c.instructor.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesQuery;
   });
+
+  const showWorkshop = (selectedCategory === '전체' || selectedCategory === workshop.category) && `${workshop.title} ${workshop.subtitle} ${workshop.duration} 11월 2일 11월 9일`.toLowerCase().includes(searchQuery.toLowerCase());
 
   const openCheckout = (course: Course) => {
     setSelectedCourseForModal(course);
@@ -103,7 +107,7 @@ export default function CoursesPage() {
         ))}
       </div>
 
-      {ready && filteredCourses.length === 0 && <p className="rounded-2xl border bg-white p-8 text-center text-slate-500">{searchQuery || selectedCategory !== '전체' ? '조건에 맞는 교육과정이 없습니다.' : '등록된 교육과정이 없습니다.'}</p>}
+      {ready && filteredCourses.length === 0 && !showWorkshop && <p className="rounded-2xl border bg-white p-8 text-center text-slate-500">{searchQuery || selectedCategory !== '전체' ? '조건에 맞는 교육과정이 없습니다.' : '등록된 교육과정이 없습니다.'}</p>}
       {/* Courses Grid matching standard platform card style */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => {
@@ -201,6 +205,7 @@ export default function CoursesPage() {
             </div>
           );
         })}
+        {showWorkshop && <PlatformWorkshopCard />}
       </div>
 
       {/* Seat Hold Checkout Modal */}
