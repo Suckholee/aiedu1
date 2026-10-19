@@ -5,5 +5,11 @@
       "maxDuration": 60,
       "memory": 1024
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/brand-blog",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

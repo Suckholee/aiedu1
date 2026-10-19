@@ -20,6 +20,7 @@ export function Footer() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 text-xs font-medium text-slate-600">
+            <Link href="/blog">Blog</Link>
             <Link href="/calendar">일정</Link>
             <Link href="/courses">교육과정</Link>
             <Link href="/materials">강의실 &amp; 자료실</Link>

@@ -1,0 +1,6 @@
+import Link from 'next/link';
+import {ArrowUpRight} from 'lucide-react';
+import {BLOG_CATEGORIES,blogDate,type BlogPost} from '@/lib/brand-blog/types';
+export function BlogCard({post,index=0}:{post:Pick<BlogPost,'slug'|'title'|'excerpt'|'category'|'published_at'>;index?:number}){
+ return <article className="group flex h-full flex-col border-t border-[#a99b7a]/40 pt-6"><div className="mb-7 flex items-center justify-between text-[11px] font-bold tracking-widest text-[#8b7547]"><span>{BLOG_CATEGORIES[post.category]}</span><span className="font-mono">{String(index+1).padStart(2,'0')}</span></div><Link href={`/blog/${post.slug}`} className="flex-1"><h3 className="break-keep text-2xl font-semibold leading-snug tracking-tight text-[#232520] group-hover:text-[#92763d]">{post.title}</h3><p className="mt-5 text-sm leading-7 text-[#79786e]">{post.excerpt}</p></Link><div className="mt-8 flex items-center justify-between gap-3 text-xs text-[#817b6c]"><time dateTime={post.published_at??undefined}>{post.published_at?blogDate(post.published_at):''}</time><Link href={`/blog/${post.slug}`} aria-label={`${post.title} 읽기`} className="grid size-10 place-items-center rounded-full border border-[#a99b7a]/50 text-[#383a31] transition group-hover:bg-[#e9dfc9]"><ArrowUpRight size={18}/></Link></div></article>;
+}

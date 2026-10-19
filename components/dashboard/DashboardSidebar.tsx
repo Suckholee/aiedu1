@@ -9,6 +9,7 @@ import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, CreditCard, 
 interface DashboardSidebarProps { onCloseMobile?: () => void; onToggleCollapse?: () => void; }
 const mainLinks = [
   { href: '/', label: '홈', icon: Home },
+  { href: '/blog', label: 'Blog · 인사이트', icon: BookOpen },
   { href: '/courses', label: '교육과정', icon: BookOpen },
   { href: '/apply', label: '온라인 수강신청', icon: Sparkles },
   { href: '/calendar', label: '일정', icon: Calendar },
@@ -30,7 +31,7 @@ const practiceLinks = [
 export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [labsOpen, setLabsOpen] = useState(pathname.startsWith('/tools') || pathname === '/drive');
-  const active = (href: string) => pathname === href || (href === '/courses' && pathname.startsWith('/courses/')) || (href === '/calendar' && pathname.startsWith('/calendar/'));
+  const active = (href: string) => pathname === href || (href === '/blog' && pathname.startsWith('/blog/')) || (href === '/courses' && pathname.startsWith('/courses/')) || (href === '/calendar' && pathname.startsWith('/calendar/'));
   const linkClass = (href: string) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${active(href) ? 'bg-blue-50 font-semibold text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`;
   return <aside className="flex h-full w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white px-4 py-6">
     <div className="mb-8 flex items-start justify-between gap-2 px-2">
@@ -52,6 +53,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
       <Link href="/admin" onClick={onCloseMobile} className={linkClass('/admin')}><ShieldCheck className="size-4 shrink-0 text-slate-500" />ERP 종합 상황실</Link>
       <Link href="/admin/courses" onClick={onCloseMobile} className={linkClass('/admin/courses')}><BookOpen className="size-4 shrink-0"/>교육과정 관리</Link>
       <Link href="/admin/learning" onClick={onCloseMobile} className={linkClass('/admin/learning')}><GraduationCap className="size-4 shrink-0"/>수강·출결·진도 관리</Link>
+      <Link href="/admin/blog" onClick={onCloseMobile} className={linkClass('/admin/blog')}><BookOpen className="size-4 shrink-0"/>브랜드 Blog 관리</Link>
       <Link href="/admin/shorts" onClick={onCloseMobile} className={linkClass('/admin/shorts')}><Sparkles className="size-4 shrink-0"/>쇼츠 영상 관리</Link>
       <Link href="/admin/cohorts" onClick={onCloseMobile} className={linkClass('/admin/cohorts')}><Calendar className="size-4 shrink-0"/>기수·일정 관리</Link>
       <Link href="/admin/members" onClick={onCloseMobile} className={linkClass('/admin/members')}><ShieldCheck className="size-4 shrink-0"/>회원·권한 관리</Link>

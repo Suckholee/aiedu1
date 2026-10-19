@@ -7,6 +7,7 @@ import { usePlatform } from '@/contexts/PlatformContext';
 import styles from './AcademyLanding.module.css';
 import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
 import { PLATFORM_BUILDING_WORKSHOP as workshop } from '@/lib/platform-building-workshop';
+import { BlogTeaser } from '@/components/brand-blog/BlogTeaser';
 import { BusinessInfo } from '@/components/layout/BusinessInfo';
 
 const areas = [
@@ -65,6 +66,8 @@ export function AcademyLanding() {
       <div className={styles.courseList}><Link href={workshop.href} className={styles.courseRow}><span>2회 · 총 8시간</span><h4>{workshop.title}</h4><span>{workshop.schedule} · {workshop.price.toLocaleString()}원</span><ArrowUpRight size={20}/></Link></div>
     </section>
 
+    <BlogTeaser/>
+
     <section id="instructors" className={`${styles.section} ${styles.instructors}`} aria-labelledby="instructors-title">
       <div className={styles.sectionHeading}><div><p className={styles.kicker}>/ MEET YOUR INSTRUCTORS /</p><h2 id="instructors-title">현장을 아는 사람들,<br/>당신의 시작을 함께합니다.</h2></div><p>서로 다른 경험, 하나의 방향.<br/>직접 해내는 배움을 함께 만듭니다.</p></div>
       <div className={styles.instructorGrid}>{instructors.map((person, index) => <article key={person.name} className={styles.instructor}>
@@ -88,7 +91,7 @@ export function AcademyLanding() {
 
     <section id="faq" className={`${styles.section} ${styles.faq}`} aria-labelledby="faq-title"><div><p className={styles.kicker}>/ BEFORE YOUR FIRST CLASS /</p><h2 id="faq-title">궁금한 이야기를<br/>먼저 만나보세요.</h2></div><div className={styles.questions}>{questions.map(([question,answer]) => <details key={question}><summary>{question}<Plus size={19}/></summary><p>{answer}</p></details>)}</div></section>
     <section className={styles.closing}><p className={styles.kicker}>/ YOUR NEXT CHAPTER /</p><h2>이제, 당신의<br/>가능성을 펼칠 차례.</h2><Link href="/courses" className={styles.outlineButton}>나의 다음 배움 찾아보기 <ArrowUpRight size={19}/></Link></section>
-    <footer className={styles.footer}><div><Link href="/" className={styles.footerBrand}>네오앤피터 <span>에듀플랫폼</span><small>NEO &amp; PETER · EDUCATION</small></Link><p>배움에서 실천까지. 우리의 가능성이 자라는 곳.</p></div><nav aria-label="하단 메뉴"><Link href="/education">플랫폼 소개</Link><Link href="/courses">교육과정</Link><Link href="/calendar">일정</Link><Link href="/my-applications">내 신청·결제 목록</Link><Link href="/refund-policy">취소·환불 정책</Link><Link href="/service-policy">강의 제공 안내</Link></nav><p className={styles.copyright}>어니스톤 · neoNpeter<br/>© {new Date().getFullYear()} NEO &amp; PETER. All rights reserved.</p><BusinessInfo className={styles.businessInfo}/></footer>
+    <footer className={styles.footer}><div><Link href="/" className={styles.footerBrand}>네오앤피터 <span>에듀플랫폼</span><small>NEO &amp; PETER · EDUCATION</small></Link><p>배움에서 실천까지. 우리의 가능성이 자라는 곳.</p></div><nav aria-label="하단 메뉴"><Link href="/education">플랫폼 소개</Link><Link href="/courses">교육과정</Link><Link href="/blog">Blog</Link><Link href="/calendar">일정</Link><Link href="/my-applications">내 신청·결제 목록</Link><Link href="/refund-policy">취소·환불 정책</Link><Link href="/service-policy">강의 제공 안내</Link></nav><p className={styles.copyright}>어니스톤 · neoNpeter<br/>© {new Date().getFullYear()} NEO &amp; PETER. All rights reserved.</p><BusinessInfo className={styles.businessInfo}/></footer>
     <Link href="/courses" className={styles.floatingCta}><span>NEO &amp; PETER</span><strong>교육과정 · 수강신청</strong><span className={styles.floatingPlus}><Plus size={24}/></span></Link>
   </div>;
 }

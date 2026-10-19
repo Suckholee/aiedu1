@@ -62,6 +62,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) return <div className={`academy-shell ${landingStyles.shell}`}><AcademyHeader landing/><main>{children}</main><Footer/></div>;
+
   if (pathname === '/') return <div className={`academy-shell ${landingStyles.shell}`}><AcademyHeader landing/><main>{children}</main></div>;
 
   return (

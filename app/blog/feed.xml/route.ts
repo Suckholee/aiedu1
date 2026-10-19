@@ -1,0 +1,5 @@
+import {publishedPosts} from '@/lib/brand-blog/public';
+import {BLOG_SITE} from '@/lib/brand-blog/types';
+export const dynamic='force-dynamic';
+const xml=(s:string)=>s.replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]!));
+export async function GET(){try{const {posts}=await publishedPosts({limit:20});return new Response(`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>네오앤피터 Blog</title><link>${BLOG_SITE}/blog</link><description>AI 트렌드를 내 업무와 브랜드의 다음 실행으로</description><language>ko-KR</language>${posts.map(p=>`<item><title>${xml(p.title)}</title><link>${BLOG_SITE}/blog/${p.slug}</link><guid isPermaLink="true">${BLOG_SITE}/blog/${p.slug}</guid><description>${xml(p.excerpt)}</description><pubDate>${new Date(p.published_at!).toUTCString()}</pubDate></item>`).join('')}</channel></rss>`,{headers:{'Content-Type':'application/rss+xml; charset=utf-8','Cache-Control':'no-store'}});}catch{return new Response('Feed unavailable',{status:503});}}
