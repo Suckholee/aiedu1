@@ -6,7 +6,7 @@ import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './AcademyLanding.module.css';
 
-const landingLinks = [['/#about','플랫폼 소개'],['/#programs','교육과정'],['/#instructors','강사진'],['/#content-calendar','일정·소식'],['/#faq','자주 묻는 질문'],['/my-applications','내 신청·결제']];
+const landingLinks = [['/#about','플랫폼 소개'],['/#programs','교육과정'],['/#instructors','강사진'],['/#shorts','쇼츠 영상'],['/#content-calendar','일정·소식'],['/#faq','자주 묻는 질문'],['/my-applications','내 신청·결제']];
 const calendarLinks = [['/calendar','일정'],['/#programs','교육과정'],['/education','플랫폼 소개'],['/reviews','수강후기'],['/materials','강의실 & 자료실'],['/my-learning','내 신청·학습 현황']];
 
 export function AcademyHeader({landing=false}:{landing?:boolean}){

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Check, Plus } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
 import styles from './AcademyLanding.module.css';
+import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
 
 const areas = [
   { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/ai_consulting_workflow.jpg', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
@@ -67,6 +68,8 @@ export function AcademyLanding() {
       </article>)}</div>
       <p className={styles.portraitNote}>실제 강사진의 원본 사진을 바탕으로 AI 가공한 이미지입니다.</p>
     </section>
+
+    <ShortsShowcase/>
 
     <section className={styles.journey} aria-labelledby="journey-title"><div className={styles.journeyInner}>
       <div><p className={styles.kicker}>/ YOUR LEARNING JOURNEY /</p><h2 id="journey-title">한 번의 배움이,<br/>내 일의 변화가 되도록.</h2><p className={styles.journeyCopy}>나에게 맞는 과정을 찾는 순간부터<br/>직접 만든 결과물을 다시 꺼내보는 날까지.</p><Link href="/my-learning" className={styles.outlineButton}>내 강의실로 이동 <ArrowUpRight size={17}/></Link></div>

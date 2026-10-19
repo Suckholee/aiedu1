@@ -47,6 +47,7 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
       <Link href="/admin" onClick={onCloseMobile} className={linkClass('/admin')}><ShieldCheck className="size-4 shrink-0 text-slate-500" />ERP 종합 상황실</Link>
       <Link href="/admin/courses" onClick={onCloseMobile} className={linkClass('/admin/courses')}><BookOpen className="size-4 shrink-0"/>교육과정 관리</Link>
       <Link href="/admin/learning" onClick={onCloseMobile} className={linkClass('/admin/learning')}><GraduationCap className="size-4 shrink-0"/>수강·출결·진도 관리</Link>
+      <Link href="/admin/shorts" onClick={onCloseMobile} className={linkClass('/admin/shorts')}><Sparkles className="size-4 shrink-0"/>쇼츠 영상 관리</Link>
       <Link href="/admin/cohorts" onClick={onCloseMobile} className={linkClass('/admin/cohorts')}><Calendar className="size-4 shrink-0"/>기수·일정 관리</Link>
       <Link href="/admin/members" onClick={onCloseMobile} className={linkClass('/admin/members')}><ShieldCheck className="size-4 shrink-0"/>회원·권한 관리</Link>
       <Link href="/admin/finance" onClick={onCloseMobile} className={linkClass('/admin/finance')}><CreditCard className="size-4 shrink-0 text-indigo-600" /><span className="flex items-center gap-1.5">결제·환불·정산</span></Link>

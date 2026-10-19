@@ -1,0 +1,44 @@
+'use client';
+import {useCallback,useEffect,useRef,useState,type FormEvent} from 'react';
+import Link from 'next/link';
+import {useAuth} from '@/contexts/AuthContext';
+import {createClient} from '@/lib/supabase/client';
+import {SHORTS_BUCKET,MAX_VIDEO_BYTES,MAX_POSTER_BYTES,type ShortVideo} from '@/lib/lms/shorts-validation';
+const input='mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm';
+const button='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
+async function command(body:object){const r=await fetch('/api/lms/shorts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await r.json();if(!r.ok)throw Error(data.error);return data;}
+function videoInfo(file:File):Promise<{duration:number;poster:Blob}>{
+ return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),v=document.createElement('video');let done=false;
+  const cleanup=()=>{clearTimeout(timer);v.removeAttribute('src');v.load();URL.revokeObjectURL(url);};
+  const fail=()=>{if(done)return;done=true;cleanup();reject(Error('영상 정보를 읽지 못했습니다. H.264 MP4 영상을 선택하세요.'));};
+  const timer=setTimeout(fail,20000);v.muted=true;v.preload='auto';v.playsInline=true;
+  v.onloadedmetadata=()=>{if(!Number.isFinite(v.duration)||v.duration<1||v.duration>600){fail();return;}v.currentTime=Math.min(3,v.duration/2);};
+  v.onseeked=()=>{if(done)return;try{const canvas=document.createElement('canvas');canvas.width=540;canvas.height=Math.round(540*v.videoHeight/v.videoWidth);if(!canvas.height||canvas.height>4320){fail();return;}const ctx=canvas.getContext('2d');if(!ctx){fail();return;}ctx.drawImage(v,0,0,canvas.width,canvas.height);const duration=Math.ceil(v.duration);canvas.toBlob(poster=>{if(done)return;if(!poster){fail();return;}done=true;cleanup();resolve({duration,poster});},'image/webp',.85);}catch{fail();}};
+  v.onerror=fail;v.src=url;
+ });
+}
+export function ShortsManager(){
+ const {lmsMember,lmsLoading}=useAuth();const [videos,setVideos]=useState<ShortVideo[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[editing,setEditing]=useState<ShortVideo|null>(null);const form=useRef<HTMLFormElement>(null),alive=useRef(true),scope=useRef<string|undefined>(lmsMember?.id);scope.current=lmsMember?.id;
+ const staff=lmsMember?.roles.some(r=>r==='admin'||r==='operations');
+ const load=useCallback(async()=>{if(!lmsMember?.id||!staff)return;const owner=lmsMember.id;setLoading(true);try{const r=await fetch('/api/lms/shorts?manage=1',{cache:'no-store',signal:AbortSignal.timeout(20000)});const b=await r.json();if(!r.ok)throw Error(b.error);if(alive.current&&scope.current===owner){setVideos(b.shorts);setError('');}}catch(e){if(alive.current&&scope.current===owner)setError(e instanceof Error?e.message:'조회 실패');}finally{if(alive.current&&scope.current===owner)setLoading(false);}},[lmsMember?.id,staff]);
+ useEffect(()=>{alive.current=true;setVideos([]);setEditing(null);setError('');setNotice('');void load();return()=>{alive.current=false;};},[load]);
+ async function upload(blob:Blob,kind:'video'|'poster'){
+  const type=blob.type||'video/mp4';const ticket=await command({action:'upload',kind,type,size:blob.size});
+  const r=await createClient().storage.from(SHORTS_BUCKET).uploadToSignedUrl(ticket.path,ticket.token,blob,{contentType:type});if(r.error)throw Error('파일 업로드에 실패했습니다. 다시 시도해주세요.');return ticket.path as string;
+ }
+ async function save(event:FormEvent<HTMLFormElement>){event.preventDefault();if(busy)return;const data=new FormData(event.currentTarget),owner=lmsMember?.id;const video=data.get('video'),poster=data.get('poster');setBusy(true);setError('');setNotice('');try{
+  let video_path=editing?.video_path,poster_path=editing?.poster_path,duration_seconds=editing?.duration_seconds;
+  if(video instanceof File&&video.size){if(video.size>MAX_VIDEO_BYTES||!video.name.toLowerCase().endsWith('.mp4'))throw Error('50MB 이하의 MP4 영상을 선택하세요.');setNotice('영상을 확인하고 표지를 만들고 있습니다.');const info=await videoInfo(video);duration_seconds=info.duration;setNotice('영상을 업로드하고 있습니다.');video_path=await upload(new Blob([video],{type:'video/mp4'}),'video');poster_path=await upload(info.poster,'poster');}
+  if(poster instanceof File&&poster.size){if(poster.size>MAX_POSTER_BYTES||!['image/webp','image/jpeg','image/png'].includes(poster.type))throw Error('5MB 이하의 JPG·PNG·WebP 표지를 선택하세요.');poster_path=await upload(poster,'poster');}
+  if(!video_path||!poster_path||!duration_seconds)throw Error('영상을 선택하세요.');
+  if(scope.current!==owner)throw Error('계정이 변경되었습니다. 다시 로그인해주세요.');
+  await command({action:'save',...(editing?{id:editing.id}:{}),title:data.get('title'),description:data.get('description'),position:Number(data.get('position')),published:data.get('published')==='on',video_path,poster_path,duration_seconds});
+  if(scope.current!==owner||!alive.current)return;form.current?.reset();setEditing(null);setNotice('영상을 저장했습니다. 공개 영상은 홈페이지에 표시됩니다.');await load();
+ }catch(e){if(scope.current===owner&&alive.current){setError(e instanceof Error?e.message:'저장 실패');setNotice('');}}finally{if(alive.current)setBusy(false);}}
+ if(lmsLoading)return <p>권한을 확인하고 있습니다.</p>;
+ if(!staff)return <p>관리자 또는 교육 운영 계정으로 로그인하세요.</p>;
+ return <div className="mx-auto max-w-5xl space-y-7 pb-16"><header><h1 className="text-3xl font-bold">쇼츠 영상 관리</h1><p className="mt-3 text-sm text-slate-500">영상을 올리고 제목·표지·순서·홈페이지 공개 여부를 관리하세요.</p><Link className="mt-3 inline-block text-sm text-indigo-600" href="/#shorts">홈페이지 쇼츠 보기 →</Link></header>
+ {error&&<p role="alert" className="rounded-lg bg-red-50 p-4 text-red-700">{error} <button onClick={()=>void load()} className="underline">다시 조회</button></p>}{notice&&<p role="status" className="rounded-lg bg-indigo-50 p-4 text-sm text-indigo-800">{notice}</p>}
+ <form ref={form} key={editing?.id??'new'} onSubmit={save} className="space-y-4 rounded-2xl border bg-white p-6"><h2 className="font-bold">{editing?'영상 수정':'새 영상 올리기'}</h2><label className="block text-sm font-semibold">제목<input className={input} name="title" required maxLength={120} defaultValue={editing?.title}/></label><label className="block text-sm font-semibold">영상 설명<textarea className={input} name="description" rows={2} maxLength={1000} defaultValue={editing?.description}/></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">{editing?'영상 교체 (선택)':'MP4 영상'}<input className={input} name="video" type="file" accept="video/mp4,.mp4" required={!editing}/><span className="mt-2 block text-xs font-normal text-slate-500">50MB·10분 이하. 표지는 영상에서 자동으로 만듭니다.</span></label><label className="block text-sm font-semibold">표지 이미지 교체 (선택)<input className={input} name="poster" type="file" accept="image/jpeg,image/png,image/webp"/><span className="mt-2 block text-xs font-normal text-slate-500">JPG·PNG·WebP, 5MB 이하</span></label></div><label className="block text-sm font-semibold">표시 순서 (작은 숫자가 먼저)<input className={input} name="position" type="number" min={0} max={10000} required defaultValue={editing?.position??videos.length}/></label><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={editing?.published??false}/>홈페이지에 공개</label><div className="flex gap-4"><button className={button} disabled={busy}>{busy?'처리 중…':'영상 저장'}</button>{editing&&<button type="button" disabled={busy} onClick={()=>setEditing(null)}>수정 취소</button>}</div></form>
+ <section className="space-y-4"><h2 className="font-bold">등록 영상 {videos.length}개</h2>{loading&&<p>영상 목록을 불러오고 있습니다.</p>}{!loading&&!error&&!videos.length&&<p className="text-sm text-slate-500">등록된 영상이 없습니다.</p>}{videos.map(v=><article key={v.id} className="flex flex-wrap items-center gap-5 rounded-xl border bg-white p-5"><video className="aspect-[9/16] w-28 rounded-lg bg-black" src={v.video_url} poster={v.poster_url} controls playsInline preload="none"/><div className="min-w-0 flex-1"><h3 className="font-semibold">{v.title}</h3><p className="mt-2 text-xs text-slate-500">{v.published?'공개 중':'게시 안 함'} · {v.duration_seconds}초 · 순서 {v.position}</p><p className="mt-2 text-sm text-slate-600">{v.description}</p><div className="mt-4 flex gap-4 text-sm"><button disabled={busy} onClick={()=>{setEditing(v);setNotice('');window.scrollTo({top:0,behavior:'smooth'});}} className="font-semibold text-indigo-600">제목·영상 수정</button><button disabled={busy} onClick={async()=>{setBusy(true);setError('');try{await command({action:'publish',id:v.id,published:!v.published});await load();setNotice(v.published?'홈페이지 게시를 해제했습니다.':'홈페이지에 공개했습니다.');}catch(e){setError(e instanceof Error?e.message:'저장 실패');}finally{setBusy(false);}}}>{v.published?'게시 해제':'홈페이지 공개'}</button></div></div></article>)}</section></div>;
+}
