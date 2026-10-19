@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, Calendar, BookOpen, GraduationCap, Cpu, ShieldCheck, CreditCard, Sparkles, ChevronDown, ChevronRight, PanelLeftClose, X } from 'lucide-react';
 
@@ -32,7 +33,10 @@ export function DashboardSidebar({ onCloseMobile, onToggleCollapse }: DashboardS
   const linkClass = (href: string) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${active(href) ? 'bg-blue-50 font-semibold text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`;
   return <aside className="flex h-full w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white px-4 py-6">
     <div className="mb-8 flex items-start justify-between gap-2 px-2">
-      <Link href="/" onClick={onCloseMobile} className="font-bold leading-relaxed text-slate-900">네오앤피터<br />에듀플랫폼<span className="mt-1 block text-[10px] font-medium tracking-widest text-slate-400">NEO & PETER · EDUCATION</span></Link>
+      <Link href="/" onClick={onCloseMobile} aria-label="네오앤피터 에듀플랫폼 홈" className="block min-w-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+        <Image src="/logos/neonpeter-logo-horizontal.png" alt="neoNpeter 로고" width={576} height={105} sizes="168px" preload className="h-auto w-[168px] max-w-full"/>
+        <span className="mt-3 block text-xs font-semibold tracking-tight text-slate-600">네오앤피터 에듀플랫폼</span>
+      </Link>
       {onToggleCollapse && <button onClick={onToggleCollapse} aria-label="사이드바 접기" className="rounded p-1 text-slate-400 hover:bg-slate-50"><PanelLeftClose className="size-5" /></button>}
       {onCloseMobile && <button onClick={onCloseMobile} aria-label="메뉴 닫기" className="rounded p-1 text-slate-400"><X className="size-5" /></button>}
     </div>
