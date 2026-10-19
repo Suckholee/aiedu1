@@ -23,6 +23,7 @@ export function Footer() {
             <Link href="/courses">교육과정</Link>
             <Link href="/materials">강의실 &amp; 자료실</Link>
             <Link href="/education">플랫폼 소개</Link>
+            <Link href="/refund-policy">취소·환불 정책</Link>
           </div>
         </div>
 

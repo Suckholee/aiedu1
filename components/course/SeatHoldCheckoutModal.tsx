@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
+import { RefundPolicyNotice } from './RefundPolicyNotice';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -556,8 +557,9 @@ export function SeatHoldCheckoutModal({
                     onChange={(e) => setAgreeRefund(e.target.checked)}
                     className="size-4 rounded text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span>[필수] 교육 취소 및 환불 기준(개강 3일 전 100% 환불)에 동의합니다.</span>
+                  <span>[필수] 취소·환불 정책을 확인하고 동의합니다.</span>
                 </label>
+                <RefundPolicyNotice />
               </div>
 
               {/* Action Buttons */}
