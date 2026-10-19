@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
-import { TossPaymentNotice } from '@/components/course/TossPaymentNotice';
-import { TOSS_PAYMENT_CHANNEL } from '@/lib/lms/payment-channel';
+import { BankTransferNotice } from '@/components/course/BankTransferNotice';
+import { BANK_TRANSFER_PAYMENT_METHOD } from '@/lib/lms/payment-channel';
 import { RefundPolicyNotice } from './RefundPolicyNotice';
 import { useRouter } from 'next/navigation';
 import {
@@ -125,7 +125,7 @@ export function SeatHoldCheckoutModal({
     setIsProcessing(true);
 
     try {
-      const accepted = await mutate({ action: 'enroll', courseId: courseId, name, email, phone, company, notes, referralCode, paymentMethod: TOSS_PAYMENT_CHANNEL });
+      const accepted = await mutate({ action: 'enroll', courseId: courseId, name, email, phone, company, notes, referralCode, paymentMethod: BANK_TRANSFER_PAYMENT_METHOD });
 
       // Display the order created in the same transaction as the application.
       const enrollment=accepted.enrollments.find(e=>e.courseId===courseId&&e.learnerId===lmsMember.id);
@@ -389,7 +389,7 @@ export function SeatHoldCheckoutModal({
 
               <section className="space-y-3 border-t border-slate-100 pt-4" aria-label="결제 안내">
                 <h4 className="text-xs font-bold text-slate-500">2. 결제 안내</h4>
-                <TossPaymentNotice />
+                {price > 0 ? <BankTransferNotice /> : <p className="text-sm text-slate-600">무료 과정으로 입금이 필요하지 않습니다.</p>}
               </section>
 
               {/* Order Pricing Breakdown */}

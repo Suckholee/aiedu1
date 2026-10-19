@@ -4,8 +4,8 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
-import { TossPaymentNotice } from '@/components/course/TossPaymentNotice';
-import { TOSS_PAYMENT_CHANNEL } from '@/lib/lms/payment-channel';
+import { BankTransferNotice } from '@/components/course/BankTransferNotice';
+import { BANK_TRANSFER_PAYMENT_METHOD } from '@/lib/lms/payment-channel';
 import { RefundPolicyNotice } from '@/components/course/RefundPolicyNotice';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -113,7 +113,7 @@ function ApplyContent() {
     setIsProcessing(true);
 
     try {
-      const accepted = await mutate({ action: 'enroll', courseId: currentCourse.id, name, email, phone, company, notes, referralCode, paymentMethod: TOSS_PAYMENT_CHANNEL });
+      const accepted = await mutate({ action: 'enroll', courseId: currentCourse.id, name, email, phone, company, notes, referralCode, paymentMethod: BANK_TRANSFER_PAYMENT_METHOD });
 
       // Display the order created in the same transaction as the application.
       const enrollment=accepted.enrollments.find(e=>e.courseId===currentCourse.id&&e.learnerId===lmsMember.id);
@@ -405,7 +405,7 @@ function ApplyContent() {
               <span className="grid size-5 place-items-center rounded-full bg-indigo-600 text-[11px] font-black text-white">3</span>
               결제 안내
             </h2>
-            <TossPaymentNotice />
+            {currentCourse.price > 0 ? <BankTransferNotice /> : <p className="text-sm text-slate-600">무료 과정으로 입금이 필요하지 않습니다.</p>}
           </section>
 
           {/* 4. Terms and Submit */}

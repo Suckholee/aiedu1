@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {PGlite} from '@electric-sql/pglite';
 import {applicationOrder} from '../lib/lms/application-orders.ts';
 import {csvDocument} from '../lib/lms/csv.ts';import {canPay} from '../lib/lms/checkout-types.ts';
-import {TOSS_PAYMENT_CHANNEL} from '../lib/lms/payment-channel.ts';
+import {TOSS_PAYMENT_CHANNEL,BANK_TRANSFER_PAYMENT_METHOD} from '../lib/lms/payment-channel.ts';
 const db=new PGlite(),id=n=>`30000000-0000-4000-8000-${String(n).padStart(12,'0')}`;let checks=0;
 const query=async(q,p=[])=> (await db.query(q,p)).rows[0]?.v;
 const eq=(a,b,m)=>{assert.equal(a,b,m);checks++;};
 const rpc=(f,c,a=1)=>query(`select public.${f}($1::jsonb,$2::uuid) v`,[JSON.stringify(c),id(a)]);
 const blocked=async(f,c,a=1)=>{await assert.rejects(()=>rpc(f,c,a),e=>e.code==='P0001');checks++;};
-const apply=a=>rpc('lms_learning',{action:'apply',cohort_id:id(20),name:'Temporary learner',phone:'01000000000'},a);
+const apply=a=>rpc('lms_learning',{action:'apply',cohort_id:id(20),name:'Temporary learner',phone:'01000000000',payment_method:BANK_TRANSFER_PAYMENT_METHOD},a);
 try{
  eq(csvDocument([['=SUM(A1)', '"quote"', 'line\nnext']]),'\ufeff"\'=SUM(A1)","""quote""","line\nnext"','safe CSV formulas and quoted fields');
  const cycle={id:'enrollment',applied_at:'2026-10-01'},auto={enrollment_id:cycle.id,enrollment_applied_at:cycle.applied_at,status:'cancelled',created_at:'2026-10-01',id:'generated'},linked={...auto,status:'pending',created_at:'2026-09-01',id:'legacy'};
@@ -22,12 +22,13 @@ try{
  for(let n=1;n<=5;n++){await db.query('insert into auth.users values($1)',[id(n)]);await db.query('insert into public.lms_profiles(id,auth_user_id,display_name,email,status) values($1,$1,$2,$3,$4)',[id(n),'Fixture '+n,`checkout${n}@example.com`,n===5?'suspended':'active']);}
  await db.exec(`insert into public.lms_staff_members values('${id(1)}','admin'),('${id(2)}','operations');insert into public.lms_courses(id,slug,title,published) values('${id(10)}','checkout-fixture','Fixture',true);insert into public.lms_cohorts(id,course_id,title,delivery_mode,status,capacity,price_krw) values('${id(20)}','${id(10)}','Fixture','vod','open',10,100000);`);
  const e=await apply(3),o=await query('select id v from public.lms_orders where enrollment_id=$1',[e]);
+ eq(await query('select payment_method v from public.lms_orders where id=$1',[o]),BANK_TRANSFER_PAYMENT_METHOD,'bank transfer application retains its payment method');
  const tossCommand={action:'apply',cohort_id:id(20),name:'Toss applicant',phone:'01000000000',payment_method:TOSS_PAYMENT_CHANNEL};
  const tossEnrollment=await rpc('lms_learning',tossCommand,4);
  eq(await query('select payment_method v from public.lms_orders where enrollment_id=$1',[tossEnrollment]),TOSS_PAYMENT_CHANNEL,'new application retains intended provider');
  eq(await query('select status v from public.lms_orders where enrollment_id=$1',[tossEnrollment]),'pending','provider selection does not mark an application paid');
  await rpc('lms_learning',tossCommand,3);
- eq(await query('select payment_method v from public.lms_orders where id=$1',[o]),'','repeated application preserves original payment instructions');
+ eq(await query('select payment_method v from public.lms_orders where id=$1',[o]),BANK_TRANSFER_PAYMENT_METHOD,'repeated application preserves original payment instructions');
  await blocked('lms_checkout',{action:'payment_guide',cohort_id:id(20),guide:'forged'},3);
  await rpc('lms_checkout',{action:'payment_guide',cohort_id:id(20),guide:'Confirmed payment instructions'},2);
  eq(await query('select payment_guide v from public.lms_cohorts where id=$1',[id(20)]),'Confirmed payment instructions','cohort guide');
