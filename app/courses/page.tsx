@@ -122,7 +122,11 @@ export default function CoursesPage() {
               className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white overflow-hidden shadow-xs hover:shadow-md transition-all group"
             >
               {/* Thumbnail & Badges */}
-              <div className="relative aspect-[16/9] w-full bg-slate-100 overflow-hidden">
+              <Link
+                href={`/courses/${course.id}`}
+                aria-label={`${course.title} 상세 보기`}
+                className="relative block aspect-[16/9] w-full bg-slate-100 overflow-hidden focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-blue-500"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={course.thumbnail}
@@ -142,7 +146,7 @@ export default function CoursesPage() {
                 <div className="absolute bottom-3 right-3 rounded-lg bg-black/60 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-white">
                   {course.durationText}
                 </div>
-              </div>
+              </Link>
 
               {/* Content Details */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
