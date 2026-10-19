@@ -27,7 +27,8 @@ import { SeatHoldCheckoutModal } from '@/components/course/SeatHoldCheckoutModal
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { toast } from 'sonner';
 import { AiWorkAutomationView } from '@/components/course/AiWorkAutomationView';
-import { hasWorkAutomationLanding } from '@/lib/course-presentation';
+import { courseInstructorProfiles, hasWorkAutomationLanding, publicCourseDescription } from '@/lib/course-presentation';
+import { CourseInstructorProfiles } from '@/components/course/CourseInstructorProfiles';
 
 export default function CourseDetailPage() {
   const { data, ready } = usePlatform();
@@ -46,6 +47,8 @@ export default function CourseDetailPage() {
   if (!ready) return <p>과정을 불러오는 중입니다.</p>;
   if (!course) return <p>과정을 찾을 수 없습니다. <Link href='/courses'>목록으로</Link></p>;
 
+  const description = publicCourseDescription(course.description);
+  const instructors = course.instructors ?? courseInstructorProfiles(course.instructor);
   const hasPreview = course.curriculum.some(chapter => chapter.lessons.some(lesson => lesson.isFreePreview));
   if (hasWorkAutomationLanding(course.id)) return <AiWorkAutomationView course={course}/>;
 
@@ -169,7 +172,7 @@ export default function CourseDetailPage() {
           {/* Tab 1: 강의 소개 */}
           {activeTab === 'intro' && (
             <div className="space-y-6">
-              {course.description && <section className="rounded-2xl border bg-white p-6"><h3 className="mb-3 text-lg font-bold">과정 소개</h3><p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{course.description}</p></section>}
+              {description && <section className="rounded-2xl border bg-white p-6"><h3 className="mb-3 text-lg font-bold">과정 소개</h3><p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{description}</p></section>}
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 space-y-4">
                 <h3 className="text-lg font-bold text-slate-900">이런 분들께 강력 추천합니다</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -187,27 +190,7 @@ export default function CourseDetailPage() {
               {/* Instructor Bio Card */}
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 space-y-4">
                 <h3 className="text-lg font-bold text-slate-900">강사 소개</h3>
-                <div className="flex items-center gap-4">
-                  <div className="size-14 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-bold grid place-items-center overflow-hidden shrink-0 shadow-xs">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={course.instructor.avatar}
-                      alt={course.instructor.name}
-                      className="size-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-base font-extrabold text-slate-900">
-                      {course.instructor.name}
-                    </h4>
-                    <p className="text-xs text-blue-600 font-semibold mt-0.5">
-                      {course.instructor.role}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                      {course.instructor.bio}
-                    </p>
-                  </div>
-                </div>
+                <CourseInstructorProfiles profiles={instructors}/>
               </div>
             </div>
           )}

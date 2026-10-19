@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CourseInstructorProfiles } from '@/components/course/CourseInstructorProfiles';
+import { courseInstructorProfiles, publicCourseDescription } from '@/lib/course-presentation';
 import { OnePageScroll } from '@/components/course/OnePageScroll';
 import type { PlatformCourse } from '@/lib/platform-types';
 import { ArrowRight, CalendarDays, Check, Clock3, FileText, Laptop, MapPin, MessageCircle, PlaySquare, Sparkles } from 'lucide-react';
@@ -47,6 +49,8 @@ const timeline = [
 ];
 
 export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
+  const description = publicCourseDescription(course.description);
+  const instructors = course.instructors ?? courseInstructorProfiles(course.instructor);
   const date = course.startDate
     ? new Date(`${course.startDate}T00:00:00+09:00`).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short', timeZone: 'Asia/Seoul' })
     : '일정 안내 예정';
@@ -167,6 +171,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
 
       <section className="relative z-10 flex w-full max-w-full items-center overflow-x-clip bg-white py-12 text-slate-900 break-keep sm:py-16 md:min-h-[calc(100svh-4rem)] md:snap-start md:snap-always">
         <div className="mx-auto max-w-6xl px-5 sm:px-8 w-full">
+          {description && <section id="course-introduction" aria-labelledby="course-introduction-title" className="mb-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8"><h2 id="course-introduction-title" className="text-2xl font-black text-slate-900">과정 소개</h2><p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">{description}</p></section>}
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs sm:text-sm font-black tracking-wider text-violet-600 uppercase">INSTRUCTORS</p>
             <h2 className="mt-3 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 break-keep">강사 소개</h2>
@@ -175,109 +180,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
             </p>
           </div>
 
-          <div className="mt-8 sm:mt-10 grid gap-6 lg:grid-cols-3">
-            {/* 조영빈 대표 */}
-            <div className="flex flex-col justify-between rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-7 shadow-sm transition hover:bg-white hover:shadow-lg break-keep">
-              <div>
-                <div className="mb-5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white shadow-sm break-keep">
-                  <span className="text-[10px] font-extrabold tracking-widest text-violet-200 uppercase">PART 01</span>
-                  <h4 className="mt-0.5 text-lg sm:text-xl font-black tracking-tight text-white leading-tight break-keep">
-                    클로드를 통한 업무 자동화
-                  </h4>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-violet-100 shadow-sm sm:h-24 sm:w-24">
-                    <Image src="/instructors/cho-youngbin.png" alt="어니스톤 조영빈 대표" fill sizes="96px" className="object-cover object-[center_62%]" />
-                  </div>
-                  <div className="break-keep">
-                    <p className="text-xs font-bold text-violet-700">어니스톤 대표</p>
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">조영빈 대표</h3>
-                    <p className="text-[11px] text-slate-500 font-medium">전문경영자문컨설턴트</p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-xs leading-relaxed text-slate-600 sm:text-sm break-keep">
-                  중소기업 인증·정책자금·경영혁신 컨설팅과 강의를 운영하며, 현장에서 바로 적용할 수 있는 Claude 기반 비즈니스 자동화 실행 흐름을 설계합니다.
-                </p>
-              </div>
-
-              <div className="mt-5 sm:mt-6 space-y-1.5 border-t border-slate-200 pt-5 text-xs text-slate-600 break-keep">
-                <p>• 전문경영자문컨설턴트</p>
-                <p>• ISO 심사원 양성과정 공동 운영</p>
-                <p>• ERA Group 국내 컨설턴트</p>
-                <p>• 와디즈 ‘사업학개론’ 2,100% 펀딩</p>
-              </div>
-            </div>
-
-            {/* 이석호 대표 */}
-            <div className="flex flex-col justify-between rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-7 shadow-sm transition hover:bg-white hover:shadow-lg break-keep">
-              <div>
-                <div className="mb-5 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-pink-600 p-4 text-white shadow-sm break-keep">
-                  <span className="text-[10px] font-extrabold tracking-widest text-fuchsia-200 uppercase">PART 02</span>
-                  <h4 className="mt-0.5 text-lg sm:text-xl font-black tracking-tight text-white leading-tight break-keep">
-                    AI와 블로그 시작하기
-                  </h4>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-violet-100 shadow-sm sm:h-24 sm:w-24">
-                    <Image src="/instructors/lee-seokho.jpg" alt="neoNpeter 이석호 대표" fill sizes="96px" className="scale-[1.38] object-cover object-[center_28%]" />
-                  </div>
-                  <div className="break-keep">
-                    <p className="text-xs font-bold text-fuchsia-700">neoNpeter 대표</p>
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">이석호 대표</h3>
-                    <p className="text-[11px] text-slate-500 font-medium">AI 교육 전문가 · 콘텐츠 디렉터</p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-xs leading-relaxed text-slate-600 sm:text-sm break-keep">
-                  수많은 수강생의 AI 역량 강화를 이끈 실무 교육 전문성을 바탕으로, 사진 한 장으로 검색에 잘 닿는 실전 블로그 콘텐츠 제작 노하우를 안내합니다.
-                </p>
-              </div>
-
-              <div className="mt-5 sm:mt-6 space-y-1.5 border-t border-slate-200 pt-5 text-xs text-slate-600 break-keep">
-                <p>• neoNpeter 대표 / AI 교육 전문가</p>
-                <p>• AI 콘텐츠 &amp; 블로그 자동화 전문가</p>
-                <p>• 초보자 맞춤형 프롬프트 워크플로우 설계</p>
-                <p>• 온·오프라인 실전 AI 워크숍 다수 진행</p>
-              </div>
-            </div>
-
-            {/* 박재범 대표 */}
-            <div className="flex flex-col justify-between rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-7 shadow-sm transition hover:bg-white hover:shadow-lg break-keep">
-              <div>
-                <div className="mb-5 rounded-2xl bg-gradient-to-r from-[#220063] to-[#3a008c] p-4 text-white shadow-sm break-keep">
-                  <span className="text-[10px] font-extrabold tracking-widest text-violet-300 uppercase">PART 03</span>
-                  <h4 className="mt-0.5 text-lg sm:text-xl font-black tracking-tight text-white leading-tight break-keep">
-                    AI로 숏폼 장착하기
-                  </h4>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-violet-100 shadow-sm sm:h-24 sm:w-24">
-                    <Image src="/instructors/park-jaebeom.jpg" alt="neoNpeter 박재범 대표" fill sizes="96px" className="object-cover object-[center_28%]" />
-                  </div>
-                  <div className="break-keep">
-                    <p className="text-xs font-bold text-violet-700">neoNpeter 대표</p>
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">박재범 대표</h3>
-                    <p className="text-[11px] text-slate-500 font-medium">AI 콘텐츠 &amp; 솔루션 디렉터</p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-xs leading-relaxed text-slate-600 sm:text-sm break-keep">
-                  3년간의 AI 실전 강의 경력과 콘텐츠 기획 전문성을 바탕으로, 사진·글·숏폼 영상 자동화 제작 노하우를 안내합니다.
-                </p>
-              </div>
-
-              <div className="mt-5 sm:mt-6 space-y-1.5 border-t border-slate-200 pt-5 text-xs text-slate-600 break-keep">
-                <p>• neoNpeter 대표 / AI 콘텐츠 전문가</p>
-                <p>• AI 실전 강의 경력 3년</p>
-                <p>• AI 서비스 및 웹 솔루션 개발</p>
-                <p>• 비즈니스 자동화 워크플로우 설계</p>
-              </div>
-            </div>
-          </div>
+          <div className="mt-8 sm:mt-10"><CourseInstructorProfiles profiles={instructors}/></div>
 
           <div className="mt-10 sm:mt-12 rounded-[2rem] bg-slate-950 p-5 sm:p-10 text-white break-keep">
             <p className="text-xs font-black tracking-wider text-fuchsia-300 sm:text-sm uppercase">FROM BEFORE TO AFTER</p>

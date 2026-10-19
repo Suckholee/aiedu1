@@ -1,5 +1,7 @@
 import type { Course } from '@/data/courses';
+import type { CourseInstructorProfile } from '@/lib/course-presentation';
 export type PlatformCourse = Course & {
+    instructors?: CourseInstructorProfile[];
     enrollmentOpen?: boolean;
     description?: string;
     startDate: string;
