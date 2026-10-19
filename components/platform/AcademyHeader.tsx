@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +19,10 @@ export function AcademyHeader({landing=false}:{landing?:boolean}){
  return <>
   {landing&&<a href="#landing-title" className={styles.skipLink}>본문으로 이동</a>}
   <header className={`academy-header ${landing?styles.header:''}`}>
-   <Link href="/" className={`academy-brand ${landing?styles.brand:''}`}>네오앤피터{landing?<em>에듀플랫폼</em>:' 에듀플랫폼'}<span>NEO &amp; PETER · EDUCATION</span></Link>
+   <Link href="/" aria-label="네오앤피터 에듀플랫폼 홈" className={`academy-brand ${styles.logoBrand} ${landing?styles.brand:''}`}>
+    <Image src="/logos/neonpeter-logo-horizontal.png" alt="neoNpeter 로고" width={576} height={105} sizes="(max-width: 370px) 140px, (max-width: 600px) 156px, (max-width: 1100px) 184px, 210px" preload className={styles.brandLogo}/>
+    <span className={styles.brandCaption}>네오앤피터 에듀플랫폼</span>
+   </Link>
    <nav id="academy-navigation" aria-label="주 메뉴" className={`academy-nav ${menu?'is-open':''} ${landing?styles.nav:''}`} onKeyDown={event=>{if(event.key==='Escape')setMenu(false);}}>
     {links.map(([href,label])=><Link key={href} href={href} onClick={()=>setMenu(false)}>{label}</Link>)}
    </nav>

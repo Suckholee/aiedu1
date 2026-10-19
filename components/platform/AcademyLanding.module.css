@@ -1,4 +1,10 @@
 .shell{isolation:isolate}
+.logoBrand{display:block;line-height:1}
+.brandLogo{display:block;width:210px;height:auto;filter:brightness(0) invert(1)}
+.logoBrand .brandCaption{font-size:11px;font-weight:400;letter-spacing:.35px;margin-top:9px;color:#d7d7d7}
+@media(max-width:1100px){.brandLogo{width:184px}}
+@media(max-width:600px){.brandLogo{width:156px}.logoBrand .brandCaption{font-size:10px;margin-top:7px}}
+@media(max-width:370px){.brandLogo{width:140px}}
 :global(html):has(.shell),:global(body):has(.shell){overflow-x:clip}
 .home{--ink:#20211f;--cream:#f5f3ed;--gold:#b79b58;background:var(--cream);color:var(--ink);font-weight:400;word-break:keep-all}
 .home a,.home button{touch-action:manipulation}.home a:focus-visible,.home button:focus-visible,.home summary:focus-visible{outline:3px solid #a17a2d;outline-offset:6px}
