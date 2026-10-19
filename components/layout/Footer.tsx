@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { BusinessInfo } from './BusinessInfo';
 
 export function Footer() {
   return (
@@ -24,10 +25,12 @@ export function Footer() {
             <Link href="/materials">강의실 &amp; 자료실</Link>
             <Link href="/education">플랫폼 소개</Link>
             <Link href="/refund-policy">취소·환불 정책</Link>
+            <Link href="/service-policy">강의 제공 안내</Link>
           </div>
         </div>
 
-        <div className="mt-6 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400">
+        <BusinessInfo className="mt-6 border-t border-slate-100 pt-4 text-left text-slate-600" />
+        <div className="mt-4 text-center text-[11px] text-slate-400">
           © 2026 honestone &amp; neoNpeter. All rights reserved.
         </div>
       </div>

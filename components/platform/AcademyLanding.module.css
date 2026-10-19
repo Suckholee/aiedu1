@@ -34,3 +34,5 @@
 .programImageNote{font-size:11px;color:#817761;line-height:1.8;margin-top:24px}
 
 @media(max-width:850px){.hero{padding-top:clamp(250px,45vw,380px);min-height:0;background:#171d19}.heroImage{height:clamp(250px,45vw,380px)!important;bottom:auto!important;object-position:right 20%}.heroShade{height:calc(clamp(250px,45vw,380px) + 2px);background:linear-gradient(0deg,#171d19,transparent 38%)}.heroContent{height:auto;padding:30px 7% 76px}.hero h1{margin-top:21px}.heroAside{margin:26px 0 0;width:auto}.imageCaption{top:calc(clamp(250px,45vw,380px) - 22px);bottom:auto;left:7%;right:auto}.scrollCue{display:none}}
+
+.businessInfo{flex-basis:100%;border-top:1px solid #b8af9b66;padding-top:24px;color:#6b6354;font-size:12px;line-height:2}

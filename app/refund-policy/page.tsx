@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { refundPolicy } from '@/lib/lms/refund-policy';
+import { merchant } from '@/lib/merchant';
 
 export const metadata: Metadata = {
   title: '취소·환불 정책 | 네오앤피터 에듀플랫폼',
@@ -29,9 +30,12 @@ export default function RefundPolicyPage() {
 
       {refundPolicy.sections.map(section => <section key={section.title} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-bold">{section.title}</h2><p className="text-sm text-slate-600">{section.text}</p></section>)}
 
+      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-bold">환불 접수·문의 연락처</h2><p className="text-sm text-slate-600">온라인 환불 요청 또는 아래 연락처로 접수해주세요.</p><p className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-indigo-700"><a href={merchant.phoneHref} className="underline">{merchant.phone}</a><a href={`mailto:${merchant.email}`} className="break-all underline">{merchant.email}</a></p></section>
+
       <nav aria-label="환불 관련 메뉴" className="flex flex-wrap gap-4 text-sm font-semibold text-indigo-700">
         <Link href="/my-learning#billing">내 강의실에서 환불 요청하기 →</Link>
         <Link href="/my-applications">내 신청·결제 목록 →</Link>
+        <Link href="/service-policy">강의 제공 안내 →</Link>
       </nav>
     </article>
   );

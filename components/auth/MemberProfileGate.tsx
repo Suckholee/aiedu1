@@ -10,7 +10,7 @@ import { MemberProfileForm } from './MemberProfileForm';
 export function MemberProfileGate() {
   const { lmsMember: member, signOut } = useAuth();
   const pathname = usePathname();
-  if (!member || profileComplete(member) || pathname.startsWith('/auth/') || pathname === '/my-profile' || pathname === '/refund-policy') return null;
+  if (!member || profileComplete(member) || pathname.startsWith('/auth/') || pathname === '/my-profile' || pathname === '/refund-policy' || pathname === '/service-policy') return null;
   if (!member.onboarding_required) return <aside aria-label="회원 정보 등록 안내" className="flex flex-wrap items-center justify-center gap-2 bg-indigo-50 px-4 py-3 text-sm text-indigo-900"><span>수강 안내를 받을 이름·연락처·업종을 등록해 주세요.</span><Link href="/my-profile" className="font-bold underline underline-offset-4">내 회원정보 등록</Link></aside>;
   return <Dialog open onOpenChange={() => {}}>
     <DialogContent onEscapeKeyDown={event => event.preventDefault()} onInteractOutside={event => event.preventDefault()} className="max-h-[90dvh] overflow-y-auto rounded-3xl bg-white p-6 text-slate-900 sm:max-w-xl [&>button.absolute]:hidden">

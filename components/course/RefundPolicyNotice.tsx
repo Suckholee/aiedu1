@@ -14,6 +14,7 @@ export function RefundPolicyNotice() {
       <p className="mt-2">{refundPolicy.sections[2].text}</p>
       <p className="mt-2">{refundPolicy.sections[3].text}</p>
       <Link href="/refund-policy" target="_blank" rel="noopener noreferrer" className="mt-3 inline-block font-semibold text-indigo-700 underline underline-offset-4">전체 환불 정책 보기 (새 탭)</Link>
+      <Link href="/service-policy" target="_blank" rel="noopener noreferrer" className="ml-4 mt-3 inline-block font-semibold text-indigo-700 underline underline-offset-4">강의 제공 안내 (새 탭)</Link>
     </details>
   );
 }

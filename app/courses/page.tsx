@@ -29,7 +29,7 @@ export default function CoursesPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => { const read = () => setSearchQuery(new URLSearchParams(window.location.search).get('q') ?? ''); read(); window.addEventListener('popstate', read); return () => window.removeEventListener('popstate', read); }, []);
-  const categories = ['전체', 'AI·데이터', '업무자동화', '개발·백엔드', '비즈니스·마케팅'];
+  const categories = ['전체', ...['AI·데이터', '업무자동화', '개발·백엔드', '비즈니스·마케팅'].filter(category => COURSES.some(course => course.category === category))];
 
   const filteredCourses = COURSES.filter((c) => {
     const matchesCat = selectedCategory === '전체' || c.category === selectedCategory;

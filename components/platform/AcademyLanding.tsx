@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUpRight, Check, Plus } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
 import styles from './AcademyLanding.module.css';
 import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
+import { BusinessInfo } from '@/components/layout/BusinessInfo';
 
 const areas = [
   { title: '반복하는 일에,\n새로운 여유를.', category: 'AI 업무 자동화', image: '/images/teaching/cho-work-automation-workshop-v1.png', alt: '조영빈 대표가 업무자동화를 설명하는 AI 재구성 강의 장면', description: '대화와 메모를 보고서로. 나의 업무 흐름에 맞는 AI 활용을 직접 익힙니다.', outcome: '문서 작성 · 업무 워크플로우' },
@@ -84,7 +85,7 @@ export function AcademyLanding() {
 
     <section id="faq" className={`${styles.section} ${styles.faq}`} aria-labelledby="faq-title"><div><p className={styles.kicker}>/ BEFORE YOUR FIRST CLASS /</p><h2 id="faq-title">궁금한 이야기를<br/>먼저 만나보세요.</h2></div><div className={styles.questions}>{questions.map(([question,answer]) => <details key={question}><summary>{question}<Plus size={19}/></summary><p>{answer}</p></details>)}</div></section>
     <section className={styles.closing}><p className={styles.kicker}>/ YOUR NEXT CHAPTER /</p><h2>이제, 당신의<br/>가능성을 펼칠 차례.</h2><Link href="/courses" className={styles.outlineButton}>나의 다음 배움 찾아보기 <ArrowUpRight size={19}/></Link></section>
-    <footer className={styles.footer}><div><Link href="/" className={styles.footerBrand}>네오앤피터 <span>에듀플랫폼</span><small>NEO &amp; PETER · EDUCATION</small></Link><p>배움에서 실천까지. 우리의 가능성이 자라는 곳.</p></div><nav aria-label="하단 메뉴"><Link href="/education">플랫폼 소개</Link><Link href="/courses">교육과정</Link><Link href="/calendar">일정</Link><Link href="/my-applications">내 신청·결제 목록</Link><Link href="/refund-policy">취소·환불 정책</Link></nav><p className={styles.copyright}>어니스톤 · neoNpeter<br/>© {new Date().getFullYear()} NEO &amp; PETER. All rights reserved.</p></footer>
+    <footer className={styles.footer}><div><Link href="/" className={styles.footerBrand}>네오앤피터 <span>에듀플랫폼</span><small>NEO &amp; PETER · EDUCATION</small></Link><p>배움에서 실천까지. 우리의 가능성이 자라는 곳.</p></div><nav aria-label="하단 메뉴"><Link href="/education">플랫폼 소개</Link><Link href="/courses">교육과정</Link><Link href="/calendar">일정</Link><Link href="/my-applications">내 신청·결제 목록</Link><Link href="/refund-policy">취소·환불 정책</Link><Link href="/service-policy">강의 제공 안내</Link></nav><p className={styles.copyright}>어니스톤 · neoNpeter<br/>© {new Date().getFullYear()} NEO &amp; PETER. All rights reserved.</p><BusinessInfo className={styles.businessInfo}/></footer>
     <Link href="/courses" className={styles.floatingCta}><span>NEO &amp; PETER</span><strong>교육과정 · 수강신청</strong><span className={styles.floatingPlus}><Plus size={24}/></span></Link>
   </div>;
 }
