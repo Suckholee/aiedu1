@@ -202,9 +202,10 @@ function ApplyContent() {
               <span className="text-slate-500">교육 일정</span>
               <span className="font-medium text-slate-800">{currentCourse.period}</span>
             </div>
+            <div className="py-3"><WorkAutomationSchedule courseId={currentCourse.id}/></div>
             <div className="flex justify-between py-3">
               <span className="text-slate-500">교육 장소</span>
-              <WorkAutomationSchedule courseId={currentCourse.id}/><CourseVenue location={currentCourse.location}/>
+              <CourseVenue location={currentCourse.location}/>
             </div>
             <div className="flex justify-between py-3">
               <span className="text-slate-500">신청자명</span>
@@ -490,7 +491,7 @@ function ApplyContent() {
                 <Calendar className="size-3.5 text-slate-400" />
                 <span>{currentCourse.period}</span>
               </div>
-              <WorkAutomationSchedule courseId={currentCourse.id}/><CourseVenue location={currentCourse.location}/>
+              <CourseVenue location={currentCourse.location}/>
             </div>
           </div>
 
