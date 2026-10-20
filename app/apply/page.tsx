@@ -232,7 +232,7 @@ function ApplyContent() {
         </div>
 
         {/* Application and payment have separate statuses. */}
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">{lmsMember ? "신청 접수와 결제 완료는 구분됩니다. 주문 상세에서 현재 결제 상태를 확인해주세요." : "비회원 신청이 접수되었습니다. 접수번호와 확인서를 저장해주세요. 담당자가 입력한 연락처로 수강 및 납부 안내를 드립니다. 회원 가입만으로 이 신청이 자동 연결되지는 않습니다."}</div>{!lmsMember && <BankTransferNotice guest />}
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">{lmsMember ? "신청 접수와 결제 완료는 구분됩니다. 주문 상세에서 현재 결제 상태를 확인해주세요." : "비회원 신청이 접수되었습니다. 접수번호와 확인서를 저장해주세요. 아래 비회원 신청 조회에서 이메일 인증 후 신청·결제 상태를 다시 확인할 수 있습니다."}</div>{!lmsMember && <BankTransferNotice guest />}
 
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-4">
           <button
@@ -243,6 +243,7 @@ function ApplyContent() {
             <Printer className="size-4" />
             <span>접수 확인서 인쇄</span>
           </button>
+          {!lmsMember && <Link href="/guest-applications" className="w-full rounded-2xl bg-indigo-600 px-5 py-3.5 text-center text-sm font-bold text-white sm:flex-1">비회원 신청·결제 내역 조회</Link>}
           {lmsMember && <Link
             href={completedOrder?`/checkout/${completedOrder.id}`:"/my-applications"}
             className="w-full sm:flex-1 flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:bg-indigo-700 shadow-md shadow-indigo-200 transition"
