@@ -1,6 +1,7 @@
 'use client';
 import { useEffect,useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter,usePathname } from 'next/navigation';
+import {RosterCodeAccess} from './RosterCodeAccess';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -8,7 +9,9 @@ export function AdminAccess(){
   const {user,lmsMember,lmsLoading,lmsError,reconnectLms}=useAuth();
   const [open,setOpen]=useState(false);
   const router=useRouter();
+  const pathname=usePathname();
   useEffect(()=>{if(lmsMember?.roles.length)router.refresh();},[lmsMember?.id,lmsMember?.roles.join(','),router]);
+  if(pathname==='/admin/learning')return <RosterCodeAccess/>;
   return <section className="mx-auto max-w-xl rounded-2xl border bg-white p-8 space-y-4">
     <h1 className="text-2xl font-bold">교육 운영 관리</h1>
     <p className="text-slate-600">관리자·운영·회계 담당 계정으로 로그인하세요.</p>

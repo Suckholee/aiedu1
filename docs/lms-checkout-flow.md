@@ -38,3 +38,9 @@
 인증번호는 10분 유효, 5회 오입력 제한, 재발송 60초 간격·이메일당 15분 3회·접속 IP당 15분 10회를 DB에서 원자적으로 제한한다. 코드와 IP는 서버 HMAC, 조회 토큰은 SHA-256 해시만 저장한다. 조회 세션은 HttpOnly/Secure/SameSite=Strict 쿠키로 30분 유지하며 종료 시 서버에서도 폐기한다. API는 캐시를 금지하고 인증 없는 조회·외부 출처의 변경 요청을 거절한다. 새 발송 요청 시 하루 지난 인증 기록을 정리한다.
 
 기존 Gmail SMTP 설정 `GMAIL_USER`, `GMAIL_APP_PASSWORD`를 사용한다. 사용자 승인 후 aiedu1 Vercel 운영 환경에 민감값으로 등록했다. 인증 메일은 신청 존재 여부와 관계없이 동일하게 발송해 이메일만으로 접수 여부를 노출하지 않는다. 발송 계정 연결은 메일 전송 없이 확인했다. DB 변경 파일은 `202610200002_lms_guest_lookup.sql`, 격리 DB 검증은 `node scripts/test-lms-guest-lookup.mjs`다.
+
+## 운영 신청자 목록 코드 조회 (2026-10-20)
+
+`/admin/learning`에서 비관리자는 관리자 로그인 또는 조회 코드 입력을 선택한다. 기존 관리자 화면과 관리 API 권한 검증은 유지한다. 코드 인증은 `/api/lms/roster-view` 전용 1시간 서명 쿠키를 발급하며 신청자 이름·연락처·이메일·소속·기수·신청/결제 상태만 반환한다. 내부 운영 메모, 학습 자료, 변경 API 권한은 제공하지 않는다. 코드 접속으로 관리자 역할을 생성하지 않는다.
+
+코드 원문은 클라이언트나 저장소에 포함하지 않고 운영 환경 `LMS_ROSTER_CODE_HASH`에 해시로 설정한다. 코드 변경 시 이전 서명 쿠키도 무효화된다. 접속 IP 해시는 DB에 저장하며 15분 동안 5회 오입력하면 접속을 제한한다. 인증 쿠키는 HttpOnly/Secure/SameSite=Strict, 모든 응답은 private/no-store다. DB 변경은 `202610200003_lms_roster_access.sql`, 검증은 `node --experimental-strip-types scripts/test-lms-roster-access.mjs`다.
