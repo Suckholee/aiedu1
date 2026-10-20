@@ -85,7 +85,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
           <p className="mb-4 text-xs font-bold tracking-wider text-violet-200 sm:text-sm">HONESTONE &amp; NEONPETER</p>
           <h1 id="promotion-title" className="text-balance text-4xl font-black leading-[1.15] tracking-tight text-white sm:text-6xl lg:text-7xl">AI 업무자동화</h1>
           <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-white sm:text-2xl">AI를 업무에 활용하고 싶은데<br/><strong className="font-extrabold text-fuchsia-200">무엇부터 해야 할지 막막한</strong> 당신에게.</p>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-violet-100/85 sm:text-base">익히기만 하는 AI가 아니라, 내 업무 시간을 실제로 줄여주는 도구로 만듭니다. 3시간 동안 문서, 블로그, 숏폼 콘텐츠 자동화의 첫 결과물을 완성해 보세요.</p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-violet-100/85 sm:text-base">익히기만 하는 AI가 아니라, 내 업무 시간을 실제로 줄여주는 도구로 만듭니다. 4시간 동안 문서, 블로그, 숏폼 콘텐츠 자동화의 첫 결과물을 완성해 보세요.</p>
           <div className="mt-8 grid max-w-xl grid-cols-2 gap-3">
             {[
               ['강의 일시', date],
@@ -106,7 +106,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
               ['03', '박재범 대표', '아이디어가 숏폼 영상으로', '/instructors/park-jaebeom.jpg', 'center 28%'],
             ].map(([number, name, title, image, position]) => <div key={number} className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-3"><div className="relative size-16 shrink-0 overflow-hidden rounded-xl"><Image src={image} alt={name} fill sizes="64px" style={{objectPosition: position}} className="object-cover" /></div><div><p className="text-xs font-bold text-fuchsia-200">{number} · {name}</p><p className="mt-1 text-sm font-bold text-white sm:text-base">{title}</p></div></div>)}
           </div>
-          <p className="mt-7 border-t border-white/20 pt-5 text-sm font-semibold text-violet-100">어니스톤 × 네오앤피터 · 3시간 실전 마스터 클래스</p>
+          <p className="mt-7 border-t border-white/20 pt-5 text-sm font-semibold text-violet-100">어니스톤 × 네오앤피터 · 4시간 실전 마스터 클래스</p>
         </div>
       </section>
 
@@ -176,7 +176,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
             <p className="text-xs sm:text-sm font-black tracking-wider text-violet-600 uppercase">INSTRUCTORS</p>
             <h2 className="mt-3 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 break-keep">강사 소개</h2>
             <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed sm:leading-7 text-slate-600 max-w-2xl mx-auto break-keep">
-              어니스톤(조영빈 대표)과 neoNpeter(이석호 대표 · 박재범 대표)가 함께하는 3시간 실전 AI 업무자동화 마스터 클래스
+              어니스톤(조영빈 대표)과 neoNpeter(이석호 대표 · 박재범 대표)가 함께하는 4시간 실전 AI 업무자동화 마스터 클래스
             </p>
           </div>
 
@@ -206,7 +206,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
           <div className="text-center">
             <p className="text-xs sm:text-sm font-black tracking-wider text-violet-600 uppercase">PROGRAM</p>
             <h2 className="mt-3 text-2xl sm:text-5xl font-black tracking-tight text-slate-900 break-keep">커리큘럼</h2>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 break-keep">실습 위주로 단계별 진행되는 3시간 실전 집중 과정입니다.</p>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 break-keep">실습 위주로 단계별 진행되는 4시간 실전 집중 과정입니다.</p>
           </div>
           <div className="mt-8 sm:mt-10 space-y-3">
             {timeline.map(([title, description], index) => (
@@ -227,7 +227,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
       <section className="w-full bg-white py-12 text-slate-900 sm:py-16 md:snap-start">
         <div className="mx-auto max-w-4xl px-5 sm:px-8">
           <p className="text-xs font-black tracking-wider text-violet-600">CLASS INFORMATION</p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">3시간이 바꾸는 업무의 속도</h2>
+          <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">4시간이 바꾸는 업무의 속도</h2>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
               [CalendarDays, '강의 일시', date],
