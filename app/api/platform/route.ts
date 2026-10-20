@@ -1,3 +1,5 @@
+import {after} from 'next/server';
+import {dispatchSmsSafely} from '@/lib/lms/sms';
 import {requireMember,requireSameOrigin,LmsError} from '@/lib/lms/access';
 import {legacyLearningCommand} from '@/lib/lms/platform-learning';
 import { platformIdentity, isPlatformAdmin, visiblePlatform } from '@/lib/platform-access';
@@ -40,6 +42,7 @@ export async function POST(request: Request) {
             if(member.legacy_firebase_uid!==user.uid)throw new LmsError('현재 계정으로 다시 로그인하세요.',401);
             if(c.action==='enroll'&&c.email!==member.email?.toLowerCase())throw new LmsError('로그인한 계정의 이메일을 사용하세요.');
             await legacyLearningCommand(c,member);
+            if(c.action==='enroll')after(dispatchSmsSafely);
             return Response.json(visiblePlatform(await readPlatform(),user),{headers:{'Cache-Control':'private, no-store'}});
         }
         if(c.action==='course')return Response.json({error:'과정·기수 관리 화면에서 변경하세요.'},{status:409});

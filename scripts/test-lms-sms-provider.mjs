@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {sendSolapiMessage} from '../lib/lms/sms-provider.ts';
+const config={apiKey:'test-key',apiSecret:'test-secret',sender:'0212345678'},message={id:'job',to:'01000000000',text:'테스트용'};
+let body;
+const accepted=await sendSolapiMessage(config,message,async(url,request)=>{assert.equal(url,'https://api.solapi.com/messages/v4/send-many/detail');assert.match(request.headers.Authorization,/^HMAC-SHA256 apiKey=test-key, date=/);body=JSON.parse(request.body);return Response.json({messageList:[{statusCode:'2000',messageId:'provider-id'}]});});
+assert.equal(accepted.status,'accepted');assert.equal(body.allowDuplicates,false);assert.equal(body.messages[0].customFields.jobId,'job');
+assert.equal((await sendSolapiMessage(config,message,async()=>Response.json({failedMessageList:[{statusCode:'3040'}]}))).status,'failed');
+assert.equal((await sendSolapiMessage(config,message,async()=>Response.json({error:'rate limit'},{status:429}))).status,'failed');
+assert.equal((await sendSolapiMessage(config,message,async()=>Response.json({},{status:500}))).status,'unknown');
+assert.equal((await sendSolapiMessage(config,message,async()=>{throw Error('timeout');})).status,'unknown');
+assert.equal((await sendSolapiMessage(config,message,async()=>Response.json({messageList:[{statusCode:'other',messageId:'id'}]}))).status,'unknown');
+console.log('PASS: provider authentication, payload, accepted/rejected/uncertain response handling; mocked transport only, no SMS sent');

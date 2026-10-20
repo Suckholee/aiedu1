@@ -1,3 +1,5 @@
+import {after} from 'next/server';
+import {dispatchSmsSafely} from '@/lib/lms/sms';
 import {z} from 'zod';
 import {requireSameOrigin,LmsError,lmsResponse,lmsFailure} from '@/lib/lms/access';
 import {createAdminClient} from '@/lib/supabase/admin';
@@ -11,6 +13,7 @@ export async function POST(request:Request){
   const cohort=await resolveCohort(c.courseId);
   const {data,error}=await createAdminClient().rpc('lms_guest_application',{request_id:c.requestId,command:{cohort_id:cohort.id,name:c.name,email:c.email,phone:c.phone,company:c.company,note:c.notes,referral_code:c.referralCode,payment_method:BANK_TRANSFER_PAYMENT_METHOD,privacy_agreed:true,refund_agreed:true}});
   if(error)throw new LmsError(error.code==='P0001'?error.message:'신청을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.',error.code==='P0001'?400:503);
+  after(dispatchSmsSafely);
   return lmsResponse(data);
  }catch(e){if(e instanceof z.ZodError)return lmsResponse({error:'신청 정보와 필수 동의를 확인해주세요.'},400);return lmsFailure(e);}
 }
