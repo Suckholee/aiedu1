@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
+import { WorkAutomationSchedule } from '@/components/course/WorkAutomationSchedule';
 import { CourseVenue } from '@/components/course/CourseVenue';
 import { BankTransferNotice } from '@/components/course/BankTransferNotice';
 import { BANK_TRANSFER_PAYMENT_METHOD } from '@/lib/lms/payment-channel';
@@ -203,7 +204,7 @@ function ApplyContent() {
             </div>
             <div className="flex justify-between py-3">
               <span className="text-slate-500">교육 장소</span>
-              <CourseVenue location={currentCourse.location}/>
+              <WorkAutomationSchedule courseId={currentCourse.id}/><CourseVenue location={currentCourse.location}/>
             </div>
             <div className="flex justify-between py-3">
               <span className="text-slate-500">신청자명</span>
@@ -334,7 +335,7 @@ function ApplyContent() {
           <section className="space-y-4 rounded-3xl border border-indigo-200 bg-indigo-50/60 p-6 sm:p-7" aria-label="선택한 강의 일시와 장소">
             <h2 className="font-bold text-slate-900">선택한 강의 일시·장소</h2>
             <div className="flex items-start gap-2 text-sm text-slate-700"><Calendar className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden="true"/><div><p className="font-semibold">교육 일시</p><p className="mt-1">{currentCourse.period}</p></div></div>
-            <div className="text-sm text-slate-700"><CourseVenue location={currentCourse.location}/></div>
+            <div className="text-sm text-slate-700"><WorkAutomationSchedule courseId={currentCourse.id}/><CourseVenue location={currentCourse.location}/></div>
           </section>
 
           {/* 2. Applicant Information */}
@@ -489,7 +490,7 @@ function ApplyContent() {
                 <Calendar className="size-3.5 text-slate-400" />
                 <span>{currentCourse.period}</span>
               </div>
-              <CourseVenue location={currentCourse.location}/>
+              <WorkAutomationSchedule courseId={currentCourse.id}/><CourseVenue location={currentCourse.location}/>
             </div>
           </div>
 
