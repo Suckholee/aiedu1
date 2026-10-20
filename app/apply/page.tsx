@@ -491,6 +491,7 @@ function ApplyContent() {
                 <Calendar className="size-3.5 text-slate-400" />
                 <span>{currentCourse.period}</span>
               </div>
+              <WorkAutomationSchedule courseId={currentCourse.id}/>
               <CourseVenue location={currentCourse.location}/>
             </div>
           </div>
