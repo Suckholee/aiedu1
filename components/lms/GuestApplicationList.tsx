@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {CourseMeetingDetails} from '@/components/course/CourseMeetingDetails';
 import {useCallback,useEffect,useState,type FormEvent} from 'react';
 import {BankTransferNotice} from '@/components/course/BankTransferNotice';
 import {canPay,type BillingOrder} from '@/lib/lms/checkout-types';
@@ -57,7 +58,7 @@ export function GuestApplicationList(){
    <section className="space-y-4" aria-label="비회원 신청 목록">{data.orders.map(o=><article className={card} key={o.id}>
     <div className="flex flex-wrap gap-2 text-xs font-semibold"><span className="rounded bg-indigo-50 px-2 py-1 text-indigo-700">{enrollmentNames[o.enrollment_status]}</span><span className="rounded bg-slate-100 px-2 py-1">{o.amount_krw===0&&o.status==='paid'?'무료':orderNames[o.status]}</span>{!o.current_application&&<span>이전 신청</span>}</div>
     <h2 className="mt-3 text-xl font-bold">{o.title}</h2><p className="mt-2 break-all text-xs text-slate-500">접수번호 {o.number}</p>
-    <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm"><dt>신청일</dt><dd>{new Date(o.created_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</dd><dt>교육 일정</dt><dd>{o.starts_at?new Date(o.starts_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'별도 안내'}</dd><dt>장소</dt><dd>{o.location||'별도 안내'}</dd><dt>수강료</dt><dd>{won(o.amount_krw)}</dd><dt>확인된 입금</dt><dd>{won(o.received_krw)}</dd></dl>
+    <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm"><dt>신청일</dt><dd>{new Date(o.created_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</dd><dt>일시·장소</dt><dd><CourseMeetingDetails startsAt={o.starts_at} endsAt={o.ends_at} location={o.location} courseId={o.legacy_course_id}/></dd><dt>수강료</dt><dd>{won(o.amount_krw)}</dd><dt>확인된 입금</dt><dd>{won(o.received_krw)}</dd></dl>
     {canPay(o)&&<div className="mt-5 space-y-3 border-t pt-4"><p className="font-semibold">남은 납부 금액 {won(o.due_krw)}</p><BankTransferNotice guest/>{o.payment_guide&&<p className="whitespace-pre-wrap text-sm text-slate-600">{o.payment_guide}</p>}</div>}
     <p className="mt-4 text-sm text-slate-500">신청 변경·취소나 입금 확인은 접수번호로 <a className="text-indigo-600 underline" href="tel:01089523667">담당자에게 문의</a>해주세요.</p>
    </article>)}{!data.orders.length&&<div className={`${card} text-center`}><h2 className="font-bold">이 이메일로 접수한 비회원 신청이 없습니다.</h2><p className="mt-2 text-sm text-slate-500">다른 이메일로 신청했다면 해당 이메일로 다시 인증해주세요. 로그인 후 신청한 내역은 회원 신청·결제 목록에서 확인할 수 있습니다.</p></div>}</section>

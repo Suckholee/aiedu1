@@ -1,5 +1,7 @@
 import {z} from 'zod';
 import {cookies} from 'next/headers';
+import {readCatalog} from '@/lib/lms/catalog';
+import type {BillingOrder} from '@/lib/lms/checkout-types';
 import {requireSameOrigin,lmsResponse,lmsFailure,LmsError} from '@/lib/lms/access';
 import {guestCookie,sendGuestCode,verifyGuestCode,guestSessionCommand} from '@/lib/lms/guest-lookup';
 export const runtime='nodejs';
@@ -7,7 +9,7 @@ const command=z.discriminatedUnion('action',[
  z.object({action:z.literal('request'),email:z.string().trim().max(254).pipe(z.email()).transform(v=>v.toLowerCase())}),
  z.object({action:z.literal('verify'),challengeId:z.uuid(),code:z.string().regex(/^\d{6}$/)})
 ]);
-export async function GET(){try{return lmsResponse(await guestSessionCommand('list'));}catch(e){return lmsFailure(e);}}
+export async function GET(){try{const data=await guestSessionCommand('list');const catalog=await readCatalog();return lmsResponse({...data,orders:(data.orders as BillingOrder[]).map(o=>{const h=catalog.cohorts.find(h=>h.id===o.cohort_id);return {...o,ends_at:h?.ends_at??null,legacy_course_id:h?.legacy_course_id??null};})});}catch(e){return lmsFailure(e);}}
 export async function POST(request:Request){
  try{
   requireSameOrigin(request);const c=command.parse(await request.json());
