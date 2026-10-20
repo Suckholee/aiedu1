@@ -103,7 +103,7 @@ export function SeatHoldCheckoutModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isProcessing) return;
-    if(!lmsMember){setLogin(true);return;}
+    if(!lmsMember){onOpenChange(false);router.push(`/apply?course=${encodeURIComponent(courseId)}`);return;}
 
     if (!name.trim()) {
       toast.error('신청자 성함을 입력해주세요.');
@@ -283,7 +283,7 @@ export function SeatHoldCheckoutModal({
             </div>
           ) : (
             /* VIEW B: APPLICATION & PAYMENT FORM */
-            <form onSubmit={handleSubmit} className="space-y-6">{!lmsMember&&<div className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-900">신청 전에 로그인해주세요.<button type="button" className="ml-3 font-bold underline" onClick={()=>setLogin(true)}>카카오·구글 로그인</button></div>}
+            <form onSubmit={handleSubmit} className="space-y-6">{!lmsMember&&<div className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-900">회원가입 없이 신청할 수 있습니다.<button type="button" className="ml-3 font-bold underline" onClick={()=>{onOpenChange(false);router.push(`/apply?course=${encodeURIComponent(courseId)}`);}}>비회원 수강신청</button></div>}
               {/* Selected Course Summary Banner */}
               <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                 <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-xs">

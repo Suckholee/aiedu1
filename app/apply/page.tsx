@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { ReferralCodeField } from '@/components/auth/ReferralCodeField';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { BankTransferNotice } from '@/components/course/BankTransferNotice';
 import { BANK_TRANSFER_PAYMENT_METHOD } from '@/lib/lms/payment-channel';
 import { RefundPolicyNotice } from '@/components/course/RefundPolicyNotice';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
   CheckCircle2,
   Calendar,
@@ -26,7 +26,7 @@ import { PLATFORM_BUILDING_WORKSHOP as workshop } from '@/lib/platform-building-
 
 
 function ApplyContent() {
-  const router = useRouter();
+  const guestRequestId = useRef<string | null>(null);
   const {lmsMember,lmsLoading}=useAuth();
   const [login,setLogin]=useState(false);
   const searchParams = useSearchParams();
@@ -92,7 +92,6 @@ function ApplyContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isProcessing||!currentCourse) return;
-    if(!lmsMember){setLogin(true);return;}
 
     if (!name.trim()) {
       toast.error('신청자 성함을 입력해주세요.');
@@ -114,6 +113,16 @@ function ApplyContent() {
     setIsProcessing(true);
 
     try {
+      if (!lmsMember) {
+        guestRequestId.current ??= crypto.randomUUID();
+        const response = await fetch('/api/lms/guest-application', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId:guestRequestId.current,courseId:currentCourse.id,name,email,phone,company,notes,referralCode,agreePrivacy,agreeRefund})});
+        const receipt = await response.json();
+        if (!response.ok) throw Error(receipt.error);
+        setCompletedOrder({...receipt,appliedAt:new Date(receipt.appliedAt).toLocaleString('ko-KR')});
+        toast.success('비회원 수강 신청이 접수되었습니다. 접수 확인서를 저장해주세요.');
+        window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
       const accepted = await mutate({ action: 'enroll', courseId: currentCourse.id, name, email, phone, company, notes, referralCode, paymentMethod: BANK_TRANSFER_PAYMENT_METHOD });
 
       // Display the order created in the same transaction as the application.
@@ -223,7 +232,7 @@ function ApplyContent() {
         </div>
 
         {/* Application and payment have separate statuses. */}
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">신청 접수와 결제 완료는 구분됩니다. 주문 상세에서 현재 결제 상태를 확인해주세요.</div>
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">{lmsMember ? "신청 접수와 결제 완료는 구분됩니다. 주문 상세에서 현재 결제 상태를 확인해주세요." : "비회원 신청이 접수되었습니다. 접수번호와 확인서를 저장해주세요. 담당자가 입력한 연락처로 수강 및 납부 안내를 드립니다. 회원 가입만으로 이 신청이 자동 연결되지는 않습니다."}</div>{!lmsMember && <BankTransferNotice guest />}
 
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-4">
           <button
@@ -234,13 +243,13 @@ function ApplyContent() {
             <Printer className="size-4" />
             <span>접수 확인서 인쇄</span>
           </button>
-          <Link
+          {lmsMember && <Link
             href={completedOrder?`/checkout/${completedOrder.id}`:"/my-applications"}
             className="w-full sm:flex-1 flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3.5 text-sm font-bold text-white hover:bg-indigo-700 shadow-md shadow-indigo-200 transition"
           >
             <span>결제 안내·신청 내역 확인</span>
             <ChevronRight className="size-4" />
-          </Link>
+          </Link>}
         </div>
       </div>
     );
@@ -248,7 +257,7 @@ function ApplyContent() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 space-y-8 text-left">
-      <AuthModal open={login} onOpenChange={setLogin}/>{!lmsMember&&<div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">신청 전에 카카오·구글 계정으로 로그인해주세요. 신청 목록은 로그인한 계정에 저장됩니다.<button type="button" className="ml-3 font-bold underline" onClick={()=>setLogin(true)}>로그인</button></div>}
+      <AuthModal open={login} onOpenChange={setLogin}/>{!lmsMember&&<div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">회원가입 없이 아래 정보를 입력해 신청할 수 있습니다. 회원은 로그인하면 신청 내역이 계정에 저장됩니다.<button type="button" className="ml-3 font-bold underline" onClick={()=>setLogin(true)}>로그인</button></div>}
       {/* Top Header */}
       <div>
         <Link
@@ -436,7 +445,7 @@ function ApplyContent() {
             <button
               type="submit"
               disabled={
-                isProcessing || lmsLoading || !lmsMember ||
+                isProcessing || lmsLoading ||
                 !name.trim() ||
                 !email.trim() ||
                 phone.length < 8 ||
@@ -505,7 +514,7 @@ function ApplyContent() {
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <Check className="size-4 text-emerald-600" />
-              <span>내 신청·결제 목록에서 접수 상태 확인</span>
+              <span>{lmsMember ? "내 신청·결제 목록에서 접수 상태 확인" : "접수 확인서 저장 및 담당자 안내"}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <Check className="size-4 text-emerald-600" />

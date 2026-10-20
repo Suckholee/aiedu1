@@ -60,7 +60,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
   const faqs = [
     ['AI를 전혀 몰라도 들을 수 있나요?', '네. AI를 처음 활용하는 분을 기준으로, 화면을 함께 보며 따라 하는 방식으로 진행합니다.'],
     ['준비물이 있나요?', '인터넷 연결이 가능한 개인 노트북과 Claude Pro 계정을 준비해주세요. Mac과 Windows 모두 크롬 브라우저에서 실습할 수 있습니다.'],
-    ['수강신청은 어떻게 하나요?', '수강 신청하기를 누르고 카카오톡 또는 Google 계정으로 로그인한 뒤 신청서를 작성해주세요. 신청 접수와 최종 수강 승인은 별도로 처리됩니다.'],
+    ['수강신청은 어떻게 하나요?', '수강 신청하기를 누르고 회원가입 없이 이름·연락처·이메일을 입력해 신청할 수 있습니다. 비회원은 접수 확인서를 저장해주세요. 신청 접수와 최종 수강 승인은 별도로 처리됩니다.'],
     ['신청과 결제 내역은 어디에서 확인하나요?', '로그인한 계정의 ‘내 신청·결제 목록’에서 신청 내용, 주문별 납부 안내와 처리 상태를 확인할 수 있습니다.'],
   ];
   const applyLink = (label: string, className: string) => applicationOpen
@@ -244,7 +244,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
       <section className="bg-slate-50 py-12 text-slate-900 sm:py-16 md:snap-start">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 sm:px-8 lg:grid-cols-2">
           <div><p className="text-xs font-black tracking-wider text-violet-600">FAQ</p><h2 className="mt-3 text-3xl font-black">자주 묻는 질문</h2><div className="mt-6 space-y-3">{faqs.map(([question, answer]) => <details key={question} className="group rounded-2xl border border-slate-200 bg-white p-5"><summary className="cursor-pointer font-bold text-sm">{question}</summary><p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-7 text-slate-600">{answer}</p></details>)}</div></div>
-          <div className="rounded-[2rem] bg-violet-100 p-6 sm:p-9"><p className="text-xs font-black tracking-wider text-violet-600">APPLICATION GUIDE</p><h2 className="mt-3 text-3xl font-black">신청 및 수강 안내</h2><div className="mt-6 space-y-5 text-sm leading-7 text-slate-700"><p><strong>수강신청</strong><br/>카카오톡 또는 Google 계정으로 로그인한 뒤 신청서를 작성해주세요. 신청과 결제 상태는 같은 계정의 ‘내 신청·결제 목록’에 저장됩니다.</p><p><strong>신청 확정</strong><br/>신청 접수와 수강 승인은 별도로 처리합니다. 신청 후 주문별 납부 안내와 처리 상태를 확인해주세요.</p><p><strong>강의 제공</strong><br/>안내된 일시·장소에서 오프라인으로 진행하며 실물 배송과 배송비는 없습니다. 강의 자료는 수강 승인 후 과정별 게시 일정과 권한에 따라 이용할 수 있습니다. <Link href="/service-policy" className="font-semibold text-violet-700 underline">강의 제공 안내</Link></p><p><strong>취소·환불</strong><br/>개강 전 실제 결제금액 전액 환불 등 <Link href="/refund-policy" className="font-semibold text-violet-700 underline">취소·환불 정책</Link>을 확인해주세요.</p><Link href="/my-applications" className="inline-flex items-center gap-2 font-bold text-violet-700 underline">내 신청·결제 목록 확인<ArrowRight className="size-4"/></Link></div></div>
+          <div className="rounded-[2rem] bg-violet-100 p-6 sm:p-9"><p className="text-xs font-black tracking-wider text-violet-600">APPLICATION GUIDE</p><h2 className="mt-3 text-3xl font-black">신청 및 수강 안내</h2><div className="mt-6 space-y-5 text-sm leading-7 text-slate-700"><p><strong>수강신청</strong><br/>회원가입 없이 이름·연락처·이메일을 입력해 신청할 수 있습니다. 비회원은 접수 확인서를 저장해주세요. 로그인 후 신청하면 신청과 결제 상태는 같은 계정의 ‘내 신청·결제 목록’에 저장됩니다.</p><p><strong>신청 확정</strong><br/>신청 접수와 수강 승인은 별도로 처리합니다. 신청 후 주문별 납부 안내와 처리 상태를 확인해주세요.</p><p><strong>강의 제공</strong><br/>안내된 일시·장소에서 오프라인으로 진행하며 실물 배송과 배송비는 없습니다. 강의 자료는 수강 승인 후 과정별 게시 일정과 권한에 따라 이용할 수 있습니다. <Link href="/service-policy" className="font-semibold text-violet-700 underline">강의 제공 안내</Link></p><p><strong>취소·환불</strong><br/>개강 전 실제 결제금액 전액 환불 등 <Link href="/refund-policy" className="font-semibold text-violet-700 underline">취소·환불 정책</Link>을 확인해주세요.</p><Link href="/my-applications" className="inline-flex items-center gap-2 font-bold text-violet-700 underline">내 신청·결제 목록 확인<ArrowRight className="size-4"/></Link></div></div>
         </div>
       </section>
 

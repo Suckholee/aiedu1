@@ -4,7 +4,7 @@ import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { BANK_TRANSFER_ACCOUNT } from '@/lib/lms/payment-channel';
 
-export function BankTransferNotice({ forOrder = false }: { forOrder?: boolean }) {
+export function BankTransferNotice({ forOrder = false, guest = false }: { forOrder?: boolean; guest?: boolean }) {
   const account = BANK_TRANSFER_ACCOUNT;
 
   async function copyAccount() {
@@ -34,7 +34,7 @@ export function BankTransferNotice({ forOrder = false }: { forOrder?: boolean })
         <dd className="font-semibold">{account.holder}</dd>
       </dl>
       <p className="leading-relaxed text-slate-600">
-        {forOrder
+        {guest ? '접수 확인서의 수강료를 신청자 이름으로 입금해주세요. 대기·취소된 신청은 입금하지 마세요. 입금 후 담당자에게 접수번호와 입금자명을 알려주세요.' : forOrder
           ? '위의 남은 납부 금액을 신청자 이름으로 입금한 뒤, 아래에서 입금 확인을 요청해주세요.'
           : '먼저 수강신청을 접수한 뒤 주문 상세에서 납부 가능 여부와 금액을 확인하고, 신청자 이름으로 입금해주세요. 대기·취소된 신청은 입금하지 마세요.'}
       </p>
