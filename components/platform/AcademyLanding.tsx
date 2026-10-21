@@ -7,7 +7,6 @@ import { ArrowDown, ArrowUpRight, Check, Plus } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
 import styles from './AcademyLanding.module.css';
 import {ShortsShowcase} from '@/components/shorts/ShortsShowcase';
-import { PLATFORM_BUILDING_WORKSHOP as workshop } from '@/lib/platform-building-workshop';
 import { BlogTeaser } from '@/components/brand-blog/BlogTeaser';
 import { BusinessInfo } from '@/components/layout/BusinessInfo';
 
@@ -32,7 +31,7 @@ const questions = [
 
 export function AcademyLanding() {
   const { data, ready, error, refresh } = usePlatform();
-  const courses = data.courses.filter(course => course.published).slice(0, 3);
+  const courses = data.courses.filter(course => course.published && course.enrollmentOpen !== false && course.id === WORK_AUTOMATION_COURSE_ID);
   const posts = data.promotionPosts.filter(post => post.status === '게시 완료')
     .sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`)).slice(0, 3);
 
@@ -63,8 +62,7 @@ export function AcademyLanding() {
       </article>)}</div>
       <p className={styles.programImageNote}>실제 강사진의 사진과 교육 내용을 바탕으로 AI로 재구성한 강의 장면입니다.</p>
       <div className={styles.enrollmentHeading}><h3>지금 만날 수 있는 교육과정</h3><Link href="/courses" className={styles.textLink}>전체 교육과정 <ArrowUpRight size={16}/></Link></div>
-      {!ready || error ? <div className={styles.empty} role="status"><p>{error ? '교육과정 정보를 불러오지 못했습니다.' : '모집 일정을 확인하고 있습니다.'}</p>{error && <button onClick={() => void refresh()} className={styles.textLink}>다시 확인하기 <ArrowUpRight size={16}/></button>}</div> : courses.length ? <div className={styles.courseList}>{courses.filter(course => course.id !== workshop.slug).map(course => <Link key={course.id} href={`/courses/${course.id}`} className={styles.courseRow}><span>{course.category}</span><h4>{course.title}</h4><span>{course.startDate} · {course.startTime}</span><ArrowUpRight size={20}/></Link>)}</div> : <div className={styles.empty}><div><strong>다음 교육과정을 준비하고 있습니다.</strong><p>새로운 모집 소식은 교육과정과 일정에서 확인해주세요.</p></div><Link href="/calendar" className={styles.textLink}>일정 확인하기 <ArrowUpRight size={17}/></Link></div>}
-      <div className={styles.courseList}><Link href={workshop.href} className={styles.courseRow}><span>2회 · 총 8시간</span><h4>{workshop.title}</h4><span>{workshop.schedule} · {workshop.price.toLocaleString()}원</span><ArrowUpRight size={20}/></Link></div>
+      {!ready || error ? <div className={styles.empty} role="status"><p>{error ? '교육과정 정보를 불러오지 못했습니다.' : '모집 일정을 확인하고 있습니다.'}</p>{error && <button onClick={() => void refresh()} className={styles.textLink}>다시 확인하기 <ArrowUpRight size={16}/></button>}</div> : courses.length ? <div className={styles.courseList}>{courses.map(course => <Link key={course.id} href={`/courses/${course.id}`} className={styles.courseRow}><span>{course.category}</span><h4>{course.title}</h4><span>{course.startDate} · 세팅 코칭 13~14시 · 본 강의 14~17시</span><ArrowUpRight size={20}/></Link>)}</div> : <div className={styles.empty}><div><strong>다음 교육과정을 준비하고 있습니다.</strong><p>새로운 모집 소식은 교육과정과 일정에서 확인해주세요.</p></div><Link href="/calendar" className={styles.textLink}>일정 확인하기 <ArrowUpRight size={17}/></Link></div>}
     </section>
 
     <BlogTeaser/>
@@ -86,13 +84,12 @@ export function AcademyLanding() {
 
     <section id="content-calendar" className={`${styles.section} ${styles.updates}`} aria-labelledby="updates-title"><div className={styles.sectionHeading}><div><p className={styles.kicker}>/ NEWS &amp; CALENDAR /</p><h2 id="updates-title">우리의 다음 이야기가<br/>시작되는 날짜.</h2></div><Link href="/calendar" className={styles.textLink}>전체 일정 보기 <ArrowUpRight size={17}/></Link></div>
       {courses.filter(course => course.enrollmentOpen && course.startDate).map(course => <Link key={course.id} href={`/courses/${encodeURIComponent(course.id)}`} className={styles.newsRow}><time dateTime={course.startDate}>{course.startDate.replaceAll('-', '.')}</time><span>{course.remainingSeats > 0 ? '수강생 모집' : '정원 마감'}</span><div><h3>{course.title}</h3><p>{course.id === WORK_AUTOMATION_COURSE_ID ? '세팅 코칭 13:00~14:00 · 본 강의 14:00~17:00' : `${course.startTime} ~ ${course.endTime}`} · {course.location} · ₩{course.price.toLocaleString()}</p></div><ArrowUpRight size={20}/></Link>)}
-      {workshop.sessions.map((session,index)=><Link key={session.date} href={workshop.href} className={styles.newsRow}><time dateTime={session.date}>{session.date.replaceAll('-', '.')}</time><span>교육 예정 · {index+1}회차</span><div><h3>{workshop.title}</h3><p>{session.title} · {workshop.location} · 14:00~18:00</p></div><ArrowUpRight size={20}/></Link>)}
       {posts.length ? <div className={styles.newsList}>{posts.map(post => <Link key={post.id} href="/calendar" className={styles.newsRow}><time dateTime={post.date}>{post.date.replaceAll('-', '.')}</time><span>{post.channel}</span><h3>{post.title}</h3><ArrowUpRight size={20}/></Link>)}</div> : <p className={styles.newsEmpty}>{!ready ? '새로운 소식을 확인하고 있습니다.' : data.sync?.legacy === 'unavailable' || error ? '소식을 불러오지 못했습니다. 잠시 후 다시 확인해주세요.' : '새로운 교육 소식을 준비하고 있습니다. 전체 일정에서 다음 만남을 확인해주세요.'}</p>}
     </section>
 
     <section id="faq" className={`${styles.section} ${styles.faq}`} aria-labelledby="faq-title"><div><p className={styles.kicker}>/ BEFORE YOUR FIRST CLASS /</p><h2 id="faq-title">궁금한 이야기를<br/>먼저 만나보세요.</h2></div><div className={styles.questions}>{questions.map(([question,answer]) => <details key={question}><summary>{question}<Plus size={19}/></summary><p>{answer}</p></details>)}</div></section>
     <section className={styles.closing}><p className={styles.kicker}>/ YOUR NEXT CHAPTER /</p><h2>이제, 당신의<br/>가능성을 펼칠 차례.</h2><Link href="/courses" className={styles.outlineButton}>나의 다음 배움 찾아보기 <ArrowUpRight size={19}/></Link></section>
     <footer className={styles.footer}><div><Link href="/" className={styles.footerBrand}>네오앤피터 <span>에듀플랫폼</span><small>NEO &amp; PETER · EDUCATION</small></Link><p>배움에서 실천까지. 우리의 가능성이 자라는 곳.</p></div><nav aria-label="하단 메뉴"><Link href="/education">플랫폼 소개</Link><Link href="/courses">교육과정</Link><Link href="/blog">Blog</Link><Link href="/calendar">일정</Link><Link href="/my-applications">내 신청·결제 목록</Link><Link href="/refund-policy">취소·환불 정책</Link><Link href="/service-policy">강의 제공 안내</Link></nav><p className={styles.copyright}>어니스톤 · neoNpeter<br/>© {new Date().getFullYear()} NEO &amp; PETER. All rights reserved.</p><BusinessInfo className={styles.businessInfo}/></footer>
-    <Link href="/courses" className={styles.floatingCta}><span>NEO &amp; PETER</span><strong>교육과정 · 수강신청</strong><span className={styles.floatingPlus}><Plus size={24}/></span></Link>
+    <Link href={`/apply?course=${WORK_AUTOMATION_COURSE_ID}`} className={styles.floatingCta}><span>NEO &amp; PETER</span><strong>10월 27일 강의 신청</strong><span className={styles.floatingPlus}><Plus size={24}/></span></Link>
   </div>;
 }
