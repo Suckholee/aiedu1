@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import {WORK_AUTOMATION_COURSE_ID} from '@/lib/course-presentation';
 import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Check, Plus } from 'lucide-react';
 import { usePlatform } from '@/contexts/PlatformContext';
@@ -84,7 +85,7 @@ export function AcademyLanding() {
     </div></section>
 
     <section id="content-calendar" className={`${styles.section} ${styles.updates}`} aria-labelledby="updates-title"><div className={styles.sectionHeading}><div><p className={styles.kicker}>/ NEWS &amp; CALENDAR /</p><h2 id="updates-title">우리의 다음 이야기가<br/>시작되는 날짜.</h2></div><Link href="/calendar" className={styles.textLink}>전체 일정 보기 <ArrowUpRight size={17}/></Link></div>
-      {courses.filter(course => course.enrollmentOpen && course.startDate).map(course => <Link key={course.id} href={`/courses/${encodeURIComponent(course.id)}`} className={styles.newsRow}><time dateTime={course.startDate}>{course.startDate.replaceAll('-', '.')}</time><span>{course.remainingSeats > 0 ? '수강생 모집' : '정원 마감'}</span><div><h3>{course.title}</h3><p>{course.startTime} ~ {course.endTime} · {course.location} · ₩{course.price.toLocaleString()}</p></div><ArrowUpRight size={20}/></Link>)}
+      {courses.filter(course => course.enrollmentOpen && course.startDate).map(course => <Link key={course.id} href={`/courses/${encodeURIComponent(course.id)}`} className={styles.newsRow}><time dateTime={course.startDate}>{course.startDate.replaceAll('-', '.')}</time><span>{course.remainingSeats > 0 ? '수강생 모집' : '정원 마감'}</span><div><h3>{course.title}</h3><p>{course.id === WORK_AUTOMATION_COURSE_ID ? '세팅 코칭 13:00~14:00 · 본 강의 14:00~17:00' : `${course.startTime} ~ ${course.endTime}`} · {course.location} · ₩{course.price.toLocaleString()}</p></div><ArrowUpRight size={20}/></Link>)}
       {workshop.sessions.map((session,index)=><Link key={session.date} href={workshop.href} className={styles.newsRow}><time dateTime={session.date}>{session.date.replaceAll('-', '.')}</time><span>교육 예정 · {index+1}회차</span><div><h3>{workshop.title}</h3><p>{session.title} · {workshop.location} · 14:00~18:00</p></div><ArrowUpRight size={20}/></Link>)}
       {posts.length ? <div className={styles.newsList}>{posts.map(post => <Link key={post.id} href="/calendar" className={styles.newsRow}><time dateTime={post.date}>{post.date.replaceAll('-', '.')}</time><span>{post.channel}</span><h3>{post.title}</h3><ArrowUpRight size={20}/></Link>)}</div> : <p className={styles.newsEmpty}>{!ready ? '새로운 소식을 확인하고 있습니다.' : data.sync?.legacy === 'unavailable' || error ? '소식을 불러오지 못했습니다. 잠시 후 다시 확인해주세요.' : '새로운 교육 소식을 준비하고 있습니다. 전체 일정에서 다음 만남을 확인해주세요.'}</p>}
     </section>
