@@ -14,6 +14,8 @@ export async function allRows(table:string,columns='*',filter?:{column:string;va
  const client=createAdminClient();const rows:any[]=[];
  for(let offset=0;;offset+=500){
   let query=client.from(table).select(columns).order(table==='lms_attendance'||table==='lms_lesson_progress'?'enrollment_id':'id');
+  if(table==='lms_enrollments')query=query.eq('archived',false);
+  if(table==='lms_orders')query=query.not('application_details','cs','{"archived_dummy":true}');
   if(table==='lms_attendance')query=query.order('session_id');
   if(table==='lms_lesson_progress')query=query.order('lesson_id');
   if(filter)query=Array.isArray(filter.value)?query.in(filter.column,filter.value):query.eq(filter.column,filter.value);
