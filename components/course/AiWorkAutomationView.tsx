@@ -59,7 +59,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
   const applicationOpen = course.enrollmentOpen !== false && course.remainingSeats > 0;
   const applyUrl = `/apply?course=${encodeURIComponent(course.id)}`;
   const faqs = [
-    ['AI를 전혀 몰라도 들을 수 있나요?', '네. 완전 입문자는 17시까지 와주세요. 17시부터 18시까지 필요한 프로그램 설치와 실습 환경 설정을 도와드리며, 본 강의는 18시부터 21시까지 진행합니다.'],
+    ['AI를 전혀 몰라도 들을 수 있나요?', '네. 완전 입문자는 13시까지 와주세요. 13시부터 14시까지 필요한 프로그램 설치와 실습 환경 설정을 도와드리며, 본 강의는 14시부터 13시까지 진행합니다.'],
     ['준비물이 있나요?', '인터넷 연결이 가능한 개인 노트북과 Claude Pro 계정을 준비해주세요. Mac과 Windows 모두 크롬 브라우저에서 실습할 수 있습니다.'],
     ['수강신청은 어떻게 하나요?', '수강 신청하기를 누르고 회원가입 없이 이름·연락처·이메일을 입력해 신청할 수 있습니다. 비회원은 접수 확인서를 저장하고 ‘비회원 신청 조회’에서 이메일 인증 후 내역을 다시 확인할 수 있습니다. 신청 접수와 최종 수강 승인은 별도로 처리됩니다.'],
     ['신청과 결제 내역은 어디에서 확인하나요?', '회원은 ‘내 신청·결제 목록’, 비회원은 ‘비회원 신청 조회’에서 이메일 인증 후 신청 내용과 납부 안내, 처리 상태를 확인할 수 있습니다.'],
@@ -86,11 +86,11 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
           <p className="mb-4 text-xs font-bold tracking-wider text-violet-200 sm:text-sm">HONESTONE &amp; NEONPETER</p>
           <h1 id="promotion-title" className="text-balance text-4xl font-black leading-[1.15] tracking-tight text-white sm:text-6xl lg:text-7xl">AI 업무자동화</h1>
           <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-white sm:text-2xl">AI를 업무에 활용하고 싶은데<br/><strong className="font-extrabold text-fuchsia-200">무엇부터 해야 할지 막막한</strong> 당신에게.</p>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-violet-100/85 sm:text-base">익히기만 하는 AI가 아니라, 내 업무 시간을 실제로 줄여주는 도구로 만듭니다. 17시부터 입문자를 위한 설치를 돕고, 18시부터 21시까지 문서·블로그·숏폼 콘텐츠 자동화를 실습합니다.</p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-violet-100/85 sm:text-base">익히기만 하는 AI가 아니라, 내 업무 시간을 실제로 줄여주는 도구로 만듭니다. 13시부터 입문자를 위한 설치를 돕고, 14시부터 13시까지 문서·블로그·숏폼 콘텐츠 자동화를 실습합니다.</p>
           <div className="mt-8 grid max-w-xl grid-cols-2 gap-3">
             {[
               ['강의 일시', date],
-              ['강의 시간', '18:00–21:00 (설치 지원 17:00–18:00)'],
+              ['강의 시간', '14:00–17:00 (세팅 코칭 13:00–14:00)'],
               ['강의 장소', course.location || '장소 안내 예정'],
               ['수강료', price],
             ].map(([label, value]) => <div key={label} className="rounded-2xl border border-white/15 bg-white/10 p-4"><p className="text-xs text-violet-200">{label}</p><p className="mt-1 text-sm font-bold text-white">{value}</p></div>)}
@@ -107,13 +107,13 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
               ['03', '박재범 대표', '아이디어가 숏폼 영상으로', '/instructors/park-jaebeom.jpg', 'center 28%'],
             ].map(([number, name, title, image, position]) => <div key={number} className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-3"><div className="relative size-16 shrink-0 overflow-hidden rounded-xl"><Image src={image} alt={name} fill sizes="64px" style={{objectPosition: position}} className="object-cover" /></div><div><p className="text-xs font-bold text-fuchsia-200">{number} · {name}</p><p className="mt-1 text-sm font-bold text-white sm:text-base">{title}</p></div></div>)}
           </div>
-          <p className="mt-7 border-t border-white/20 pt-5 text-sm font-semibold text-violet-100">어니스톤 × 네오앤피터 · 설치 지원 1시간 + 본 강의 3시간</p>
+          <p className="mt-7 border-t border-white/20 pt-5 text-sm font-semibold text-violet-100">어니스톤 × 네오앤피터 · 세팅 코칭 1시간 + 본 강의 3시간</p>
         </div>
       </section>
 
       <section aria-label="10월 27일 강의 포스터" className="w-full bg-orange-50 px-5 py-12 sm:px-8 md:snap-start">
         <div className="mx-auto max-w-5xl">
-          <Image src="/posters/ai-work-automation-oct27.png" alt="AI를 활용한 업무자동화 강의. 10월 27일 화요일 본 강의 18시~21시, 판교 위든타워 3층, 수강료 15만원" width={2245} height={1587} sizes="(max-width: 1024px) 100vw, 1024px" className="h-auto w-full rounded-2xl"/>
+          <Image src="/posters/ai-work-automation-oct27-afternoon.png" alt="AI를 활용한 업무자동화 강의. 10월 27일 화요일 본 강의 14시~17시, 판교 위든타워 3층, 수강료 15만원" width={1491} height={1055} sizes="(max-width: 1024px) 100vw, 1024px" className="h-auto w-full rounded-2xl"/>
           <div className="mt-5"><WorkAutomationSchedule courseId={course.id}/></div>
         </div>
       </section>
@@ -214,7 +214,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
           <div className="text-center">
             <p className="text-xs sm:text-sm font-black tracking-wider text-violet-600 uppercase">PROGRAM</p>
             <h2 className="mt-3 text-2xl sm:text-5xl font-black tracking-tight text-slate-900 break-keep">커리큘럼</h2>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 break-keep">실습 위주로 단계별 진행되는 3시간 본 강의와 1시간 설치 지원 과정입니다.</p>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-600 break-keep">실습 위주로 단계별 진행되는 3시간 본 강의와 1시간 세팅 코칭 과정입니다.</p>
           </div>
           <div className="mt-8 sm:mt-10 space-y-3">
             {timeline.map(([title, description], index) => (
@@ -239,7 +239,7 @@ export function AiWorkAutomationView({ course }: { course: PlatformCourse }) {
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
               [CalendarDays, '강의 일시', date],
-              [Clock3, '강의 시간', '18:00–21:00 (설치 지원 17:00–18:00)'],
+              [Clock3, '강의 시간', '14:00–17:00 (세팅 코칭 13:00–14:00)'],
               [MapPin, '강의 장소', course.location || '장소 안내 예정'],
               [Sparkles, '수강료', price],
             ].map(([Icon, label, value]) => { const InfoIcon = Icon as typeof CalendarDays; return <div key={label as string} className="flex items-center gap-4 rounded-2xl border border-slate-200 p-5"><InfoIcon className="size-6 shrink-0 text-violet-600"/><div><p className="text-xs text-slate-500">{label as string}</p><p className="mt-1 font-bold">{value as string}</p></div></div>; })}

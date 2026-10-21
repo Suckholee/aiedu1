@@ -6,7 +6,7 @@ export function smsText(p:SmsPayload){
  const header=p.kind==='application'?'수강신청 접수':'수강료 납부 안내';
  const lines=[`[네오앤피터 ${header}]`,`${p.name}님, ${p.title}${p.kind==='application'?' 신청이 접수되었습니다.':' 수강료 납부 안내드립니다.'}`];
  if(p.starts_at)lines.push(`일정: ${new Date(p.starts_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}`);
- if(p.starts_at&&new Date(p.starts_at).toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})==='2026-10-27'&&p.title.includes('AI 업무자동화'))lines.push('완전 입문자는 17시까지 와주세요. 17:00~18:00 프로그램 설치·실습 환경 설정 지원 / 본 강의 18:00~21:00');
+ if(p.starts_at&&new Date(p.starts_at).toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})==='2026-10-27'&&p.title.includes('AI 업무자동화'))lines.push('완전 입문자는 13시까지 와주세요. 세팅 코칭 13:00~14:00 프로그램 설치·실습 환경 설정 지원 / 본 강의 14:00~17:00');
  if(p.location)lines.push(`장소: ${p.location}`);
  if(p.payable&&Number(p.due)>0)lines.push(`납부금액: ${Number(p.due).toLocaleString('ko-KR')}원`,`${BANK_TRANSFER_ACCOUNT.bank} ${BANK_TRANSFER_ACCOUNT.number} (${BANK_TRANSFER_ACCOUNT.holder})`,'신청자 이름으로 입금해주세요. 이미 입금하셨다면 담당자 확인을 기다려주세요.');
  else lines.push('신청·결제 처리 상태는 아래에서 확인해주세요.');

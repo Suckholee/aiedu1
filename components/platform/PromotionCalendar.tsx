@@ -43,7 +43,7 @@ export function PromotionCalendar() {
     const posts = data.promotionPosts.filter(p => (channel === '전체' || p.channel === channel) && (status === '전체' || p.status === status) && `${p.title} ${p.content} ${p.owner}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
     const monthCourses = showCourses ? data.courses.filter(c => c.published && c.startDate.startsWith(monthKey)).sort((a,b) => `${a.startDate}${a.startTime}`.localeCompare(`${b.startDate}${b.startTime}`)) : [];
     const dayCourses = monthCourses.filter(c => c.startDate === selectedDate);
-    const courseTime = (c: typeof data.courses[number]) => c.id === WORK_AUTOMATION_COURSE_ID ? '설치 지원 17:00~18:00 · 본 강의 18:00~21:00' : `${c.startTime}~${c.endTime}`;
+    const courseTime = (c: typeof data.courses[number]) => c.id === WORK_AUTOMATION_COURSE_ID ? '세팅 코칭 13:00~14:00 · 본 강의 14:00~17:00' : `${c.startTime}~${c.endTime}`;
     const monthPosts = posts.filter(p => p.date.startsWith(monthKey));
     const dayPosts = posts.filter(p => p.date === selectedDate);
     const monthDays = Array.from({ length: new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate() }, (_, i) => `${monthKey}-${String(i + 1).padStart(2, '0')}`);
